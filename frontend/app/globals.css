@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #1a365d;
+  --accent: #d4a855;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.font-serif {
+  font-family: Georgia, Cambria, serif;
+}
+
+/* Smooth transitions for dark mode */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Article content styles */
+.article-content h2 {
+  @apply text-2xl font-serif font-bold mt-8 mb-4;
+}
+
+.article-content h3 {
+  @apply text-xl font-serif font-bold mt-6 mb-3;
+}
+
+.article-content p {
+  @apply mb-4 leading-relaxed;
+}
+
+.article-content blockquote {
+  @apply border-l-4 border-accent pl-4 italic my-6 text-slate-600 dark:text-slate-400;
+}
+
+.article-content ul,
+.article-content ol {
+  @apply ml-6 mb-4;
+}
+
+.article-content li {
+  @apply mb-2;
+}
+
