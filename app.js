@@ -8,11 +8,11 @@ const backend = spawn('node', ['dist/index.js'], {
   env: { ...process.env, PORT: '3001' }
 });
 
-// Démarrer le frontend Next.js
-const frontend = spawn('npx', ['next', 'start', '-p', '3000'], {
+// Démarrer le frontend Next.js (mode standalone)
+const frontend = spawn('node', ['.next/standalone/frontend/server.js'], {
   cwd: path.join(__dirname, 'frontend'),
   stdio: 'inherit',
-  shell: true
+  env: { ...process.env, PORT: '3000', HOSTNAME: '0.0.0.0' }
 });
 
 backend.on('error', (err) => console.error('Backend error:', err));
