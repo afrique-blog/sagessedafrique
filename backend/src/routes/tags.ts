@@ -23,7 +23,7 @@ export async function tagRoutes(fastify: FastifyInstance) {
       orderBy: { slug: 'asc' },
     });
 
-    return tags.map(tag => ({
+    return tags.map((tag: any) => ({
       id: tag.id,
       slug: tag.slug,
       name: tag.translations[0]?.name || '',
@@ -62,7 +62,7 @@ export async function tagRoutes(fastify: FastifyInstance) {
       id: tag.id,
       slug: tag.slug,
       name: tag.translations[0]?.name || '',
-      articles: tag.articles.map(at => ({
+      articles: tag.articles.map((at: any) => ({
         id: at.article.id,
         slug: at.article.slug,
         title: at.article.translations[0]?.title || '',

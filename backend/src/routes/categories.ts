@@ -24,7 +24,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
       orderBy: { slug: 'asc' },
     });
 
-    return categories.map(cat => ({
+    return categories.map((cat: any) => ({
       id: cat.id,
       slug: cat.slug,
       name: cat.translations[0]?.name || '',
@@ -62,7 +62,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
       slug: category.slug,
       name: category.translations[0]?.name || '',
       description: category.translations[0]?.description || '',
-      articles: category.articles.map(a => ({
+      articles: category.articles.map((a: any) => ({
         id: a.id,
         slug: a.slug,
         title: a.translations[0]?.title || '',

@@ -25,7 +25,7 @@ export async function dossierRoutes(fastify: FastifyInstance) {
       orderBy: { createdAt: 'desc' },
     });
 
-    return dossiers.map(d => ({
+    return dossiers.map((d: any) => ({
       id: d.id,
       slug: d.slug,
       heroImage: d.heroImage,
@@ -68,7 +68,7 @@ export async function dossierRoutes(fastify: FastifyInstance) {
       heroImage: dossier.heroImage,
       title: dossier.translations[0]?.title || '',
       description: dossier.translations[0]?.description || '',
-      articles: dossier.articles.map(ad => ({
+      articles: dossier.articles.map((ad: any) => ({
         id: ad.article.id,
         slug: ad.article.slug,
         title: ad.article.translations[0]?.title || '',
