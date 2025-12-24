@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context';
 import { t } from '@/lib/i18n';
@@ -43,13 +44,15 @@ const Header: React.FC<HeaderProps> = ({ categories = [] }) => {
     <header className="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex flex-col group">
-          <span className="text-2xl font-serif font-bold tracking-tight text-primary dark:text-accent group-hover:opacity-80">
-            Sagesse d&apos;Afrique
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 font-medium">
-            Par Malick Diarra
-          </span>
+        <Link href="/" className="group">
+          <Image 
+            src="/logo-sagesse-small.png" 
+            alt="Sagesse d'Afrique" 
+            width={180} 
+            height={60} 
+            className="h-12 w-auto group-hover:opacity-80 transition-opacity"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}
@@ -147,4 +150,5 @@ const Header: React.FC<HeaderProps> = ({ categories = [] }) => {
 };
 
 export default Header;
+
 

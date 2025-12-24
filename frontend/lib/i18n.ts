@@ -103,3 +103,4 @@ export function t(key: keyof typeof translations['fr'], lang: Language): string 
   return translations[lang][key] || key;
 }
 
+

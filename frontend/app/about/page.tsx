@@ -19,21 +19,19 @@ export default function AboutPage() {
     <div className="min-h-screen flex flex-col">
       <Header categories={categories} />
       <main className="flex-grow">
-        {/* Hero */}
         <section className="bg-primary text-white py-20">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">
-              {lang === 'fr' ? 'À Propos' : 'About'}
+              {lang === 'fr' ? 'A Propos' : 'About'}
             </h1>
             <p className="text-white/80 max-w-2xl mx-auto text-lg">
               {lang === 'fr' 
-                ? "Découvrez la vision et la mission de Sagesse d'Afrique"
-                : "Discover the vision and mission of Sagesse d'Afrique"}
+                ? "Decouvrez la vision et la mission de Sagesse d Afrique"
+                : "Discover the vision and mission of Sagesse d Afrique"}
             </p>
           </div>
         </section>
 
-        {/* Content */}
         <section className="container mx-auto px-4 py-16">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row gap-12 items-start mb-16">
@@ -41,7 +39,7 @@ export default function AboutPage() {
                 <div className="sticky top-24">
                   <div className="w-full aspect-square rounded-2xl overflow-hidden relative mb-4">
                     <Image 
-                      src="https://picsum.photos/id/64/400/400" 
+                      src="/malick-diarra.png" 
                       alt="Malick Diarra"
                       fill
                       className="object-cover"
@@ -49,7 +47,7 @@ export default function AboutPage() {
                   </div>
                   <h3 className="text-xl font-serif font-bold text-center">Malick Diarra</h3>
                   <p className="text-center text-slate-500 text-sm">
-                    {lang === 'fr' ? 'Fondateur & Rédacteur en chef' : 'Founder & Editor-in-Chief'}
+                    {lang === 'fr' ? 'Fondateur et Redacteur en chef' : 'Founder and Editor-in-Chief'}
                   </p>
                 </div>
               </div>
@@ -59,18 +57,18 @@ export default function AboutPage() {
                 </h2>
                 <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
                   {lang === 'fr' 
-                    ? "Sagesse d'Afrique est né d'une conviction profonde : l'histoire et les savoirs africains méritent d'être célébrés, étudiés et transmis avec la rigueur et le respect qu'ils commandent."
-                    : "Sagesse d'Afrique was born from a deep conviction: African history and knowledge deserve to be celebrated, studied and transmitted with the rigor and respect they command."}
+                    ? "Sagesse d Afrique est ne d une conviction profonde : l histoire et les savoirs africains meritent d etre celebres, etudies et transmis avec la rigueur et le respect qu ils commandent."
+                    : "Sagesse d Afrique was born from a deep conviction: African history and knowledge deserve to be celebrated, studied and transmitted with the rigor and respect they command."}
                 </p>
                 <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
                   {lang === 'fr'
-                    ? "À travers nos articles, dossiers et analyses, nous explorons le génie des civilisations africaines, des pyramides de l'Égypte ancienne aux universités de Tombouctou, des traditions orales aux innovations contemporaines."
-                    : "Through our articles, reports and analyses, we explore the genius of African civilizations, from the pyramids of ancient Egypt to the universities of Timbuktu, from oral traditions to contemporary innovations."}
+                    ? "A travers nos articles, dossiers et analyses, nous explorons le genie des civilisations africaines, des pyramides de l Egypte ancienne aux universites de Tombouctou."
+                    : "Through our articles, reports and analyses, we explore the genius of African civilizations, from the pyramids of ancient Egypt to the universities of Timbuktu."}
                 </p>
                 <blockquote className="border-l-4 border-accent pl-6 py-2 italic text-xl">
                   {lang === 'fr'
-                    ? "« L'humanité a un futur parce qu'elle a un passé à partager. »"
-                    : ""Humanity has a future because it has a past to share.""}
+                    ? "L humanite a un futur parce qu elle a un passe a partager."
+                    : "Humanity has a future because it has a past to share."}
                 </blockquote>
                 <h2 className="text-3xl font-serif font-bold pt-8">
                   {lang === 'fr' ? 'Notre Approche' : 'Our Approach'}
@@ -82,7 +80,7 @@ export default function AboutPage() {
                       <h4 className="font-bold mb-1">{lang === 'fr' ? 'Rigueur Historique' : 'Historical Rigor'}</h4>
                       <p className="text-slate-600 dark:text-slate-400">
                         {lang === 'fr'
-                          ? 'Chaque article est basé sur des sources vérifiées et des recherches approfondies.'
+                          ? 'Chaque article est base sur des sources verifiees et des recherches approfondies.'
                           : 'Each article is based on verified sources and in-depth research.'}
                       </p>
                     </div>
@@ -90,10 +88,10 @@ export default function AboutPage() {
                   <li className="flex gap-4">
                     <span className="text-accent font-bold text-xl">02</span>
                     <div>
-                      <h4 className="font-bold mb-1">{lang === 'fr' ? 'Accessibilité' : 'Accessibility'}</h4>
+                      <h4 className="font-bold mb-1">{lang === 'fr' ? 'Accessibilite' : 'Accessibility'}</h4>
                       <p className="text-slate-600 dark:text-slate-400">
                         {lang === 'fr'
-                          ? 'Nous rendons l\'histoire africaine accessible à tous, experts comme néophytes.'
+                          ? 'Nous rendons l histoire africaine accessible a tous, experts comme neophytes.'
                           : 'We make African history accessible to everyone, experts and novices alike.'}
                       </p>
                     </div>
@@ -104,7 +102,7 @@ export default function AboutPage() {
                       <h4 className="font-bold mb-1">{lang === 'fr' ? 'Perspective Contemporaine' : 'Contemporary Perspective'}</h4>
                       <p className="text-slate-600 dark:text-slate-400">
                         {lang === 'fr'
-                          ? 'Nous établissons des liens entre le passé et les défis actuels.'
+                          ? 'Nous etablissons des liens entre le passe et les defis actuels.'
                           : 'We establish links between the past and current challenges.'}
                       </p>
                     </div>
@@ -119,4 +117,3 @@ export default function AboutPage() {
     </div>
   );
 }
-

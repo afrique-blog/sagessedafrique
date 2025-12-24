@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useApp } from '@/lib/context';
 import { t } from '@/lib/i18n';
 
@@ -24,7 +25,13 @@ const Footer: React.FC<FooterProps> = ({ categories = [] }) => {
           {/* Brand */}
           <div className="space-y-6">
             <Link href="/" className="inline-block">
-              <span className="text-2xl font-serif font-bold text-white">Sagesse d&apos;Afrique</span>
+              <Image 
+                src="/logo-sagesse-small-footer.png" 
+                alt="Sagesse d'Afrique" 
+                width={160} 
+                height={50} 
+                className="h-10 w-auto"
+              />
             </Link>
             <p className="text-sm leading-relaxed max-w-xs">
               {lang === 'fr' 
@@ -82,4 +89,5 @@ const Footer: React.FC<FooterProps> = ({ categories = [] }) => {
 };
 
 export default Footer;
+
 
