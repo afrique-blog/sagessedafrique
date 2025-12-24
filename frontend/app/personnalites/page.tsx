@@ -62,13 +62,13 @@ export default function PersonnalitesPage() {
                 href={`/personnalites/${cat.slug}`}
                 className="group bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="relative h-48 bg-gradient-to-br from-primary/20 to-accent/20">
+                <div className="relative h-56 bg-slate-100 dark:bg-slate-700">
                   {cat.image ? (
                     <Image
                       src={cat.image}
                       alt={cat.nom}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
