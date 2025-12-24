@@ -40,7 +40,7 @@ export default function DossierPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header categories={categories} />
+        <Header />
         <main className="flex-grow flex items-center justify-center">
           <div className="animate-pulse text-lg">{lang === 'fr' ? 'Chargement...' : 'Loading...'}</div>
         </main>
@@ -52,7 +52,7 @@ export default function DossierPage() {
   if (!dossier) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header categories={categories} />
+        <Header />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-4xl font-serif font-bold mb-4">404</h1>
@@ -69,7 +69,7 @@ export default function DossierPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header categories={categories} />
+      <Header />
       <main className="flex-grow">
         {/* Hero */}
         <div className="relative h-[40vh] min-h-[300px]">

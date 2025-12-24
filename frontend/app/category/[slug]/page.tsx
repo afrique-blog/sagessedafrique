@@ -39,7 +39,7 @@ export default function CategoryPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header categories={categories} />
+        <Header />
         <main className="flex-grow flex items-center justify-center">
           <div className="animate-pulse text-lg">{lang === 'fr' ? 'Chargement...' : 'Loading...'}</div>
         </main>
@@ -51,7 +51,7 @@ export default function CategoryPage() {
   if (!category) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header categories={categories} />
+        <Header />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-4xl font-serif font-bold mb-4">404</h1>
@@ -68,7 +68,7 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header categories={categories} />
+      <Header />
       <main className="flex-grow">
         {/* Hero */}
         <section className="bg-primary text-white py-16">

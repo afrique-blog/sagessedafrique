@@ -17,7 +17,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header categories={categories} />
+      <Header />
       <main className="flex-grow">
         <section className="bg-primary text-white py-20">
           <div className="container mx-auto px-4 text-center">

@@ -25,7 +25,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header categories={categories} />
+      <Header />
       <main className="flex-grow">
         {/* Hero */}
         <section className="bg-primary text-white py-20">

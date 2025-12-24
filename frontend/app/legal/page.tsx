@@ -16,7 +16,7 @@ export default function LegalPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header categories={categories} />
+      <Header />
       <main className="flex-grow">
         {/* Hero */}
         <section className="bg-slate-100 dark:bg-slate-800 py-16">
