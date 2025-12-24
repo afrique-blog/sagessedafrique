@@ -193,21 +193,21 @@ class ApiClient {
   }
 
   // Categories de Personnalites
-  async getCategoriesPersonnalites(): Promise<CategoriePersonnalite[]> {
-    return this.fetch('/categories-personnalites');
+  async getCategoriesPersonnalites(lang: string = 'fr'): Promise<CategoriePersonnalite[]> {
+    return this.fetch(`/categories-personnalites?lang=${lang}`);
   }
 
-  async getCategoriePersonnalite(slug: string): Promise<CategoriePersonnalite & { personnalites: Personnalite[] }> {
-    return this.fetch(`/categories-personnalites/${slug}`);
+  async getCategoriePersonnalite(slug: string, lang: string = 'fr'): Promise<CategoriePersonnalite & { personnalites: Personnalite[] }> {
+    return this.fetch(`/categories-personnalites/${slug}?lang=${lang}`);
   }
 
   // Personnalites
-  async getPersonnalites(): Promise<Personnalite[]> {
-    return this.fetch('/personnalites');
+  async getPersonnalites(lang: string = 'fr'): Promise<Personnalite[]> {
+    return this.fetch(`/personnalites?lang=${lang}`);
   }
 
-  async getPersonnalite(slug: string): Promise<Personnalite> {
-    return this.fetch(`/personnalites/${slug}`);
+  async getPersonnalite(slug: string, lang: string = 'fr'): Promise<Personnalite> {
+    return this.fetch(`/personnalites/${slug}?lang=${lang}`);
   }
 }
 

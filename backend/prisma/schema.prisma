@@ -149,14 +149,25 @@ model ArticleDossier {
 model CategoriePersonnalite {
   id           Int            @id @default(autoincrement())
   slug         String         @unique
-  nom          String
-  description  String         @db.Text
   image        String?
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
+  translations CategoriePersonnaliteTranslation[]
   personnalites Personnalite[]
 
   @@map("categories_personnalites")
+}
+
+model CategoriePersonnaliteTranslation {
+  id          Int                   @id @default(autoincrement())
+  categorieId Int                   @map("categorie_id")
+  lang        String                @db.VarChar(2)
+  nom         String
+  description String                @db.Text
+  categorie   CategoriePersonnalite @relation(fields: [categorieId], references: [id], onDelete: Cascade)
+
+  @@unique([categorieId, lang])
+  @@map("categories_personnalites_translations")
 }
 
 // Personnalités africaines

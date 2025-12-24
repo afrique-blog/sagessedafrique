@@ -1,32 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context';
 import { t } from '@/lib/i18n';
+import { api, CategoriePersonnalite } from '@/lib/api';
 
-interface Category {
-  slug: string;
-  name: string;
-}
-
-interface CategoriePersonnalite {
-  slug: string;
-  nom: string;
-}
-
-interface HeaderProps {
-  categories?: Category[];
-  categoriesPersonnalites?: CategoriePersonnalite[];
-}
-
-const Header: React.FC<HeaderProps> = ({ categories = [], categoriesPersonnalites = [] }) => {
+const Header: React.FC = () => {
   const { lang, setLang, theme, setTheme } = useApp();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoriesPersonnalites, setCategoriesPersonnalites] = useState<CategoriePersonnalite[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    api.getCategoriesPersonnalites(lang)
+      .then(setCategoriesPersonnalites)
+      .catch(console.error);
+  }, [lang]);
 
   const toggleLang = () => setLang(lang === 'fr' ? 'en' : 'fr');
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
@@ -72,43 +65,21 @@ const Header: React.FC<HeaderProps> = ({ categories = [], categoriesPersonnalite
               {link.name}
             </Link>
           ))}
-          
-          {categories.length > 0 && (
-            <div className="relative group">
-              <button className="text-sm font-medium flex items-center gap-1 hover:text-primary dark:hover:text-accent">
-                {lang === 'fr' ? 'Categories' : 'Categories'}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-              </button>
-              <div className="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                <div className="bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 rounded-lg p-2">
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.slug}
-                      href={`/category/${cat.slug}`}
-                      className="block px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md transition-colors"
-                    >
-                      {cat.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* Menu Personnalites */}
+          {/* Menu Personnalités Africaines */}
           {categoriesPersonnalites.length > 0 && (
             <div className="relative group">
               <button className="text-sm font-medium flex items-center gap-1 hover:text-primary dark:hover:text-accent">
-                {lang === 'fr' ? 'Personnalites' : 'Personalities'}
+                {lang === 'fr' ? 'Personnalités Africaines' : 'African Personalities'}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div className="absolute top-full left-0 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                <div className="bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 rounded-lg p-2 max-h-96 overflow-y-auto">
+              <div className="absolute top-full left-0 w-72 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                <div className="bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 rounded-lg p-2 max-h-[70vh] overflow-y-auto">
                   <Link
                     href="/personnalites"
                     className="block px-4 py-2 text-sm font-semibold text-primary dark:text-accent hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md transition-colors border-b border-slate-100 dark:border-slate-700 mb-1"
                   >
-                    {lang === 'fr' ? 'Toutes les categories' : 'All categories'}
+                    {lang === 'fr' ? '📚 Toutes les catégories' : '📚 All categories'}
                   </Link>
                   {categoriesPersonnalites.map((cat) => (
                     <Link
@@ -158,11 +129,35 @@ const Header: React.FC<HeaderProps> = ({ categories = [], categoriesPersonnalite
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4">
+        <div className="lg:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 max-h-[80vh] overflow-y-auto">
           <nav className="flex flex-col space-y-4">
             {navLinks.map((link) => (
               <Link key={link.path} href={link.path} onClick={() => setIsMenuOpen(false)} className="text-lg font-medium">{link.name}</Link>
             ))}
+            
+            {/* Mobile Personnalités */}
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+              <Link 
+                href="/personnalites" 
+                onClick={() => setIsMenuOpen(false)} 
+                className="text-lg font-bold text-primary dark:text-accent mb-3 block"
+              >
+                {lang === 'fr' ? 'Personnalités Africaines' : 'African Personalities'}
+              </Link>
+              <div className="grid grid-cols-2 gap-2">
+                {categoriesPersonnalites.map((cat) => (
+                  <Link
+                    key={cat.slug}
+                    href={`/personnalites/${cat.slug}`}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-accent py-1"
+                  >
+                    {cat.nom}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <button onClick={toggleTheme} className="text-sm">{theme === 'light' ? t('darkMode', lang) : t('lightMode', lang)}</button>
               <button onClick={toggleLang} className="text-sm font-bold">{t('switchLang', lang)}</button>
@@ -185,5 +180,3 @@ const Header: React.FC<HeaderProps> = ({ categories = [], categoriesPersonnalite
 };
 
 export default Header;
-
-

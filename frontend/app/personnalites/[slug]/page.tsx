@@ -18,7 +18,6 @@ export default function CategoriePersonnalitePage() {
   const slug = params.slug as string;
   const { lang } = useApp();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [categoriesPersonnalites, setCategoriesPersonnalites] = useState<CategoriePersonnalite[]>([]);
   const [categorie, setCategorie] = useState<CategorieDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,17 +25,15 @@ export default function CategoriePersonnalitePage() {
   useEffect(() => {
     Promise.all([
       api.getCategories(lang),
-      api.getCategoriesPersonnalites(),
-      api.getCategoriePersonnalite(slug),
+      api.getCategoriePersonnalite(slug, lang),
     ])
-      .then(([cats, catsPers, catDetail]) => {
+      .then(([cats, catDetail]) => {
         setCategories(cats);
-        setCategoriesPersonnalites(catsPers);
         setCategorie(catDetail);
       })
       .catch((err) => {
         console.error(err);
-        setError('Categorie non trouvee');
+        setError(lang === 'fr' ? 'Catégorie non trouvée' : 'Category not found');
       })
       .finally(() => setLoading(false));
   }, [lang, slug]);
@@ -44,7 +41,7 @@ export default function CategoriePersonnalitePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="animate-pulse text-lg">Chargement...</div>
+        <div className="animate-pulse text-lg">{lang === 'fr' ? 'Chargement...' : 'Loading...'}</div>
       </div>
     );
   }
@@ -52,13 +49,13 @@ export default function CategoriePersonnalitePage() {
   if (error || !categorie) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header categories={categories} categoriesPersonnalites={categoriesPersonnalites} />
+        <Header />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">404</h1>
-            <p className="text-slate-500 mb-8">{error || 'Categorie non trouvee'}</p>
+            <p className="text-slate-500 mb-8">{error || (lang === 'fr' ? 'Catégorie non trouvée' : 'Category not found')}</p>
             <Link href="/personnalites" className="text-primary hover:underline">
-              Retour aux personnalites
+              {lang === 'fr' ? 'Retour aux personnalités' : 'Back to personalities'}
             </Link>
           </div>
         </main>
@@ -69,7 +66,7 @@ export default function CategoriePersonnalitePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header categories={categories} categoriesPersonnalites={categoriesPersonnalites} />
+      <Header />
       <main className="flex-grow">
         {/* Hero */}
         <section className="relative py-20 bg-gradient-to-br from-primary to-primary/80">
@@ -89,7 +86,7 @@ export default function CategoriePersonnalitePage() {
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
               </svg>
-              {lang === 'fr' ? 'Toutes les categories' : 'All categories'}
+              {lang === 'fr' ? 'Toutes les catégories' : 'All categories'}
             </Link>
             <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">
               {categorie.nom}
@@ -99,7 +96,7 @@ export default function CategoriePersonnalitePage() {
             </p>
             <div className="mt-6">
               <span className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm">
-                {categorie.personnalites.length} {lang === 'fr' ? 'personnalites' : 'personalities'}
+                {categorie.personnalites.length} {lang === 'fr' ? 'personnalités' : 'personalities'}
               </span>
             </div>
           </div>
@@ -182,7 +179,7 @@ export default function CategoriePersonnalitePage() {
           {categorie.personnalites.length === 0 && (
             <div className="text-center py-16">
               <p className="text-slate-500 text-lg">
-                {lang === 'fr' ? 'Aucune personnalite dans cette categorie pour le moment.' : 'No personalities in this category yet.'}
+                {lang === 'fr' ? 'Aucune personnalité dans cette catégorie pour le moment.' : 'No personalities in this category yet.'}
               </p>
             </div>
           )}
@@ -192,4 +189,3 @@ export default function CategoriePersonnalitePage() {
     </div>
   );
 }
-

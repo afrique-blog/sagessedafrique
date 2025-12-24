@@ -48,7 +48,7 @@ function HomeContent() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header categories={categories} />
+        <Header />
         <main className="flex-grow flex items-center justify-center">
           <div className="animate-pulse text-lg">{lang === 'fr' ? 'Chargement...' : 'Loading...'}</div>
         </main>
@@ -60,7 +60,7 @@ function HomeContent() {
   if (searchQuery) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header categories={categories} />
+        <Header />
         <main className="flex-grow container mx-auto px-4 py-12">
           <h1 className="text-3xl font-serif font-bold mb-8">
             {t('resultsFor', lang)} &quot;{searchQuery}&quot;
@@ -80,7 +80,7 @@ function HomeContent() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header categories={categories} />
+      <Header />
       <main className="flex-grow">
         <div className="space-y-16 pb-16">
           <section className="bg-slate-100 dark:bg-slate-900 pt-8 pb-16">
@@ -123,7 +123,7 @@ function HomeContent() {
                 <h2 className="text-3xl font-serif font-bold mb-6">{t('historianPerspective', lang)}</h2>
                 <p className="text-lg leading-relaxed mb-8 text-slate-200 italic">
                   {lang === 'fr' 
-                    ? "Mon role n est pas seulement de raconter des faits, mais de tisser des liens entre le genie de nos ancetres et les defis de notre present."
+                    ? "Mon rôle n'est pas seulement de raconter des faits, mais de tisser des liens entre le génie de nos ancêtres et les défis de notre présent."
                     : "My role is not only to recount facts, but to weave links between the genius of our ancestors and the challenges of our present."}
                 </p>
                 <Link href="/about" className="inline-block px-8 py-3 bg-accent text-slate-900 font-bold rounded hover:opacity-90 transition-opacity">

@@ -17,7 +17,7 @@ export default function PersonnalitesPage() {
   useEffect(() => {
     Promise.all([
       api.getCategories(lang),
-      api.getCategoriesPersonnalites(),
+      api.getCategoriesPersonnalites(lang),
     ])
       .then(([cats, catsPers]) => {
         setCategories(cats);
@@ -30,24 +30,24 @@ export default function PersonnalitesPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="animate-pulse text-lg">Chargement...</div>
+        <div className="animate-pulse text-lg">{lang === 'fr' ? 'Chargement...' : 'Loading...'}</div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header categories={categories} categoriesPersonnalites={categoriesPersonnalites} />
+      <Header />
       <main className="flex-grow">
         {/* Hero */}
         <section className="bg-primary text-white py-20">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">
-              {lang === 'fr' ? 'Personnalites Africaines' : 'African Personalities'}
+              {lang === 'fr' ? 'Personnalités Africaines' : 'African Personalities'}
             </h1>
             <p className="text-white/80 max-w-2xl mx-auto text-lg">
               {lang === 'fr' 
-                ? "Decouvrez les figures qui ont marque l histoire et la culture africaine"
+                ? "Découvrez les figures qui ont marqué l'histoire et la culture africaine"
                 : "Discover the figures who have shaped African history and culture"}
             </p>
           </div>
@@ -79,7 +79,7 @@ export default function PersonnalitesPage() {
                   <div className="absolute bottom-4 left-4 right-4">
                     <h2 className="text-xl font-serif font-bold text-white">{cat.nom}</h2>
                     <span className="text-white/80 text-sm">
-                      {cat.personnalitesCount} {lang === 'fr' ? 'personnalites' : 'personalities'}
+                      {cat.personnalitesCount} {lang === 'fr' ? 'personnalités' : 'personalities'}
                     </span>
                   </div>
                 </div>
@@ -88,7 +88,7 @@ export default function PersonnalitesPage() {
                     {cat.description}
                   </p>
                   <div className="mt-4 flex items-center text-primary dark:text-accent text-sm font-medium group-hover:gap-2 transition-all">
-                    <span>{lang === 'fr' ? 'Decouvrir' : 'Discover'}</span>
+                    <span>{lang === 'fr' ? 'Découvrir' : 'Discover'}</span>
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                     </svg>
@@ -101,7 +101,7 @@ export default function PersonnalitesPage() {
           {categoriesPersonnalites.length === 0 && (
             <div className="text-center py-16">
               <p className="text-slate-500 text-lg">
-                {lang === 'fr' ? 'Aucune categorie disponible pour le moment.' : 'No categories available at the moment.'}
+                {lang === 'fr' ? 'Aucune catégorie disponible pour le moment.' : 'No categories available at the moment.'}
               </p>
             </div>
           )}
@@ -111,4 +111,3 @@ export default function PersonnalitesPage() {
     </div>
   );
 }
-
