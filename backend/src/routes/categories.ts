@@ -94,6 +94,48 @@ export async function categoryRoutes(fastify: FastifyInstance) {
     return reply.status(201).send(category);
   });
 
+  // GET /api/categories/admin/:id - Get category with all translations (for admin)
+  fastify.get('/admin/:id', {
+    preHandler: [(fastify as any).authenticate],
+  }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const id = parseInt(request.params.id);
+
+    const category = await prisma.category.findUnique({
+      where: { id },
+      include: { translations: true },
+    });
+
+    if (!category) {
+      return reply.status(404).send({ error: 'Category not found' });
+    }
+
+    return category;
+  });
+
+  // PUT /api/categories/:id - Update category (protected)
+  fastify.put('/:id', {
+    preHandler: [(fastify as any).authenticate],
+  }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const id = parseInt(request.params.id);
+    const body = createCategorySchema.parse(request.body);
+
+    // Delete existing translations and recreate
+    await prisma.categoryTranslation.deleteMany({ where: { categoryId: id } });
+
+    const category = await prisma.category.update({
+      where: { id },
+      data: {
+        slug: body.slug,
+        translations: {
+          create: body.translations,
+        },
+      },
+      include: { translations: true },
+    });
+
+    return category;
+  });
+
   // DELETE /api/categories/:id - Delete category (protected)
   fastify.delete('/:id', {
     preHandler: [(fastify as any).authenticate],

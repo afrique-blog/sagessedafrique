@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useAuth, RequireAuth } from '@/lib/auth';
+import { RequireAuth } from '@/lib/auth';
 import { api, Article } from '@/lib/api';
+import AdminNav from '@/components/AdminNav';
 
 function ArticlesList() {
-  const { user, logout } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -43,32 +43,8 @@ function ArticlesList() {
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-xl font-serif font-bold text-primary dark:text-accent">
-              Admin
-            </Link>
-            <nav className="hidden md:flex items-center gap-4 ml-8">
-              <Link href="/admin/articles" className="text-sm font-medium text-primary dark:text-accent">
-                Articles
-              </Link>
-              <Link href="/" className="text-sm text-slate-400 hover:text-primary dark:hover:text-accent">
-                ← Voir le site
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-500">{user?.name}</span>
-            <button onClick={logout} className="text-sm text-red-500 hover:text-red-600">
-              Déconnexion
-            </button>
-          </div>
-        </div>
-      </header>
+      <AdminNav />
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-serif font-bold">Articles</h1>
@@ -176,5 +152,3 @@ export default function AdminArticlesPage() {
     </RequireAuth>
   );
 }
-
-

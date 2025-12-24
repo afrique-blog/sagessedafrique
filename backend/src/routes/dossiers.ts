@@ -102,6 +102,49 @@ export async function dossierRoutes(fastify: FastifyInstance) {
     return reply.status(201).send(dossier);
   });
 
+  // GET /api/dossiers/admin/:id - Get dossier with all translations (for admin)
+  fastify.get('/admin/:id', {
+    preHandler: [(fastify as any).authenticate],
+  }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const id = parseInt(request.params.id);
+
+    const dossier = await prisma.dossier.findUnique({
+      where: { id },
+      include: { translations: true },
+    });
+
+    if (!dossier) {
+      return reply.status(404).send({ error: 'Dossier not found' });
+    }
+
+    return dossier;
+  });
+
+  // PUT /api/dossiers/:id - Update dossier (protected)
+  fastify.put('/:id', {
+    preHandler: [(fastify as any).authenticate],
+  }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const id = parseInt(request.params.id);
+    const body = createDossierSchema.parse(request.body);
+
+    // Delete existing translations and recreate
+    await prisma.dossierTranslation.deleteMany({ where: { dossierId: id } });
+
+    const dossier = await prisma.dossier.update({
+      where: { id },
+      data: {
+        slug: body.slug,
+        heroImage: body.heroImage,
+        translations: {
+          create: body.translations,
+        },
+      },
+      include: { translations: true },
+    });
+
+    return dossier;
+  });
+
   // DELETE /api/dossiers/:id - Delete dossier (protected)
   fastify.delete('/:id', {
     preHandler: [(fastify as any).authenticate],

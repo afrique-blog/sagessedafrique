@@ -26,11 +26,23 @@ export interface Category {
   articleCount: number;
 }
 
+export interface CategoryAdmin {
+  id: number;
+  slug: string;
+  translations: { id: number; lang: string; name: string; description: string | null }[];
+}
+
 export interface Tag {
   id: number;
   slug: string;
   name: string;
   articleCount: number;
+}
+
+export interface TagAdmin {
+  id: number;
+  slug: string;
+  translations: { id: number; lang: string; name: string }[];
 }
 
 export interface Dossier {
@@ -42,6 +54,13 @@ export interface Dossier {
   articleCount: number;
 }
 
+export interface DossierAdmin {
+  id: number;
+  slug: string;
+  heroImage: string | null;
+  translations: { id: number; lang: string; title: string; description: string | null }[];
+}
+
 export interface CategoriePersonnalite {
   id: number;
   slug: string;
@@ -49,6 +68,13 @@ export interface CategoriePersonnalite {
   description: string;
   image: string | null;
   personnalitesCount: number;
+}
+
+export interface CategoriePersonnaliteAdmin {
+  id: number;
+  slug: string;
+  image: string | null;
+  translations: { id: number; lang: string; nom: string; description: string }[];
 }
 
 export interface Personnalite {
@@ -69,6 +95,16 @@ export interface Personnalite {
     excerpt: string;
     heroImage?: string;
   } | null;
+}
+
+export interface PersonnaliteAdmin {
+  id: number;
+  slug: string;
+  nom: string;
+  categorieId: number;
+  image: string | null;
+  youtubeUrl: string | null;
+  articleId: number | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -111,7 +147,9 @@ class ApiClient {
     return response.json();
   }
 
-  // Articles
+  // =====================================================
+  // ARTICLES
+  // =====================================================
   async getArticles(params: {
     page?: number;
     limit?: number;
@@ -153,7 +191,9 @@ class ApiClient {
     return this.fetch(`/articles/${id}`, { method: 'DELETE' });
   }
 
-  // Categories
+  // =====================================================
+  // CATEGORIES
+  // =====================================================
   async getCategories(lang: string = 'fr'): Promise<Category[]> {
     return this.fetch(`/categories?lang=${lang}`);
   }
@@ -162,7 +202,31 @@ class ApiClient {
     return this.fetch(`/categories/${slug}?lang=${lang}`);
   }
 
-  // Tags
+  async getCategoryAdmin(id: number): Promise<CategoryAdmin> {
+    return this.fetch(`/categories/admin/${id}`);
+  }
+
+  async createCategory(data: { slug: string; translations: { lang: string; name: string; description?: string }[] }): Promise<CategoryAdmin> {
+    return this.fetch('/categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateCategory(id: number, data: { slug: string; translations: { lang: string; name: string; description?: string }[] }): Promise<CategoryAdmin> {
+    return this.fetch(`/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteCategory(id: number): Promise<void> {
+    return this.fetch(`/categories/${id}`, { method: 'DELETE' });
+  }
+
+  // =====================================================
+  // TAGS
+  // =====================================================
   async getTags(lang: string = 'fr'): Promise<Tag[]> {
     return this.fetch(`/tags?lang=${lang}`);
   }
@@ -171,7 +235,31 @@ class ApiClient {
     return this.fetch(`/tags/${slug}?lang=${lang}`);
   }
 
-  // Dossiers
+  async getTagAdmin(id: number): Promise<TagAdmin> {
+    return this.fetch(`/tags/admin/${id}`);
+  }
+
+  async createTag(data: { slug: string; translations: { lang: string; name: string }[] }): Promise<TagAdmin> {
+    return this.fetch('/tags', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTag(id: number, data: { slug: string; translations: { lang: string; name: string }[] }): Promise<TagAdmin> {
+    return this.fetch(`/tags/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTag(id: number): Promise<void> {
+    return this.fetch(`/tags/${id}`, { method: 'DELETE' });
+  }
+
+  // =====================================================
+  // DOSSIERS
+  // =====================================================
   async getDossiers(lang: string = 'fr'): Promise<Dossier[]> {
     return this.fetch(`/dossiers?lang=${lang}`);
   }
@@ -180,7 +268,31 @@ class ApiClient {
     return this.fetch(`/dossiers/${slug}?lang=${lang}`);
   }
 
-  // Auth
+  async getDossierAdmin(id: number): Promise<DossierAdmin> {
+    return this.fetch(`/dossiers/admin/${id}`);
+  }
+
+  async createDossier(data: { slug: string; heroImage?: string; translations: { lang: string; title: string; description?: string }[] }): Promise<DossierAdmin> {
+    return this.fetch('/dossiers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateDossier(id: number, data: { slug: string; heroImage?: string; translations: { lang: string; title: string; description?: string }[] }): Promise<DossierAdmin> {
+    return this.fetch(`/dossiers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteDossier(id: number): Promise<void> {
+    return this.fetch(`/dossiers/${id}`, { method: 'DELETE' });
+  }
+
+  // =====================================================
+  // AUTH
+  // =====================================================
   async login(email: string, password: string): Promise<{ token: string; user: any }> {
     return this.fetch('/auth/login', {
       method: 'POST',
@@ -192,7 +304,9 @@ class ApiClient {
     return this.fetch('/auth/me');
   }
 
-  // Categories de Personnalites
+  // =====================================================
+  // CATEGORIES DE PERSONNALITES
+  // =====================================================
   async getCategoriesPersonnalites(lang: string = 'fr'): Promise<CategoriePersonnalite[]> {
     return this.fetch(`/categories-personnalites?lang=${lang}`);
   }
@@ -201,7 +315,31 @@ class ApiClient {
     return this.fetch(`/categories-personnalites/${slug}?lang=${lang}`);
   }
 
-  // Personnalites
+  async getCategoriePersonnaliteAdmin(id: number): Promise<CategoriePersonnaliteAdmin> {
+    return this.fetch(`/categories-personnalites/admin/${id}`);
+  }
+
+  async createCategoriePersonnalite(data: { slug: string; image?: string | null; translations: { lang: string; nom: string; description: string }[] }): Promise<CategoriePersonnaliteAdmin> {
+    return this.fetch('/categories-personnalites', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateCategoriePersonnalite(id: number, data: { slug: string; image?: string | null; translations: { lang: string; nom: string; description: string }[] }): Promise<CategoriePersonnaliteAdmin> {
+    return this.fetch(`/categories-personnalites/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteCategoriePersonnalite(id: number): Promise<void> {
+    return this.fetch(`/categories-personnalites/${id}`, { method: 'DELETE' });
+  }
+
+  // =====================================================
+  // PERSONNALITES
+  // =====================================================
   async getPersonnalites(lang: string = 'fr'): Promise<Personnalite[]> {
     return this.fetch(`/personnalites?lang=${lang}`);
   }
@@ -209,8 +347,32 @@ class ApiClient {
   async getPersonnalite(slug: string, lang: string = 'fr'): Promise<Personnalite> {
     return this.fetch(`/personnalites/${slug}?lang=${lang}`);
   }
+
+  async getPersonnalitesAdmin(): Promise<PersonnaliteAdmin[]> {
+    return this.fetch('/personnalites/admin/all');
+  }
+
+  async getPersonnaliteAdmin(id: number): Promise<PersonnaliteAdmin> {
+    return this.fetch(`/personnalites/admin/${id}`);
+  }
+
+  async createPersonnalite(data: { slug: string; nom: string; categorieId: number; image?: string | null; youtubeUrl?: string | null; articleId?: number | null }): Promise<PersonnaliteAdmin> {
+    return this.fetch('/personnalites', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updatePersonnalite(id: number, data: { slug: string; nom: string; categorieId: number; image?: string | null; youtubeUrl?: string | null; articleId?: number | null }): Promise<PersonnaliteAdmin> {
+    return this.fetch(`/personnalites/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deletePersonnalite(id: number): Promise<void> {
+    return this.fetch(`/personnalites/${id}`, { method: 'DELETE' });
+  }
 }
 
 export const api = new ApiClient();
-
-

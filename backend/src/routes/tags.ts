@@ -95,6 +95,48 @@ export async function tagRoutes(fastify: FastifyInstance) {
     return reply.status(201).send(tag);
   });
 
+  // GET /api/tags/admin/:id - Get tag with all translations (for admin)
+  fastify.get('/admin/:id', {
+    preHandler: [(fastify as any).authenticate],
+  }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const id = parseInt(request.params.id);
+
+    const tag = await prisma.tag.findUnique({
+      where: { id },
+      include: { translations: true },
+    });
+
+    if (!tag) {
+      return reply.status(404).send({ error: 'Tag not found' });
+    }
+
+    return tag;
+  });
+
+  // PUT /api/tags/:id - Update tag (protected)
+  fastify.put('/:id', {
+    preHandler: [(fastify as any).authenticate],
+  }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const id = parseInt(request.params.id);
+    const body = createTagSchema.parse(request.body);
+
+    // Delete existing translations and recreate
+    await prisma.tagTranslation.deleteMany({ where: { tagId: id } });
+
+    const tag = await prisma.tag.update({
+      where: { id },
+      data: {
+        slug: body.slug,
+        translations: {
+          create: body.translations,
+        },
+      },
+      include: { translations: true },
+    });
+
+    return tag;
+  });
+
   // DELETE /api/tags/:id - Delete tag (protected)
   fastify.delete('/:id', {
     preHandler: [(fastify as any).authenticate],
