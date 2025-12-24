@@ -3,9 +3,20 @@ import { AppProvider } from '@/lib/context';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Sagesse d'Afrique - Magazine Éditorial",
-  description: "Exploration de l'héritage intellectuel et culturel de l'Afrique pour une humanité plus éclairée.",
+  title: "Sagesse d'Afrique - Magazine Editorial",
+  description: "Exploration de l heritage intellectuel et culturel de l Afrique pour une humanite plus eclairee.",
   keywords: ['Afrique', 'histoire', 'culture', 'sagesse', 'philosophie', 'sciences'],
+  icons: {
+    icon: [
+      { url: '/favicon/favicon.ico' },
+      { url: '/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/favicon/apple-touch-icon.png' },
+    ],
+  },
+  manifest: '/favicon/site.webmanifest',
 };
 
 export default function RootLayout({
