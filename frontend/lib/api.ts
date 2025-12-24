@@ -42,6 +42,35 @@ export interface Dossier {
   articleCount: number;
 }
 
+export interface CategoriePersonnalite {
+  id: number;
+  slug: string;
+  nom: string;
+  description: string;
+  image: string | null;
+  personnalitesCount: number;
+}
+
+export interface Personnalite {
+  id: number;
+  slug: string;
+  nom: string;
+  image: string | null;
+  youtubeUrl: string | null;
+  categorie: {
+    id: number;
+    slug: string;
+    nom: string;
+  };
+  article: {
+    id: number;
+    slug: string;
+    title: string;
+    excerpt: string;
+    heroImage?: string;
+  } | null;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
@@ -161,6 +190,24 @@ class ApiClient {
 
   async getMe(): Promise<any> {
     return this.fetch('/auth/me');
+  }
+
+  // Categories de Personnalites
+  async getCategoriesPersonnalites(): Promise<CategoriePersonnalite[]> {
+    return this.fetch('/categories-personnalites');
+  }
+
+  async getCategoriePersonnalite(slug: string): Promise<CategoriePersonnalite & { personnalites: Personnalite[] }> {
+    return this.fetch(`/categories-personnalites/${slug}`);
+  }
+
+  // Personnalites
+  async getPersonnalites(): Promise<Personnalite[]> {
+    return this.fetch('/personnalites');
+  }
+
+  async getPersonnalite(slug: string): Promise<Personnalite> {
+    return this.fetch(`/personnalites/${slug}`);
   }
 }
 

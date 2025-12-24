@@ -106,6 +106,7 @@ model Article {
   translations   ArticleTranslation[]
   tags           ArticleTag[]
   dossiers       ArticleDossier[]
+  personnalites  Personnalite[]
 
   @@map("articles")
 }
@@ -142,5 +143,36 @@ model ArticleDossier {
 
   @@id([articleId, dossierId])
   @@map("article_dossiers")
+}
+
+// Catégories de personnalités africaines
+model CategoriePersonnalite {
+  id           Int            @id @default(autoincrement())
+  slug         String         @unique
+  nom          String
+  description  String         @db.Text
+  image        String?
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  personnalites Personnalite[]
+
+  @@map("categories_personnalites")
+}
+
+// Personnalités africaines
+model Personnalite {
+  id          Int                    @id @default(autoincrement())
+  slug        String                 @unique
+  nom         String
+  categorieId Int                    @map("categorie_id")
+  image       String?
+  youtubeUrl  String?                @map("youtube_url")
+  articleId   Int?                   @map("article_id")
+  createdAt   DateTime               @default(now()) @map("created_at")
+  updatedAt   DateTime               @updatedAt @map("updated_at")
+  categorie   CategoriePersonnalite  @relation(fields: [categorieId], references: [id])
+  article     Article?               @relation(fields: [articleId], references: [id])
+
+  @@map("personnalites")
 }
 

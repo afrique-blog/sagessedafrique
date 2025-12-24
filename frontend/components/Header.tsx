@@ -12,11 +12,17 @@ interface Category {
   name: string;
 }
 
-interface HeaderProps {
-  categories?: Category[];
+interface CategoriePersonnalite {
+  slug: string;
+  nom: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ categories = [] }) => {
+interface HeaderProps {
+  categories?: Category[];
+  categoriesPersonnalites?: CategoriePersonnalite[];
+}
+
+const Header: React.FC<HeaderProps> = ({ categories = [], categoriesPersonnalites = [] }) => {
   const { lang, setLang, theme, setTheme } = useApp();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -70,7 +76,7 @@ const Header: React.FC<HeaderProps> = ({ categories = [] }) => {
           {categories.length > 0 && (
             <div className="relative group">
               <button className="text-sm font-medium flex items-center gap-1 hover:text-primary dark:hover:text-accent">
-                {lang === 'fr' ? 'Catégories' : 'Categories'}
+                {lang === 'fr' ? 'Categories' : 'Categories'}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
               </button>
               <div className="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
@@ -82,6 +88,35 @@ const Header: React.FC<HeaderProps> = ({ categories = [] }) => {
                       className="block px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md transition-colors"
                     >
                       {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Menu Personnalites */}
+          {categoriesPersonnalites.length > 0 && (
+            <div className="relative group">
+              <button className="text-sm font-medium flex items-center gap-1 hover:text-primary dark:hover:text-accent">
+                {lang === 'fr' ? 'Personnalites' : 'Personalities'}
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              <div className="absolute top-full left-0 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                <div className="bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 rounded-lg p-2 max-h-96 overflow-y-auto">
+                  <Link
+                    href="/personnalites"
+                    className="block px-4 py-2 text-sm font-semibold text-primary dark:text-accent hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md transition-colors border-b border-slate-100 dark:border-slate-700 mb-1"
+                  >
+                    {lang === 'fr' ? 'Toutes les categories' : 'All categories'}
+                  </Link>
+                  {categoriesPersonnalites.map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      href={`/personnalites/${cat.slug}`}
+                      className="block px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md transition-colors"
+                    >
+                      {cat.nom}
                     </Link>
                   ))}
                 </div>

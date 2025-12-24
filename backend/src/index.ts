@@ -6,6 +6,7 @@ import { categoryRoutes } from './routes/categories.js';
 import { tagRoutes } from './routes/tags.js';
 import { dossierRoutes } from './routes/dossiers.js';
 import { authRoutes } from './routes/auth.js';
+import { personnalitesRoutes } from './routes/personnalites.js';
 
 const fastify = Fastify({
   logger: true,
@@ -36,6 +37,7 @@ await fastify.register(articleRoutes, { prefix: '/api/articles' });
 await fastify.register(categoryRoutes, { prefix: '/api/categories' });
 await fastify.register(tagRoutes, { prefix: '/api/tags' });
 await fastify.register(dossierRoutes, { prefix: '/api/dossiers' });
+await fastify.register(personnalitesRoutes, { prefix: '/api' });
 
 // Health check
 fastify.get('/api/health', async () => {
