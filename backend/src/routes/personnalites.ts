@@ -24,6 +24,72 @@ const createPersonnaliteSchema = z.object({
 
 export async function personnalitesRoutes(fastify: FastifyInstance) {
   // =====================================================
+  // CATEGORIES DE PERSONNALITES - ADMIN (AVANT les routes dynamiques!)
+  // =====================================================
+
+  // GET /api/categories-personnalites/admin/:id - Get with all translations
+  fastify.get('/categories-personnalites/admin/:id', {
+    preHandler: [(fastify as any).authenticate],
+  }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const id = parseInt(request.params.id);
+
+    const categorie = await prisma.categoriePersonnalite.findUnique({
+      where: { id },
+      include: { translations: true },
+    });
+
+    if (!categorie) {
+      return reply.status(404).send({ error: 'Categorie not found' });
+    }
+
+    return categorie;
+  });
+
+  // =====================================================
+  // PERSONNALITES - ADMIN (AVANT les routes dynamiques!)
+  // =====================================================
+
+  // GET /api/personnalites/admin/all - Liste admin avec toutes infos
+  fastify.get('/personnalites/admin/all', {
+    preHandler: [(fastify as any).authenticate],
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const personnalites = await prisma.personnalite.findMany({
+      include: {
+        categorie: {
+          include: { translations: true },
+        },
+        article: {
+          include: { translations: true },
+        },
+      },
+      orderBy: { nom: 'asc' },
+    });
+
+    return personnalites;
+  });
+
+  // GET /api/personnalites/admin/:id - Get one for admin
+  fastify.get('/personnalites/admin/:id', {
+    preHandler: [(fastify as any).authenticate],
+  }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const id = parseInt(request.params.id);
+
+    const personnalite = await prisma.personnalite.findUnique({
+      where: { id },
+      include: {
+        categorie: true,
+        article: true,
+      },
+    });
+
+    if (!personnalite) {
+      return reply.status(404).send({ error: 'Personnalite not found' });
+    }
+
+    return personnalite;
+  });
+
+  // =====================================================
   // CATEGORIES DE PERSONNALITES - PUBLIC
   // =====================================================
 
@@ -96,28 +162,6 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         } : null,
       })),
     };
-  });
-
-  // =====================================================
-  // CATEGORIES DE PERSONNALITES - ADMIN
-  // =====================================================
-
-  // GET /api/categories-personnalites/admin/:id - Get with all translations
-  fastify.get('/categories-personnalites/admin/:id', {
-    preHandler: [(fastify as any).authenticate],
-  }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-    const id = parseInt(request.params.id);
-
-    const categorie = await prisma.categoriePersonnalite.findUnique({
-      where: { id },
-      include: { translations: true },
-    });
-
-    if (!categorie) {
-      return reply.status(404).send({ error: 'Categorie not found' });
-    }
-
-    return categorie;
   });
 
   // POST /api/categories-personnalites - Create (protected)
@@ -220,7 +264,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
     }));
   });
 
-  // GET /api/personnalites/:slug - Une personnalite
+  // GET /api/personnalites/:slug - Une personnalite (APRÈS les routes admin!)
   fastify.get('/personnalites/:slug', async (request: FastifyRequest<{ Params: { slug: string }; Querystring: { lang?: string } }>, reply: FastifyReply) => {
     const { slug } = request.params;
     const lang = request.query.lang || 'fr';
@@ -267,50 +311,6 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         author: personnalite.article.author,
       } : null,
     };
-  });
-
-  // =====================================================
-  // PERSONNALITES - ADMIN
-  // =====================================================
-
-  // GET /api/personnalites/admin/all - Liste admin avec toutes infos
-  fastify.get('/personnalites/admin/all', {
-    preHandler: [(fastify as any).authenticate],
-  }, async (request: FastifyRequest, reply: FastifyReply) => {
-    const personnalites = await prisma.personnalite.findMany({
-      include: {
-        categorie: {
-          include: { translations: true },
-        },
-        article: {
-          include: { translations: true },
-        },
-      },
-      orderBy: { nom: 'asc' },
-    });
-
-    return personnalites;
-  });
-
-  // GET /api/personnalites/admin/:id - Get one for admin
-  fastify.get('/personnalites/admin/:id', {
-    preHandler: [(fastify as any).authenticate],
-  }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-    const id = parseInt(request.params.id);
-
-    const personnalite = await prisma.personnalite.findUnique({
-      where: { id },
-      include: {
-        categorie: true,
-        article: true,
-      },
-    });
-
-    if (!personnalite) {
-      return reply.status(404).send({ error: 'Personnalite not found' });
-    }
-
-    return personnalite;
   });
 
   // POST /api/personnalites - Create (protected)
