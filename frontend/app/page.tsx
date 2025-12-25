@@ -179,8 +179,8 @@ function HomeContent() {
                   <h2 className="text-3xl font-serif font-bold mb-4">{t('specialReports', lang)}</h2>
                   <p className="text-slate-500 max-w-md mx-auto">{t('deepDives', lang)}</p>
                 </div>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {dossiers.slice(0, 4).map(d => (
+                <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+                  {dossiers.slice(0, 5).map(d => (
                     <Link key={d.slug} href={'/dossier/' + d.slug} className="relative group overflow-hidden rounded-xl h-64">
                       {d.heroImage && (
                         <Image src={d.heroImage} fill className="object-cover transition-transform duration-500 group-hover:scale-110" alt="" />
