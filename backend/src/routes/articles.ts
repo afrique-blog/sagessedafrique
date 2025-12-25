@@ -106,7 +106,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
               translations: { where: { lang } },
             },
           },
-          author: { select: { id: true, name: true } },
+          author: { select: { id: true, name: true, avatar: true, bio: true } },
           translations: { where: { lang } },
           tags: {
             include: {
@@ -155,7 +155,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
             translations: { where: { lang } },
           },
         },
-        author: { select: { id: true, name: true } },
+        author: { select: { id: true, name: true, avatar: true, bio: true } },
         translations: { where: { lang } },
         tags: {
           include: {
@@ -226,7 +226,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
       include: {
         translations: true,
         category: { include: { translations: true } },
-        author: { select: { id: true, name: true } },
+        author: { select: { id: true, name: true, avatar: true, bio: true } },
         tags: { include: { tag: { include: { translations: true } } } },
         dossiers: { include: { dossier: { include: { translations: true } } } },
       },
@@ -291,7 +291,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
       include: {
         translations: true,
         category: { include: { translations: true } },
-        author: { select: { id: true, name: true } },
+        author: { select: { id: true, name: true, avatar: true, bio: true } },
         tags: { include: { tag: { include: { translations: true } } } },
         dossiers: { include: { dossier: { include: { translations: true } } } },
       },

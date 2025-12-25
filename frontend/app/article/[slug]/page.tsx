@@ -167,15 +167,25 @@ export default function ArticlePage() {
 
           {/* Author */}
           <div className="mt-12 p-8 bg-slate-100 dark:bg-slate-800 rounded-2xl flex flex-col md:flex-row gap-6 items-center">
-            <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-2xl font-bold">
-              {article.author.name.split(' ').map(n => n[0]).join('')}
-            </div>
+            {article.author.avatar ? (
+              <Image
+                src={article.author.avatar}
+                alt={article.author.name}
+                width={96}
+                height={96}
+                className="w-24 h-24 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-2xl font-bold">
+                {article.author.name.split(' ').map((n: string) => n[0]).join('')}
+              </div>
+            )}
             <div className="text-center md:text-left">
               <h4 className="font-serif font-bold text-xl mb-2">{article.author.name}</h4>
               <p className="text-slate-500 dark:text-slate-400">
-                {lang === 'fr' 
+                {article.author.bio || (lang === 'fr' 
                   ? 'Historien et passeur de savoirs africains'
-                  : 'Historian and transmitter of African knowledge'}
+                  : 'Historian and transmitter of African knowledge')}
               </p>
             </div>
           </div>
