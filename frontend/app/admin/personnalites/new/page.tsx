@@ -7,6 +7,8 @@ import { RequireAuth } from '@/lib/auth';
 import { api, CategoriePersonnalite, Article } from '@/lib/api';
 import AdminNav from '@/components/AdminNav';
 
+const IMAGE_PREFIX = '/images/personnalites/';
+
 function NewPersonnaliteForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -16,7 +18,7 @@ function NewPersonnaliteForm() {
     slug: '',
     nom: '',
     categorieId: 0,
-    image: '',
+    imageFilename: '', // Juste le nom du fichier
     youtubeUrl: '',
     articleId: '',
   });
@@ -38,11 +40,16 @@ function NewPersonnaliteForm() {
     e.preventDefault();
     setLoading(true);
     try {
+      // Construire le chemin complet de l'image
+      const imagePath = form.imageFilename 
+        ? `${IMAGE_PREFIX}${form.imageFilename}`
+        : null;
+
       await api.createPersonnalite({
         slug: form.slug,
         nom: form.nom,
         categorieId: form.categorieId,
-        image: form.image || null,
+        image: imagePath,
         youtubeUrl: form.youtubeUrl || null,
         articleId: form.articleId ? parseInt(form.articleId) : null,
       });
@@ -114,14 +121,20 @@ function NewPersonnaliteForm() {
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">Image (URL ou chemin)</label>
-            <input
-              type="text"
-              value={form.image}
-              onChange={e => setForm({ ...form, image: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
-              placeholder="/images/personnalites/nelson-mandela.jpg"
-            />
+            <label className="block text-sm font-medium mb-2">Image (nom du fichier)</label>
+            <div className="flex">
+              <span className="inline-flex items-center px-3 text-sm text-slate-500 bg-slate-100 dark:bg-slate-600 border border-r-0 border-slate-300 dark:border-slate-600 rounded-l-lg">
+                {IMAGE_PREFIX}
+              </span>
+              <input
+                type="text"
+                value={form.imageFilename}
+                onChange={e => setForm({ ...form, imageFilename: e.target.value })}
+                className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-r-lg bg-white dark:bg-slate-700"
+                placeholder="nelson-mandela.jpg"
+              />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">Déposez l'image dans /public/images/personnalites/ puis entrez son nom ici</p>
           </div>
 
           <div className="mb-6">
@@ -174,4 +187,3 @@ export default function NewPersonnalitePage() {
     </RequireAuth>
   );
 }
-

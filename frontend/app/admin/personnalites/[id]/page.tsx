@@ -4,8 +4,20 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { RequireAuth } from '@/lib/auth';
-import { api, CategoriePersonnalite, Article, PersonnaliteAdmin } from '@/lib/api';
+import { api, CategoriePersonnalite, Article } from '@/lib/api';
 import AdminNav from '@/components/AdminNav';
+
+const IMAGE_PREFIX = '/images/personnalites/';
+
+// Extraire le nom du fichier depuis le chemin complet
+function extractFilename(path: string | null): string {
+  if (!path) return '';
+  if (path.startsWith(IMAGE_PREFIX)) {
+    return path.substring(IMAGE_PREFIX.length);
+  }
+  // Si c'est une URL externe ou autre chemin, retourner tel quel
+  return path;
+}
 
 function EditPersonnaliteForm() {
   const params = useParams();
@@ -19,7 +31,7 @@ function EditPersonnaliteForm() {
     slug: '',
     nom: '',
     categorieId: 0,
-    image: '',
+    imageFilename: '', // Juste le nom du fichier
     youtubeUrl: '',
     articleId: '',
   });
@@ -36,7 +48,7 @@ function EditPersonnaliteForm() {
         slug: p.slug,
         nom: p.nom,
         categorieId: p.categorieId,
-        image: p.image || '',
+        imageFilename: extractFilename(p.image),
         youtubeUrl: p.youtubeUrl || '',
         articleId: p.articleId ? String(p.articleId) : '',
       });
@@ -49,11 +61,22 @@ function EditPersonnaliteForm() {
     e.preventDefault();
     setSaving(true);
     try {
+      // Construire le chemin complet de l'image
+      let imagePath: string | null = null;
+      if (form.imageFilename) {
+        // Si c'est déjà une URL complète ou un chemin absolu, le garder tel quel
+        if (form.imageFilename.startsWith('http') || form.imageFilename.startsWith('/')) {
+          imagePath = form.imageFilename;
+        } else {
+          imagePath = `${IMAGE_PREFIX}${form.imageFilename}`;
+        }
+      }
+
       await api.updatePersonnalite(id, {
         slug: form.slug,
         nom: form.nom,
         categorieId: form.categorieId,
-        image: form.image || null,
+        image: imagePath,
         youtubeUrl: form.youtubeUrl || null,
         articleId: form.articleId ? parseInt(form.articleId) : null,
       });
@@ -124,13 +147,20 @@ function EditPersonnaliteForm() {
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">Image (URL ou chemin)</label>
-            <input
-              type="text"
-              value={form.image}
-              onChange={e => setForm({ ...form, image: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
-            />
+            <label className="block text-sm font-medium mb-2">Image (nom du fichier)</label>
+            <div className="flex">
+              <span className="inline-flex items-center px-3 text-sm text-slate-500 bg-slate-100 dark:bg-slate-600 border border-r-0 border-slate-300 dark:border-slate-600 rounded-l-lg">
+                {IMAGE_PREFIX}
+              </span>
+              <input
+                type="text"
+                value={form.imageFilename}
+                onChange={e => setForm({ ...form, imageFilename: e.target.value })}
+                className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-r-lg bg-white dark:bg-slate-700"
+                placeholder="nelson-mandela.jpg"
+              />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">Déposez l'image dans /public/images/personnalites/ puis entrez son nom ici</p>
           </div>
 
           <div className="mb-6">
@@ -182,4 +212,3 @@ export default function EditPersonnalitePage() {
     </RequireAuth>
   );
 }
-
