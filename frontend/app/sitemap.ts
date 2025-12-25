@@ -1,10 +1,11 @@
 import { MetadataRoute } from 'next';
 
 const BASE_URL = 'https://sagessedafrique.blog';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 async function getArticles() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/articles?limit=200`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/articles?limit=200`, { cache: 'no-store' });
     const data = await res.json();
     return data.data || [];
   } catch { return []; }
@@ -12,28 +13,28 @@ async function getArticles() {
 
 async function getCategories() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/categories`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/categories`, { cache: 'no-store' });
     return await res.json();
   } catch { return []; }
 }
 
 async function getDossiers() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/dossiers`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/dossiers`, { cache: 'no-store' });
     return await res.json();
   } catch { return []; }
 }
 
 async function getTags() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/tags`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/tags`, { cache: 'no-store' });
     return await res.json();
   } catch { return []; }
 }
 
 async function getCategoriesPersonnalites() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/categories-personnalites`, { cache: 'no-store' });
+    const res = await fetch(`${API_URL}/categories-personnalites`, { cache: 'no-store' });
     return await res.json();
   } catch { return []; }
 }
