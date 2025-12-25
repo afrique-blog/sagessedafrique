@@ -25,7 +25,7 @@ const ArticleCard: React.FC<Props> = ({ article, variant = 'medium' }) => {
   if (variant === 'large') {
     return (
       <article className="grid md:grid-cols-2 gap-8 items-center bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700">
-        <div className="aspect-[16/10] overflow-hidden relative">
+        <Link href={`/article/${article.slug}`} className="aspect-[16/10] overflow-hidden relative">
           {article.heroImage ? (
             <Image 
               src={article.heroImage} 
@@ -36,7 +36,7 @@ const ArticleCard: React.FC<Props> = ({ article, variant = 'medium' }) => {
           ) : (
             <div className="w-full h-full bg-slate-200 dark:bg-slate-700" />
           )}
-        </div>
+        </Link>
         <div className="p-8">
           {article.category && (
             <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent text-[11px] font-bold uppercase tracking-wider mb-4">
@@ -51,13 +51,29 @@ const ArticleCard: React.FC<Props> = ({ article, variant = 'medium' }) => {
           </p>
           <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100 dark:border-slate-700">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold">
-                {article.author.name.split(' ').map(n => n[0]).join('')}
-              </div>
+              {article.author.avatar ? (
+                <Image
+                  src={article.author.avatar}
+                  alt={article.author.name}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold">
+                  {article.author.name.split(' ').map(n => n[0]).join('')}
+                </div>
+              )}
               <span className="text-xs font-medium">{article.author.name}</span>
             </div>
             <span className="text-xs text-slate-400">{article.readingMinutes} min read</span>
           </div>
+          <Link 
+            href={`/article/${article.slug}`}
+            className="inline-block mt-6 px-6 py-2 bg-primary text-white dark:bg-accent dark:text-slate-900 rounded-lg font-medium hover:opacity-90 transition-opacity"
+          >
+            {lang === 'fr' ? 'Lire la suite' : 'Read more'}
+          </Link>
         </div>
       </article>
     );
