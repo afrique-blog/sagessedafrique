@@ -167,7 +167,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
           slug: p.article.slug,
           title: p.article.translations[0]?.title || '',
           excerpt: p.article.translations[0]?.excerpt?.split(' ').slice(0, 6).join(' ') + '...' || '',
-          heroImage: p.article.heroImage,
+          heroImage: normalizePersonnaliteImage(p.article.heroImage),
         } : null,
       })),
     };
@@ -316,7 +316,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         title: personnalite.article.translations[0]?.title || '',
         excerpt: personnalite.article.translations[0]?.excerpt || '',
         contentHtml: personnalite.article.translations[0]?.contentHtml || '',
-        heroImage: personnalite.article.heroImage,
+        heroImage: normalizePersonnaliteImage(personnalite.article.heroImage),
         author: personnalite.article.author,
       } : null,
     };

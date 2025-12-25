@@ -2,6 +2,15 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../lib/prisma.js';
 import { z } from 'zod';
 
+const IMAGE_PREFIX = '/images/personnalites/';
+
+// Normalise l'URL de l'image hero
+function normalizeHeroImage(image: string | null | undefined): string | null {
+  if (!image) return null;
+  if (image.startsWith('/') || image.startsWith('http')) return image;
+  return `${IMAGE_PREFIX}${image}`;
+}
+
 const createCategorySchema = z.object({
   slug: z.string().min(1),
   translations: z.array(z.object({
@@ -45,7 +54,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
         articles: {
           include: {
             translations: { where: { lang } },
-            author: { select: { id: true, name: true } },
+            author: { select: { id: true, name: true, avatar: true, bio: true } },
           },
           orderBy: { publishedAt: 'desc' },
           take: 20,
@@ -67,7 +76,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
         slug: a.slug,
         title: a.translations[0]?.title || '',
         excerpt: a.translations[0]?.excerpt || '',
-        heroImage: a.heroImage,
+        heroImage: normalizeHeroImage(a.heroImage),
         readingMinutes: a.readingMinutes,
         publishedAt: a.publishedAt,
         author: a.author,

@@ -2,6 +2,15 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../lib/prisma.js';
 import { z } from 'zod';
 
+const IMAGE_PREFIX = '/images/personnalites/';
+
+// Normalise l'URL de l'image hero
+function normalizeHeroImage(image: string | null | undefined): string | null {
+  if (!image) return null;
+  if (image.startsWith('/') || image.startsWith('http')) return image;
+  return `${IMAGE_PREFIX}${image}`;
+}
+
 const createDossierSchema = z.object({
   slug: z.string().min(1),
   heroImage: z.string().optional(),
@@ -49,7 +58,7 @@ export async function dossierRoutes(fastify: FastifyInstance) {
             article: {
               include: {
                 translations: { where: { lang } },
-                author: { select: { id: true, name: true } },
+                author: { select: { id: true, name: true, avatar: true, bio: true } },
                 category: { include: { translations: { where: { lang } } } },
               },
             },
@@ -73,11 +82,14 @@ export async function dossierRoutes(fastify: FastifyInstance) {
         slug: ad.article.slug,
         title: ad.article.translations[0]?.title || '',
         excerpt: ad.article.translations[0]?.excerpt || '',
-        heroImage: ad.article.heroImage,
+        heroImage: normalizeHeroImage(ad.article.heroImage),
         readingMinutes: ad.article.readingMinutes,
         publishedAt: ad.article.publishedAt,
         author: ad.article.author,
-        category: ad.article.category?.translations?.[0]?.name || '',
+        category: ad.article.category ? {
+          slug: ad.article.category.slug,
+          name: ad.article.category.translations?.[0]?.name || '',
+        } : null,
       })),
     };
   });
