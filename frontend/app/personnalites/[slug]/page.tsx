@@ -9,6 +9,15 @@ import { api, Category, CategoriePersonnalite, Personnalite } from '@/lib/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+const IMAGE_PREFIX = '/images/personnalites/';
+
+// Construit le chemin complet de l'image si nécessaire
+function getImageUrl(image: string | null): string | null {
+  if (!image) return null;
+  if (image.startsWith('/') || image.startsWith('http')) return image;
+  return `${IMAGE_PREFIX}${image}`;
+}
+
 interface CategorieDetail extends CategoriePersonnalite {
   personnalites: Personnalite[];
 }
@@ -112,9 +121,9 @@ export default function CategoriePersonnalitePage() {
               >
                 {/* Image */}
                 <div className="relative h-48 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600">
-                  {personnalite.image ? (
+                  {getImageUrl(personnalite.image) ? (
                     <Image
-                      src={personnalite.image}
+                      src={getImageUrl(personnalite.image)!}
                       alt={personnalite.nom}
                       fill
                       className="object-cover"

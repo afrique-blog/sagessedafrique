@@ -2,6 +2,15 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../lib/prisma.js';
 import { z } from 'zod';
 
+const IMAGE_PREFIX = '/images/personnalites/';
+
+// Normalise l'URL de l'image de personnalité
+function normalizePersonnaliteImage(image: string | null): string | null {
+  if (!image) return null;
+  if (image.startsWith('/') || image.startsWith('http')) return image;
+  return `${IMAGE_PREFIX}${image}`;
+}
+
 // Schemas de validation
 const createCategoriePersonnaliteSchema = z.object({
   slug: z.string().min(1),
@@ -151,7 +160,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         id: p.id,
         slug: p.slug,
         nom: p.nom,
-        image: p.image,
+        image: normalizePersonnaliteImage(p.image),
         youtubeUrl: p.youtubeUrl,
         article: p.article ? {
           id: p.article.id,
@@ -248,7 +257,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       id: p.id,
       slug: p.slug,
       nom: p.nom,
-      image: p.image,
+      image: normalizePersonnaliteImage(p.image),
       youtubeUrl: p.youtubeUrl,
       categorie: {
         id: p.categorie.id,
@@ -294,7 +303,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       id: personnalite.id,
       slug: personnalite.slug,
       nom: personnalite.nom,
-      image: personnalite.image,
+      image: normalizePersonnaliteImage(personnalite.image),
       youtubeUrl: personnalite.youtubeUrl,
       categorie: {
         id: personnalite.categorie.id,
