@@ -1,0 +1,13 @@
+# Robots.txt pour Sagesse d'Afrique
+# https://sagessedafrique.blog
+
+User-agent: *
+Allow: /
+
+# Bloquer les pages admin
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://sagessedafrique.blog/sitemap.xml
+
