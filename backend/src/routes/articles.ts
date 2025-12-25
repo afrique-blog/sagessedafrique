@@ -11,6 +11,22 @@ function normalizeHeroImage(image: string | null | undefined): string | null {
   return `${IMAGE_PREFIX}${image}`;
 }
 
+// Calcule le temps de lecture basé sur le contenu (environ 200 mots/minute)
+function calculateReadingTime(contentHtml: string | null | undefined): number {
+  if (!contentHtml) return 1;
+  
+  // Supprimer les balises HTML
+  const textContent = contentHtml.replace(/<[^>]*>/g, ' ');
+  
+  // Compter les mots (séparés par des espaces)
+  const words = textContent.trim().split(/\s+/).filter(word => word.length > 0);
+  const wordCount = words.length;
+  
+  // 200 mots par minute, minimum 1 minute
+  const minutes = Math.ceil(wordCount / 200);
+  return Math.max(1, minutes);
+}
+
 const articleQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(200).default(10),
@@ -166,13 +182,15 @@ export async function articleRoutes(fastify: FastifyInstance) {
       return reply.status(404).send({ error: 'Article not found' });
     }
 
-    // Increment views
-    await prisma.article.update({
+    // Increment views and get updated count
+    const updatedArticle = await prisma.article.update({
       where: { id: article.id },
       data: { views: { increment: 1 } },
+      select: { views: true },
     });
 
-    return formatArticle(article);
+    // Return article with updated view count
+    return formatArticle({ ...article, views: updatedArticle.views });
   });
 
   // POST /api/articles - Create article (protected)
@@ -182,6 +200,10 @@ export async function articleRoutes(fastify: FastifyInstance) {
     const body = createArticleSchema.parse(request.body);
     const user = (request as any).user;
 
+    // Calculer automatiquement le temps de lecture basé sur le contenu français
+    const frTranslation = body.translations.find(t => t.lang === 'fr');
+    const autoReadingMinutes = calculateReadingTime(frTranslation?.contentHtml);
+
     const article = await prisma.article.create({
       data: {
         slug: body.slug,
@@ -189,7 +211,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
         authorId: user.id,
         heroImage: body.heroImage,
         featured: body.featured,
-        readingMinutes: body.readingMinutes,
+        readingMinutes: autoReadingMinutes,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : new Date(),
         translations: {
           create: body.translations,
@@ -249,6 +271,13 @@ export async function articleRoutes(fastify: FastifyInstance) {
       });
     }
 
+    // Calculer automatiquement le temps de lecture si les traductions sont mises à jour
+    let autoReadingMinutes: number | undefined;
+    if (body.translations) {
+      const frTranslation = body.translations.find(t => t.lang === 'fr');
+      autoReadingMinutes = calculateReadingTime(frTranslation?.contentHtml);
+    }
+
     const article = await prisma.article.update({
       where: { id },
       data: {
@@ -256,7 +285,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
         categoryId: body.categoryId,
         heroImage: body.heroImage,
         featured: body.featured,
-        readingMinutes: body.readingMinutes,
+        readingMinutes: autoReadingMinutes ?? body.readingMinutes,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : undefined,
       },
       include: {
