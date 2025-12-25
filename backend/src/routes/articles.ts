@@ -2,6 +2,15 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../lib/prisma.js';
 import { z } from 'zod';
 
+const IMAGE_PREFIX = '/images/personnalites/';
+
+// Normalise l'URL de l'image hero de l'article
+function normalizeHeroImage(image: string | null | undefined): string | null {
+  if (!image) return null;
+  if (image.startsWith('/') || image.startsWith('http')) return image;
+  return `${IMAGE_PREFIX}${image}`;
+}
+
 const articleQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(200).default(10),
@@ -290,7 +299,7 @@ function formatArticle(article: any) {
     excerpt: translation?.excerpt || '',
     contentHtml: translation?.contentHtml || '',
     takeaway: translation?.takeaway || '',
-    heroImage: article.heroImage,
+    heroImage: normalizeHeroImage(article.heroImage),
     featured: article.featured,
     views: article.views,
     readingMinutes: article.readingMinutes,
