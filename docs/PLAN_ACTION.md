@@ -1,7 +1,7 @@
 # 📋 Plan d'action — Sagesse d'Afrique
 
 > **Dernière mise à jour** : 26 décembre 2024  
-> **Progression globale** : 4/36 tâches (11%)
+> **Progression globale** : 6/36 tâches (17%)
 
 ---
 
@@ -41,14 +41,16 @@ docs/
 | 1.2 | Remplir descriptions FR/EN des catégories (SQL) | ✅ | Aucun | - | 26/12/2024 |
 | 1.3 | Corriger bug sauvegarde image catégorie (Prisma sync) | ✅ | Faible | - | 26/12/2024 |
 | 1.4 | Normaliser tous les chemins d'images en base | ✅ | Faible | 1.3 | 26/12/2024 |
-| 1.5 | Créer/améliorer page "À propos" complète | ⬜ | Aucun | - | - |
-| 1.6 | Vérifier affichage mobile (test pouce) | ⬜ | Aucun | - | - |
+| 1.5 | Créer/améliorer page "À propos" complète | ✅ | Aucun | - | 26/12/2024 |
+| 1.6 | Vérifier affichage mobile (test pouce) | ✅ | Aucun | - | 26/12/2024 |
 
 **Critère de validation Phase 1** :
-- [ ] Toutes les catégories ont une image
-- [ ] Toutes les catégories ont une description FR et EN
-- [ ] Les images se sauvegardent correctement via l'admin
-- [ ] Le site s'affiche correctement sur mobile
+- [x] Toutes les catégories ont une image ✅
+- [x] Toutes les catégories ont une description FR et EN ✅
+- [x] Les images se sauvegardent correctement via l'admin ✅
+- [x] Le site s'affiche correctement sur mobile ✅
+
+### ✅ PHASE 1 TERMINÉE — 26/12/2024
 
 ---
 
@@ -144,11 +146,11 @@ docs/
 
 | Phase | Tâches | Terminées | % |
 |-------|--------|-----------|---|
-| Phase 1 - Fondations | 6 | 4 | 67% |
+| Phase 1 - Fondations | 6 | 6 | 100% ✅ |
 | Phase 2 - SEO | 16 | 0 | 0% |
 | Phase 3 - UX | 8 | 0 | 0% |
 | Phase 4 - Conversion | 6 | 0 | 0% |
-| **TOTAL** | **36** | **4** | **11%** |
+| **TOTAL** | **36** | **6** | **17%** |
 
 ### Historique des déploiements
 
