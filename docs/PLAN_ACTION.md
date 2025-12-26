@@ -1,7 +1,7 @@
 # 📋 Plan d'action — Sagesse d'Afrique
 
 > **Dernière mise à jour** : 26 décembre 2024  
-> **Progression globale** : 0/36 tâches (0%)
+> **Progression globale** : 4/36 tâches (11%)
 
 ---
 
@@ -37,10 +37,10 @@ docs/
 
 | ID | Tâche | Statut | Risque | Dépendance | Date |
 |----|-------|--------|--------|------------|------|
-| 1.1 | Ajouter images catégories manquantes (sciences.jpg, philosophie.jpg, medecine.jpg) | ⬜ | Aucun | - | - |
-| 1.2 | Remplir descriptions FR/EN des catégories (SQL) | ⬜ | Aucun | - | - |
-| 1.3 | Corriger bug sauvegarde image catégorie (Prisma sync) | ⬜ | Faible | - | - |
-| 1.4 | Normaliser tous les chemins d'images en base | ⬜ | Faible | 1.3 | - |
+| 1.1 | Ajouter images catégories manquantes (sciences.jpg, philosophie.jpg, medecine.jpg) | ✅ | Aucun | - | 26/12/2024 |
+| 1.2 | Remplir descriptions FR/EN des catégories (SQL) | ✅ | Aucun | - | 26/12/2024 |
+| 1.3 | Corriger bug sauvegarde image catégorie (Prisma sync) | ✅ | Faible | - | 26/12/2024 |
+| 1.4 | Normaliser tous les chemins d'images en base | ✅ | Faible | 1.3 | 26/12/2024 |
 | 1.5 | Créer/améliorer page "À propos" complète | ⬜ | Aucun | - | - |
 | 1.6 | Vérifier affichage mobile (test pouce) | ⬜ | Aucun | - | - |
 
@@ -144,17 +144,17 @@ docs/
 
 | Phase | Tâches | Terminées | % |
 |-------|--------|-----------|---|
-| Phase 1 - Fondations | 6 | 0 | 0% |
+| Phase 1 - Fondations | 6 | 4 | 67% |
 | Phase 2 - SEO | 16 | 0 | 0% |
 | Phase 3 - UX | 8 | 0 | 0% |
 | Phase 4 - Conversion | 6 | 0 | 0% |
-| **TOTAL** | **36** | **0** | **0%** |
+| **TOTAL** | **36** | **4** | **11%** |
 
 ### Historique des déploiements
 
 | Date | Tâches déployées | Commit | Statut |
 |------|------------------|--------|--------|
-| - | - | - | - |
+| 26/12/2024 | 1.1, 1.2, 1.3 — Images + descriptions catégories + fix Prisma | Via SQL + serveur | ✅ OK |
 
 ---
 

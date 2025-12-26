@@ -80,7 +80,7 @@ export default function AboutPage() {
                       <h4 className="font-bold mb-1">{lang === 'fr' ? 'Rigueur Historique' : 'Historical Rigor'}</h4>
                       <p className="text-slate-600 dark:text-slate-400">
                         {lang === 'fr'
-                          ? 'Chaque article est base sur des sources verifiees et des recherches approfondies.'
+                          ? 'Chaque article est basé sur des sources vérifiées et des recherches approfondies.'
                           : 'Each article is based on verified sources and in-depth research.'}
                       </p>
                     </div>
@@ -88,10 +88,10 @@ export default function AboutPage() {
                   <li className="flex gap-4">
                     <span className="text-accent font-bold text-xl">02</span>
                     <div>
-                      <h4 className="font-bold mb-1">{lang === 'fr' ? 'Accessibilite' : 'Accessibility'}</h4>
+                      <h4 className="font-bold mb-1">{lang === 'fr' ? 'Accessibilité' : 'Accessibility'}</h4>
                       <p className="text-slate-600 dark:text-slate-400">
                         {lang === 'fr'
-                          ? 'Nous rendons l histoire africaine accessible a tous, experts comme neophytes.'
+                          ? 'Nous rendons l\'histoire africaine accessible à tous, experts comme néophytes.'
                           : 'We make African history accessible to everyone, experts and novices alike.'}
                       </p>
                     </div>
@@ -102,14 +102,100 @@ export default function AboutPage() {
                       <h4 className="font-bold mb-1">{lang === 'fr' ? 'Perspective Contemporaine' : 'Contemporary Perspective'}</h4>
                       <p className="text-slate-600 dark:text-slate-400">
                         {lang === 'fr'
-                          ? 'Nous etablissons des liens entre le passe et les defis actuels.'
+                          ? 'Nous établissons des liens entre le passé et les défis actuels.'
                           : 'We establish links between the past and current challenges.'}
                       </p>
                     </div>
                   </li>
                 </ul>
+
+                {/* Notre Méthode */}
+                <h2 className="text-3xl font-serif font-bold pt-8">
+                  {lang === 'fr' ? 'Notre Méthode' : 'Our Method'}
+                </h2>
+                <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {lang === 'fr'
+                    ? 'Chaque article publié sur Sagesse d\'Afrique suit un processus éditorial rigoureux :'
+                    : 'Each article published on Sagesse d\'Afrique follows a rigorous editorial process:'}
+                </p>
+                <ul className="space-y-3 text-slate-600 dark:text-slate-400">
+                  <li className="flex items-start gap-3">
+                    <span className="text-accent mt-1">✓</span>
+                    <span>{lang === 'fr' 
+                      ? 'Recherche approfondie dans des sources académiques et archives historiques'
+                      : 'In-depth research in academic sources and historical archives'}</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-accent mt-1">✓</span>
+                    <span>{lang === 'fr'
+                      ? 'Vérification croisée des informations avec plusieurs sources fiables'
+                      : 'Cross-verification of information with multiple reliable sources'}</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-accent mt-1">✓</span>
+                    <span>{lang === 'fr'
+                      ? 'Relecture et validation par des spécialistes du domaine'
+                      : 'Proofreading and validation by domain specialists'}</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-accent mt-1">✓</span>
+                    <span>{lang === 'fr'
+                      ? 'Citation systématique des œuvres et auteurs de référence'
+                      : 'Systematic citation of reference works and authors'}</span>
+                  </li>
+                </ul>
+
+                {/* Politique éditoriale */}
+                <div className="mt-8 p-6 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                  <h3 className="font-bold mb-2">
+                    {lang === 'fr' ? 'Notre engagement' : 'Our commitment'}
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm">
+                    {lang === 'fr'
+                      ? 'Nous nous engageons à produire un contenu de qualité, respectueux des faits historiques et des cultures africaines. Pour toute question ou suggestion, n\'hésitez pas à nous contacter.'
+                      : 'We are committed to producing quality content that respects historical facts and African cultures. For any questions or suggestions, feel free to contact us.'}
+                  </p>
+                  <a 
+                    href="/contact" 
+                    className="inline-block mt-3 text-primary dark:text-accent font-medium hover:underline"
+                  >
+                    {lang === 'fr' ? 'Nous contacter →' : 'Contact us →'}
+                  </a>
+                </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* CTA Newsletter */}
+        <section className="bg-accent/10 py-16">
+          <div className="container mx-auto px-4 text-center max-w-2xl">
+            <h2 className="text-3xl font-serif font-bold mb-4">
+              {lang === 'fr' ? 'Restez informé' : 'Stay informed'}
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              {lang === 'fr'
+                ? 'Recevez chaque semaine une biographie et un dossier thématique directement dans votre boîte mail. Zéro spam, que du savoir.'
+                : 'Receive a biography and a thematic report directly in your inbox every week. Zero spam, only knowledge.'}
+            </p>
+            <form className="flex flex-col sm:flex-row gap-3 justify-center">
+              <input
+                type="email"
+                placeholder={lang === 'fr' ? 'Votre adresse email' : 'Your email address'}
+                className="px-6 py-3 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 w-full sm:w-auto sm:min-w-[300px]"
+              />
+              <button
+                type="submit"
+                className="px-8 py-3 bg-primary text-white rounded-full font-bold hover:bg-primary/90 transition-colors"
+              >
+                {lang === 'fr' ? 'S\'abonner' : 'Subscribe'}
+              </button>
+            </form>
+            <p className="text-xs text-slate-500 mt-4">
+              {lang === 'fr'
+                ? 'En vous inscrivant, vous acceptez de recevoir nos newsletters. Désabonnement possible à tout moment.'
+                : 'By signing up, you agree to receive our newsletters. Unsubscribe at any time.'}
+            </p>
           </div>
         </section>
       </main>
