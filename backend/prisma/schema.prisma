@@ -190,3 +190,16 @@ model Personnalite {
   @@map("personnalites")
 }
 
+// Redirections 301 pour SEO
+model Redirect {
+  id         Int      @id @default(autoincrement())
+  oldPath    String   @unique @map("old_path") @db.VarChar(500)
+  newPath    String   @map("new_path") @db.VarChar(500)
+  entityType String   @map("entity_type") @db.VarChar(50) // article, personnalite, tag
+  entityId   Int      @map("entity_id")
+  hits       Int      @default(0) // Nombre de fois utilisée
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("redirects")
+}
+
