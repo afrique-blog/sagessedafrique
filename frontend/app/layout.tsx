@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { AppProvider } from '@/lib/context';
+import NewsletterPopup from '@/components/NewsletterPopup';
 import './globals.css';
 
 const SITE_URL = 'https://sagessedafrique.blog';
@@ -131,6 +132,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
         <AppProvider>
           {children}
+          <NewsletterPopup />
         </AppProvider>
       </body>
     </html>

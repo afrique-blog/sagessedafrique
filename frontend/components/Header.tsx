@@ -120,6 +120,15 @@ const Header: React.FC = () => {
             </div>
           )}
 
+          {/* Ressources */}
+          <Link 
+            href="/ressources"
+            className="text-sm font-medium hover:text-primary dark:hover:text-accent transition-colors flex items-center gap-1"
+          >
+            <span>📚</span>
+            {lang === 'fr' ? 'Ressources' : 'Resources'}
+          </Link>
+
           {/* Contact - en dernier */}
           <Link 
             href="/contact"
@@ -215,6 +224,14 @@ const Header: React.FC = () => {
                   </Link>
                 ))}
               </div>
+            </div>
+
+            {/* Ressources */}
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+              <Link href="/ressources" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium flex items-center gap-2">
+                <span>📚</span>
+                {lang === 'fr' ? 'Ressources Gratuites' : 'Free Resources'}
+              </Link>
             </div>
 
             {/* Contact - en dernier */}

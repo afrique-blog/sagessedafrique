@@ -63,6 +63,8 @@ const Footer: React.FC<FooterProps> = ({ categories = [] }) => {
             <ul className="space-y-3 text-sm">
               <li><Link href="/" className="hover:text-white transition-colors">{t('home', lang)}</Link></li>
               <li><Link href="/about" className="hover:text-white transition-colors">{t('about', lang)}</Link></li>
+              <li><Link href="/ressources" className="hover:text-white transition-colors">{lang === 'fr' ? 'Ressources' : 'Resources'}</Link></li>
+              <li><Link href="/editorial-policy" className="hover:text-white transition-colors">{lang === 'fr' ? 'Politique Éditoriale' : 'Editorial Policy'}</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">{t('contact', lang)}</Link></li>
               <li><Link href="/legal" className="hover:text-white transition-colors">{t('legal', lang)}</Link></li>
             </ul>

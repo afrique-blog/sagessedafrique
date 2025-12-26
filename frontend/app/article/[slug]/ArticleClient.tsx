@@ -137,7 +137,9 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
                 {article.title}
               </h1>
               <div className="flex items-center gap-6 text-white/80 text-sm flex-wrap">
-                <span>{article.author.name}</span>
+                <Link href={`/auteur/${article.author.id}`} className="hover:text-white transition-colors">
+                  {article.author.name}
+                </Link>
                 <span>•</span>
                 <span>{article.publishedAt && formatDate(article.publishedAt)}</span>
                 <span>•</span>
@@ -363,7 +365,9 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
               </div>
             )}
             <div className="text-center md:text-left">
-              <h4 className="font-serif font-bold text-xl mb-2">{article.author.name}</h4>
+              <Link href={`/auteur/${article.author.id}`} className="hover:text-primary dark:hover:text-accent transition-colors">
+                <h4 className="font-serif font-bold text-xl mb-2">{article.author.name}</h4>
+              </Link>
               <p className="text-slate-500 dark:text-slate-400">
                 {article.author.bio || (lang === 'fr' 
                   ? 'Historien et passeur de savoirs africains'
