@@ -71,6 +71,12 @@ const Header: React.FC = () => {
               </button>
               <div className="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                 <div className="bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 rounded-lg p-2">
+                  <Link
+                    href="/categories"
+                    className="block px-4 py-2 text-sm font-semibold text-primary dark:text-accent hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md transition-colors border-b border-slate-100 dark:border-slate-700 mb-1"
+                  >
+                    {lang === 'fr' ? '📚 Toutes les catégories' : '📚 All categories'}
+                  </Link>
                   {categories.map((cat) => (
                     <Link
                       key={cat.slug}
@@ -166,9 +172,13 @@ const Header: React.FC = () => {
             {/* Mobile Catégories */}
             {categories.length > 0 && (
               <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                <span className="text-lg font-bold text-primary dark:text-accent mb-3 block">
+                <Link 
+                  href="/categories" 
+                  onClick={() => setIsMenuOpen(false)} 
+                  className="text-lg font-bold text-primary dark:text-accent mb-3 block"
+                >
                   {lang === 'fr' ? 'Catégories' : 'Categories'}
-                </span>
+                </Link>
                 <div className="grid grid-cols-2 gap-2">
                   {categories.map((cat) => (
                     <Link
