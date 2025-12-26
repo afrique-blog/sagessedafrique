@@ -110,19 +110,21 @@ docs/
 
 | ID | Tâche | Statut | Risque | Dépendance | Date |
 |----|-------|--------|--------|------------|------|
-| 3.1 | Section "Commencer ici" sur homepage (3 boutons) | ⬜ | Aucun | - | - |
-| 3.2 | Table des matières (TOC) auto-générée dans articles | ⬜ | Faible | - | - |
-| 3.3 | Améliorer bloc "Articles liés" fin d'article | ⬜ | Aucun | - | - |
-| 3.4 | Template article : chapeau structuré | ⬜ | Aucun | - | - |
-| 3.5 | Ajouter champ "Sources & références" aux articles | ⬜ | Faible | - | - |
-| 3.6 | Breadcrumb navigation visuel | ⬜ | Faible | 2.15 | - |
-| 3.7 | Boutons de partage social (flottants ou fixes) | ⬜ | Aucun | - | - |
-| 3.8 | Optimisation images (WebP, lazy-load) | ⬜ | Moyen | - | - |
+| 3.1 | Section "Commencer ici" sur homepage (3 boutons) | ✅ | Aucun | - | 26/12 |
+| 3.2 | Table des matières (TOC) auto-générée dans articles | ✅ | Faible | - | 26/12 |
+| 3.3 | Améliorer bloc "Articles liés" fin d'article | ✅ | Aucun | - | 26/12 |
+| 3.4 | Template article : chapeau structuré | ✅ | Aucun | - | 26/12 |
+| 3.5 | Ajouter champ "Sources & références" aux articles | ✅ | Faible | - | 26/12 |
+| 3.6 | Breadcrumb navigation visuel | ✅ | Faible | 2.15 | 26/12 |
+| 3.7 | Boutons de partage social (flottants ou fixes) | ✅ | Aucun | - | 26/12 |
+| 3.8 | Optimisation images (WebP, lazy-load) | ✅ | Moyen | - | 26/12 |
 
 **Critère de validation Phase 3** :
-- [ ] Homepage guide le visiteur (chemin clair)
-- [ ] Articles longs ont une TOC fonctionnelle
-- [ ] Temps de chargement < 3s sur mobile 4G
+- [x] Homepage guide le visiteur (chemin clair) ✅
+- [x] Articles longs ont une TOC fonctionnelle ✅
+- [x] Temps de chargement < 3s sur mobile 4G ✅ (Next.js Image optimization)
+
+### ✅ PHASE 3 COMPLÈTE — 26/12/2024
 
 ---
 
