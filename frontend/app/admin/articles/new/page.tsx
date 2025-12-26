@@ -35,6 +35,8 @@ function NewArticleForm() {
     contentEn: '',
     takeawayFr: '',
     takeawayEn: '',
+    sourcesFr: '',
+    sourcesEn: '',
     tagIds: [] as number[],
     dossierIds: [] as number[],
   });
@@ -79,6 +81,7 @@ function NewArticleForm() {
             excerpt: formData.excerptFr,
             contentHtml: formData.contentFr,
             takeaway: formData.takeawayFr,
+            sources: formData.sourcesFr,
           },
           {
             lang: 'en',
@@ -86,6 +89,7 @@ function NewArticleForm() {
             excerpt: formData.excerptEn,
             contentHtml: formData.contentEn,
             takeaway: formData.takeawayEn,
+            sources: formData.sourcesEn,
           },
         ],
         tagIds: formData.tagIds,
@@ -251,6 +255,17 @@ function NewArticleForm() {
                 placeholder="Commencez a rediger votre article..."
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">📚 Sources & Références</label>
+              <textarea
+                value={formData.sourcesFr}
+                onChange={e => setFormData({ ...formData, sourcesFr: e.target.value })}
+                rows={4}
+                className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                placeholder="• Livre 1, Auteur, Année&#10;• Article, Journal, Date&#10;• Site web, URL"
+              />
+              <p className="text-xs text-slate-500 mt-1">Une source par ligne, format libre</p>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm space-y-6">
@@ -288,8 +303,18 @@ function NewArticleForm() {
               <RichTextEditor
                 value={formData.contentEn}
                 onChange={(content) => setFormData({ ...formData, contentEn: content })}
-                placeholder="Start writing your article..."
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">📚 Sources & References</label>
+              <textarea
+                value={formData.sourcesEn}
+                onChange={e => setFormData({ ...formData, sourcesEn: e.target.value })}
+                rows={4}
+                className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                placeholder="• Book 1, Author, Year&#10;• Article, Journal, Date&#10;• Website, URL"
+              />
+              <p className="text-xs text-slate-500 mt-1">One source per line, free format</p>
             </div>
           </div>
 

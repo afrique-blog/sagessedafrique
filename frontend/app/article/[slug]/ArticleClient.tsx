@@ -310,6 +310,26 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
             </a>
           </div>
 
+          {/* Sources & Références */}
+          {article.sources && article.sources.trim() !== '' && (
+            <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+              <h3 className="flex items-center gap-2 font-bold text-lg mb-4">
+                <span className="text-2xl">📚</span>
+                {lang === 'fr' ? 'Sources & Références' : 'Sources & References'}
+              </h3>
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6">
+                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                  {article.sources.split('\n').filter(s => s.trim()).map((source, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="text-accent mt-0.5">•</span>
+                      <span>{source.replace(/^[•\-\*]\s*/, '')}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
           {/* Tags */}
           {article.tags.length > 0 && (
             <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">

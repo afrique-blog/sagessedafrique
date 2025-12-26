@@ -7,6 +7,7 @@ export interface Article {
   excerpt: string;
   contentHtml: string;
   takeaway: string;
+  sources: string;
   heroImage: string | null;
   featured: boolean;
   views: number;
