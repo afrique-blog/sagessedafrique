@@ -138,7 +138,10 @@ export default function ArticlePage() {
           {article.takeaway && (
             <div className="bg-accent/10 border-l-4 border-accent p-6 mb-8 rounded-r-lg">
               <h3 className="font-bold text-sm uppercase tracking-wider text-accent mb-2">{t('keyTakeaway', lang)}</h3>
-              <p className="text-lg">{article.takeaway}</p>
+              <div 
+                className="text-lg prose prose-lg dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: article.takeaway }} 
+              />
             </div>
           )}
 
