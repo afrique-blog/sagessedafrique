@@ -43,8 +43,8 @@ export default function AuthorPage() {
           setAuthor({
             id: firstArticle.author.id,
             name: firstArticle.author.name,
-            avatar: firstArticle.author.avatar,
-            bio: firstArticle.author.bio,
+            avatar: firstArticle.author.avatar || null,
+            bio: firstArticle.author.bio || null,
             articles: authorArticles,
           });
         }
