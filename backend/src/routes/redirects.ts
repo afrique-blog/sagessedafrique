@@ -22,7 +22,7 @@ export async function redirectRoutes(fastify: FastifyInstance) {
 
   // POST /api/redirects - Ajouter une redirection (admin only)
   fastify.post('/', {
-    preHandler: [fastify.authenticate],
+    preHandler: [(fastify as any).authenticate],
   }, async (request, reply) => {
     const { oldPath, newPath, entityType, entityId } = request.body as {
       oldPath: string;
@@ -68,7 +68,7 @@ export async function redirectRoutes(fastify: FastifyInstance) {
 
   // DELETE /api/redirects/:id - Supprimer une redirection (admin only)
   fastify.delete('/:id', {
-    preHandler: [fastify.authenticate],
+    preHandler: [(fastify as any).authenticate],
   }, async (request, reply) => {
     const { id } = request.params as { id: string };
 
@@ -85,7 +85,7 @@ export async function redirectRoutes(fastify: FastifyInstance) {
 
   // GET /api/redirects/stats - Statistiques des redirections (admin only)
   fastify.get('/stats', {
-    preHandler: [fastify.authenticate],
+    preHandler: [(fastify as any).authenticate],
   }, async (request, reply) => {
     const stats = await prisma.redirect.groupBy({
       by: ['entityType'],
