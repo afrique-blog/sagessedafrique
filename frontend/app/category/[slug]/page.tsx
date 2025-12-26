@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useApp } from '@/lib/context';
 import { api, Article, Category } from '@/lib/api';
 import Header from '@/components/Header';
@@ -80,9 +81,23 @@ export default function CategoryPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow">
-        {/* Hero */}
-        <section className="bg-primary text-white py-16">
-          <div className="container mx-auto px-4 text-center">
+        {/* Hero with Image */}
+        <section className="relative h-[300px] md:h-[350px]">
+          {category.image ? (
+            <>
+              <Image
+                src={category.image}
+                alt={category.name}
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/70 to-primary/50" />
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-primary" />
+          )}
+          <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-center text-center text-white">
             <p className="text-accent text-sm uppercase tracking-widest mb-4">
               {lang === 'fr' ? 'Catégorie' : 'Category'}
             </p>

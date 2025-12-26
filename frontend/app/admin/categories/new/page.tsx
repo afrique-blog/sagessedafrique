@@ -12,6 +12,7 @@ function NewCategoryForm() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     slug: '',
+    image: '',
     nameFr: '',
     descriptionFr: '',
     nameEn: '',
@@ -24,6 +25,7 @@ function NewCategoryForm() {
     try {
       await api.createCategory({
         slug: form.slug,
+        image: form.image || null,
         translations: [
           { lang: 'fr', name: form.nameFr, description: form.descriptionFr },
           { lang: 'en', name: form.nameEn, description: form.descriptionEn },
@@ -47,16 +49,29 @@ function NewCategoryForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 max-w-2xl">
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">Slug *</label>
-            <input
-              type="text"
-              value={form.slug}
-              onChange={e => setForm({ ...form, slug: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
-              placeholder="ex: sciences"
-              required
-            />
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Slug *</label>
+              <input
+                type="text"
+                value={form.slug}
+                onChange={e => setForm({ ...form, slug: e.target.value })}
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+                placeholder="ex: sciences"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Image (nom du fichier)</label>
+              <input
+                type="text"
+                value={form.image}
+                onChange={e => setForm({ ...form, image: e.target.value })}
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+                placeholder="ex: sciences.jpg"
+              />
+              <p className="text-xs text-slate-500 mt-1">Placez l'image dans /images/categories/</p>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6 mb-6">

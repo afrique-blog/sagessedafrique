@@ -2,17 +2,26 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../lib/prisma.js';
 import { z } from 'zod';
 
-const IMAGE_PREFIX = '/images/personnalites/';
+const IMAGE_PREFIX_PERSONNALITES = '/images/personnalites/';
+const IMAGE_PREFIX_CATEGORIES = '/images/categories/';
 
-// Normalise l'URL de l'image hero
+// Normalise l'URL de l'image hero (pour articles)
 function normalizeHeroImage(image: string | null | undefined): string | null {
   if (!image) return null;
   if (image.startsWith('/') || image.startsWith('http')) return image;
-  return `${IMAGE_PREFIX}${image}`;
+  return `${IMAGE_PREFIX_PERSONNALITES}${image}`;
+}
+
+// Normalise l'URL de l'image de catégorie
+function normalizeCategoryImage(image: string | null | undefined): string | null {
+  if (!image) return null;
+  if (image.startsWith('/') || image.startsWith('http')) return image;
+  return `${IMAGE_PREFIX_CATEGORIES}${image}`;
 }
 
 const createCategorySchema = z.object({
   slug: z.string().min(1),
+  image: z.string().optional().nullable(),
   translations: z.array(z.object({
     lang: z.enum(['fr', 'en']),
     name: z.string().min(1),
@@ -36,6 +45,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
     return categories.map((cat: any) => ({
       id: cat.id,
       slug: cat.slug,
+      image: normalizeCategoryImage(cat.image),
       name: cat.translations[0]?.name || '',
       description: cat.translations[0]?.description || '',
       articleCount: cat._count.articles,
@@ -77,6 +87,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
     return {
       id: category.id,
       slug: category.slug,
+      image: normalizeCategoryImage(category.image),
       name: category.translations[0]?.name || '',
       description: category.translations[0]?.description || '',
       articles: category.articles.map((a: any) => {
@@ -111,6 +122,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
     const category = await prisma.category.create({
       data: {
         slug: body.slug,
+        image: body.image || null,
         translations: {
           create: body.translations,
         },
@@ -118,7 +130,10 @@ export async function categoryRoutes(fastify: FastifyInstance) {
       include: { translations: true },
     });
 
-    return reply.status(201).send(category);
+    return reply.status(201).send({
+      ...category,
+      image: normalizeCategoryImage(category.image),
+    });
   });
 
   // GET /api/categories/admin/:id - Get category with all translations (for admin)
@@ -153,6 +168,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
       where: { id },
       data: {
         slug: body.slug,
+        image: body.image !== undefined ? body.image : undefined,
         translations: {
           create: body.translations,
         },
@@ -160,7 +176,10 @@ export async function categoryRoutes(fastify: FastifyInstance) {
       include: { translations: true },
     });
 
-    return category;
+    return {
+      ...category,
+      image: normalizeCategoryImage(category.image),
+    };
   });
 
   // DELETE /api/categories/:id - Delete category (protected)

@@ -15,6 +15,7 @@ function EditCategoryForm() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     slug: '',
+    image: '',
     nameFr: '',
     descriptionFr: '',
     nameEn: '',
@@ -26,8 +27,20 @@ function EditCategoryForm() {
       .then((cat: CategoryAdmin) => {
         const fr = cat.translations.find(t => t.lang === 'fr');
         const en = cat.translations.find(t => t.lang === 'en');
+        // Extraire le nom de fichier de l'image
+        let imageFilename = '';
+        if (cat.image) {
+          if (cat.image.startsWith('/images/categories/')) {
+            imageFilename = cat.image.replace('/images/categories/', '');
+          } else if (!cat.image.startsWith('/') && !cat.image.startsWith('http')) {
+            imageFilename = cat.image;
+          } else {
+            imageFilename = cat.image;
+          }
+        }
         setForm({
           slug: cat.slug,
+          image: imageFilename,
           nameFr: fr?.name || '',
           descriptionFr: fr?.description || '',
           nameEn: en?.name || '',
@@ -44,6 +57,7 @@ function EditCategoryForm() {
     try {
       await api.updateCategory(id, {
         slug: form.slug,
+        image: form.image || null,
         translations: [
           { lang: 'fr', name: form.nameFr, description: form.descriptionFr },
           { lang: 'en', name: form.nameEn, description: form.descriptionEn },
@@ -78,15 +92,35 @@ function EditCategoryForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 max-w-2xl">
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">Slug *</label>
-            <input
-              type="text"
-              value={form.slug}
-              onChange={e => setForm({ ...form, slug: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
-              required
-            />
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Slug *</label>
+              <input
+                type="text"
+                value={form.slug}
+                onChange={e => setForm({ ...form, slug: e.target.value })}
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Image (nom du fichier)</label>
+              <input
+                type="text"
+                value={form.image}
+                onChange={e => setForm({ ...form, image: e.target.value })}
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+                placeholder="ex: sciences.jpg"
+              />
+              <p className="text-xs text-slate-500 mt-1">Placez l'image dans /images/categories/</p>
+              {form.image && (
+                <img 
+                  src={form.image.startsWith('/') || form.image.startsWith('http') ? form.image : `/images/categories/${form.image}`} 
+                  alt="Preview" 
+                  className="mt-2 h-20 object-cover rounded-lg" 
+                />
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6 mb-6">
