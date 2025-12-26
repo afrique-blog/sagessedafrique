@@ -353,16 +353,42 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
           </div>
         </article>
 
-        {/* Related Articles */}
+        {/* Related Articles - Enhanced */}
         {relatedArticles.length > 0 && (
-          <section className="bg-slate-50 dark:bg-slate-900/50 py-16">
+          <section className="bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/30 py-16">
             <div className="container mx-auto px-4">
-              <h2 className="text-2xl font-serif font-bold mb-8">{t('relatedArticles', lang)}</h2>
+              <div className="text-center mb-12">
+                <span className="inline-flex items-center gap-2 text-accent text-sm font-bold uppercase tracking-widest mb-3">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  {lang === 'fr' ? 'Continuez votre lecture' : 'Continue Reading'}
+                </span>
+                <h2 className="text-3xl font-serif font-bold mb-4">{t('relatedArticles', lang)}</h2>
+                <p className="text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
+                  {lang === 'fr' 
+                    ? `Découvrez d'autres articles sur ${article.category?.name || 'ce thème'}.`
+                    : `Discover more articles on ${article.category?.name || 'this topic'}.`}
+                </p>
+              </div>
               <div className="grid md:grid-cols-3 gap-8">
                 {relatedArticles.slice(0, 3).map(a => (
                   <ArticleCard key={a.id} article={a} />
                 ))}
               </div>
+              {article.category && (
+                <div className="text-center mt-12">
+                  <Link 
+                    href={`/category/${article.category.slug}`}
+                    className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary/90 transition-colors"
+                  >
+                    {lang === 'fr' ? `Tous les articles ${article.category.name}` : `All ${article.category.name} articles`}
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </Link>
+                </div>
+              )}
             </div>
           </section>
         )}
