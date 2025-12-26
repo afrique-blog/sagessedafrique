@@ -97,6 +97,83 @@ function HomeContent() {
             </div>
           </section>
 
+          {/* Section "Commencer ici" */}
+          <section className="container mx-auto px-4 -mt-8">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 md:p-12">
+              <div className="text-center mb-8">
+                <span className="text-accent text-sm font-bold uppercase tracking-widest">✨ {t('startHere', lang)}</span>
+                <p className="text-slate-500 dark:text-slate-400 mt-2">{t('startHereDesc', lang)}</p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* Personnalités */}
+                <Link 
+                  href="/personnalites" 
+                  className="group p-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border-2 border-transparent hover:border-accent transition-all hover:shadow-lg"
+                >
+                  <div className="w-14 h-14 bg-accent/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="text-3xl">👤</span>
+                  </div>
+                  <h3 className="font-serif font-bold text-lg mb-2 group-hover:text-accent transition-colors">
+                    {t('discoverPersonalities', lang)}
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {t('discoverPersonalitiesDesc', lang)}
+                  </p>
+                  <div className="mt-4 flex items-center text-accent text-sm font-medium">
+                    <span>{lang === 'fr' ? 'Explorer' : 'Explore'}</span>
+                    <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </Link>
+
+                {/* Catégories */}
+                <Link 
+                  href="/categories" 
+                  className="group p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border-2 border-transparent hover:border-primary transition-all hover:shadow-lg"
+                >
+                  <div className="w-14 h-14 bg-primary/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="text-3xl">📚</span>
+                  </div>
+                  <h3 className="font-serif font-bold text-lg mb-2 group-hover:text-primary transition-colors">
+                    {t('exploreCategories', lang)}
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {t('exploreCategoriesDesc', lang)}
+                  </p>
+                  <div className="mt-4 flex items-center text-primary text-sm font-medium">
+                    <span>{lang === 'fr' ? 'Parcourir' : 'Browse'}</span>
+                    <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </Link>
+
+                {/* Dossiers */}
+                <Link 
+                  href="#dossiers" 
+                  className="group p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border-2 border-transparent hover:border-emerald-500 transition-all hover:shadow-lg"
+                >
+                  <div className="w-14 h-14 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="text-3xl">📖</span>
+                  </div>
+                  <h3 className="font-serif font-bold text-lg mb-2 group-hover:text-emerald-600 transition-colors">
+                    {t('readDossiers', lang)}
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {t('readDossiersDesc', lang)}
+                  </p>
+                  <div className="mt-4 flex items-center text-emerald-600 text-sm font-medium">
+                    <span>{lang === 'fr' ? 'Découvrir' : 'Discover'}</span>
+                    <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </section>
+
           {mustRead.length > 0 && (
             <section className="container mx-auto px-4">
               <div className="flex items-center justify-between mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">
@@ -173,7 +250,7 @@ function HomeContent() {
           )}
 
           {dossiers.length > 0 && (
-            <section className="bg-slate-50 dark:bg-slate-900/50 py-16 border-y border-slate-200 dark:border-slate-800">
+            <section id="dossiers" className="bg-slate-50 dark:bg-slate-900/50 py-16 border-y border-slate-200 dark:border-slate-800">
               <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-serif font-bold mb-4">{t('specialReports', lang)}</h2>

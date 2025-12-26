@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useApp } from '@/lib/context';
@@ -15,11 +15,52 @@ interface ArticleClientProps {
   slug: string;
 }
 
+interface TOCItem {
+  id: string;
+  text: string;
+  level: number;
+}
+
+// Extract headings from HTML content for Table of Contents
+function extractHeadings(html: string): TOCItem[] {
+  const headings: TOCItem[] = [];
+  // Match h2 and h3 tags
+  const regex = /<h([23])[^>]*>([^<]+)<\/h[23]>/gi;
+  let match;
+  let index = 0;
+  
+  while ((match = regex.exec(html)) !== null) {
+    const level = parseInt(match[1]);
+    const text = match[2].replace(/&[^;]+;/g, '').trim(); // Remove HTML entities
+    const id = `heading-${index}`;
+    headings.push({ id, text, level });
+    index++;
+  }
+  
+  return headings;
+}
+
+// Add IDs to headings in HTML content
+function addHeadingIds(html: string): string {
+  let index = 0;
+  return html.replace(/<h([23])([^>]*)>([^<]+)<\/h([23])>/gi, (match, level, attrs, text, closeLevel) => {
+    const id = `heading-${index}`;
+    index++;
+    return `<h${level}${attrs} id="${id}">${text}</h${closeLevel}>`;
+  });
+}
+
 export default function ArticleClient({ initialArticle, slug }: ArticleClientProps) {
   const { lang } = useApp();
   const [article, setArticle] = useState<Article>(initialArticle);
   const [categories, setCategories] = useState<Category[]>([]);
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
+  const [showTOC, setShowTOC] = useState(false);
+
+  // Extract TOC from content
+  const toc = useMemo(() => extractHeadings(article.contentHtml || ''), [article.contentHtml]);
+  const contentWithIds = useMemo(() => addHeadingIds(article.contentHtml || ''), [article.contentHtml]);
+  const hasTOC = toc.length >= 3; // Show TOC if at least 3 headings
 
   // Fetch categories and related articles on client
   useEffect(() => {
@@ -108,8 +149,37 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
           </div>
         </div>
 
+        {/* Breadcrumb */}
+        <nav className="container mx-auto max-w-4xl px-4 py-4">
+          <ol className="flex items-center text-sm text-slate-500 dark:text-slate-400 flex-wrap gap-2">
+            <li>
+              <Link href="/" className="hover:text-primary dark:hover:text-accent transition-colors">
+                {lang === 'fr' ? 'Accueil' : 'Home'}
+              </Link>
+            </li>
+            <li className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+              {article.category && (
+                <Link href={`/category/${article.category.slug}`} className="hover:text-primary dark:hover:text-accent transition-colors">
+                  {article.category.name}
+                </Link>
+              )}
+            </li>
+            <li className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+              <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[200px] md:max-w-none">
+                {article.title}
+              </span>
+            </li>
+          </ol>
+        </nav>
+
         {/* Content */}
-        <article className="container mx-auto max-w-4xl px-4 py-12">
+        <article className="container mx-auto max-w-4xl px-4 py-8">
           {/* Share buttons - floating */}
           <div className="hidden lg:flex fixed left-8 top-1/2 -translate-y-1/2 flex-col gap-3 z-50">
             <a
@@ -150,6 +220,47 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
             </a>
           </div>
 
+          {/* Table of Contents */}
+          {hasTOC && (
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6 mb-8">
+              <button 
+                onClick={() => setShowTOC(!showTOC)}
+                className="flex items-center justify-between w-full text-left"
+              >
+                <h3 className="font-bold text-sm uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                  📑 {lang === 'fr' ? 'Table des matières' : 'Table of Contents'}
+                </h3>
+                <svg 
+                  className={`w-5 h-5 text-slate-400 transition-transform ${showTOC ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {showTOC && (
+                <nav className="mt-4 space-y-2">
+                  {toc.map((item) => (
+                    <a
+                      key={item.id}
+                      href={`#${item.id}`}
+                      className={`block text-sm hover:text-primary dark:hover:text-accent transition-colors ${
+                        item.level === 3 ? 'ml-4 text-slate-500' : 'font-medium text-slate-700 dark:text-slate-300'
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                    >
+                      {item.level === 3 ? '└ ' : '• '}{item.text}
+                    </a>
+                  ))}
+                </nav>
+              )}
+            </div>
+          )}
+
           {/* Takeaway */}
           {article.takeaway && (
             <div className="bg-accent/10 border-l-4 border-accent p-6 mb-8 rounded-r-lg">
@@ -164,7 +275,7 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
           {/* Main content */}
           <div 
             className="article-content prose prose-lg dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: article.contentHtml }}
+            dangerouslySetInnerHTML={{ __html: contentWithIds }}
           />
 
           {/* Mobile share buttons */}
