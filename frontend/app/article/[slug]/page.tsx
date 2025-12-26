@@ -2,13 +2,14 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import ArticleClient from './ArticleClient';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// Remove /api suffix if present to avoid double /api/api
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/api\/?$/, '');
 const SITE_URL = 'https://sagessedafrique.blog';
 
 // Fetch article data on server
 async function getArticle(slug: string, lang: string = 'fr') {
   try {
-    const res = await fetch(`${API_URL}/api/articles/${encodeURIComponent(slug)}?lang=${lang}`, {
+    const res = await fetch(`${API_BASE}/api/articles/${encodeURIComponent(slug)}?lang=${lang}`, {
       next: { revalidate: 60 }, // Cache for 60 seconds
     });
     if (!res.ok) return null;

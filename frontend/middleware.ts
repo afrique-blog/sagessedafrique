@@ -34,8 +34,9 @@ async function loadDynamicRedirects(): Promise<Record<string, string>> {
   }
   
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    const response = await fetch(`${apiUrl}/api/redirects`, {
+    // Remove /api suffix if present to avoid double /api/api
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(/\/api\/?$/, '');
+    const response = await fetch(`${apiBase}/api/redirects`, {
       next: { revalidate: 60 }
     });
     
