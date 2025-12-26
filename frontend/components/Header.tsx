@@ -6,18 +6,22 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context';
 import { t } from '@/lib/i18n';
-import { api, CategoriePersonnalite } from '@/lib/api';
+import { api, CategoriePersonnalite, Category } from '@/lib/api';
 
 const Header: React.FC = () => {
   const { lang, setLang, theme, setTheme } = useApp();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoriesPersonnalites, setCategoriesPersonnalites] = useState<CategoriePersonnalite[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     api.getCategoriesPersonnalites(lang)
       .then(setCategoriesPersonnalites)
+      .catch(console.error);
+    api.getCategories(lang)
+      .then(setCategories)
       .catch(console.error);
   }, [lang]);
 
@@ -35,7 +39,6 @@ const Header: React.FC = () => {
 
   const navLinks = [
     { name: t('home', lang), path: '/' },
-    { name: t('about', lang), path: '/about' },
     { name: t('contact', lang), path: '/contact' },
   ];
 
@@ -65,6 +68,29 @@ const Header: React.FC = () => {
               {link.name}
             </Link>
           ))}
+
+          {/* Menu Catégories */}
+          {categories.length > 0 && (
+            <div className="relative group">
+              <button className="text-sm font-medium flex items-center gap-1 hover:text-primary dark:hover:text-accent">
+                {lang === 'fr' ? 'Catégories' : 'Categories'}
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              <div className="absolute top-full left-0 w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                <div className="bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700 rounded-lg p-2">
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      href={`/category/${cat.slug}`}
+                      className="block px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md transition-colors"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Menu Personnalités Africaines */}
           {categoriesPersonnalites.length > 0 && (
@@ -134,6 +160,27 @@ const Header: React.FC = () => {
             {navLinks.map((link) => (
               <Link key={link.path} href={link.path} onClick={() => setIsMenuOpen(false)} className="text-lg font-medium">{link.name}</Link>
             ))}
+            
+            {/* Mobile Catégories */}
+            {categories.length > 0 && (
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                <span className="text-lg font-bold text-primary dark:text-accent mb-3 block">
+                  {lang === 'fr' ? 'Catégories' : 'Categories'}
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      href={`/category/${cat.slug}`}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-accent py-1"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
             
             {/* Mobile Personnalités */}
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
