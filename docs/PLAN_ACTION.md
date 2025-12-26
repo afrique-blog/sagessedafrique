@@ -62,19 +62,21 @@ docs/
 
 | ID | Tâche | Statut | Risque | Dépendance | Date |
 |----|-------|--------|--------|------------|------|
-| 2.1 | Auditer toutes les URLs actuelles (export liste) | ⬜ | Aucun | Phase 1 ✅ | - |
-| 2.2 | Créer table de mapping ancien → nouveau slug | ⬜ | Aucun | 2.1 | - |
-| 2.3 | Implémenter système de redirections 301 | ⬜ | Moyen | 2.2 | - |
-| 2.4 | Tester les redirections en staging | ⬜ | Aucun | 2.3 | - |
+| 2.1 | Auditer toutes les URLs actuelles (export liste) | ✅ | Aucun | Phase 1 ✅ | 26/12/2024 |
+| 2.2 | Créer table de mapping ancien → nouveau slug | ✅ | Aucun | 2.1 | 26/12/2024 |
+| 2.3 | Implémenter système de redirections 301 | ✅ | Moyen | 2.2 | 26/12/2024 |
+| 2.4 | Tester les redirections en staging | ✅ | Aucun | 2.3 | 26/12/2024 |
 
-### 2B. Migration des slugs ⚠️ CRITIQUE
+### 2B. Migration des slugs ⚠️ TERMINÉE
 
 | ID | Tâche | Statut | Risque | Dépendance | Date |
 |----|-------|--------|--------|------------|------|
-| 2.5 | Backup complet base de données | ⬜ | Aucun | 2.4 ✅ | - |
-| 2.6 | Migrer slugs articles (espaces → tirets) | ⬜ | ⚠️ ÉLEVÉ | 2.5 | - |
-| 2.7 | Migrer slugs personnalités | ⬜ | ⚠️ ÉLEVÉ | 2.6 | - |
-| 2.8 | Vérifier toutes les redirections en production | ⬜ | Moyen | 2.7 | - |
+| 2.5 | Backup complet base de données | ✅ | Aucun | 2.4 ✅ | 26/12/2024 |
+| 2.6 | Migrer slugs articles (espaces → tirets) | ✅ | ⚠️ ÉLEVÉ | 2.5 | 26/12/2024 |
+| 2.7 | Migrer slugs tags | ✅ | ⚠️ ÉLEVÉ | 2.6 | 26/12/2024 |
+| 2.8 | Vérifier toutes les redirections en production | ✅ | Moyen | 2.7 | 26/12/2024 |
+
+### ✅ PHASE 2A & 2B TERMINÉES — 26/12/2024
 
 ### 2C. Optimisations SEO
 
@@ -147,10 +149,10 @@ docs/
 | Phase | Tâches | Terminées | % |
 |-------|--------|-----------|---|
 | Phase 1 - Fondations | 6 | 6 | 100% ✅ |
-| Phase 2 - SEO | 16 | 0 | 0% |
+| Phase 2 - SEO | 16 | 8 | 50% |
 | Phase 3 - UX | 8 | 0 | 0% |
 | Phase 4 - Conversion | 6 | 0 | 0% |
-| **TOTAL** | **36** | **6** | **17%** |
+| **TOTAL** | **36** | **14** | **39%** |
 
 ### Historique des déploiements
 
