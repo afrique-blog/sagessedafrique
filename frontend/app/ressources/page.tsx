@@ -25,11 +25,14 @@ export default function RessourcesPage() {
     if (!email) return;
     
     setLoading(true);
-    // TODO: Intégrer avec service email (Mailchimp, SendGrid, etc.)
-    // Pour l'instant, on simule un délai
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSubmitted(true);
-    setLoading(false);
+    try {
+      await api.subscribe(email, 'ressources');
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Subscription error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const leadMagnets = [

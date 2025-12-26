@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useApp } from '@/lib/context';
+import { api } from '@/lib/api';
 
 const POPUP_DELAY = 45000; // 45 seconds
 const STORAGE_KEY = 'newsletter_popup_dismissed';
@@ -42,15 +43,18 @@ export default function NewsletterPopup() {
     if (!email) return;
 
     setLoading(true);
-    // TODO: Intégrer avec service email
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSubmitted(true);
-    setLoading(false);
-    
-    // Auto-close after success
-    setTimeout(() => {
-      handleDismiss();
-    }, 3000);
+    try {
+      await api.subscribe(email, 'popup');
+      setSubmitted(true);
+      // Auto-close after success
+      setTimeout(() => {
+        handleDismiss();
+      }, 3000);
+    } catch (error) {
+      console.error('Subscription error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!show) return null;

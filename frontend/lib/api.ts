@@ -377,6 +377,18 @@ class ApiClient {
   async deletePersonnalite(id: number): Promise<void> {
     return this.fetch(`/personnalites/${id}`, { method: 'DELETE' });
   }
+
+  // Newsletter
+  async subscribe(email: string, source: string): Promise<{ success: boolean; message: string }> {
+    return this.fetch('/subscribers', {
+      method: 'POST',
+      body: JSON.stringify({ email, source }),
+    });
+  }
+
+  async getSubscriberCount(): Promise<{ count: number }> {
+    return this.fetch('/subscribers/count');
+  }
 }
 
 export const api = new ApiClient();

@@ -204,3 +204,14 @@ model Redirect {
   @@map("redirects")
 }
 
+// Abonnés newsletter
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique @db.VarChar(255)
+  source    String?  @db.VarChar(50) // 'popup', 'footer', 'ressources'
+  status    String   @default("pending") @db.VarChar(20) // 'pending', 'confirmed', 'unsubscribed'
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("subscribers")
+}
+

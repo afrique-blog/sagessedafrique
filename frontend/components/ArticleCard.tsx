@@ -50,7 +50,7 @@ const ArticleCard: React.FC<Props> = ({ article, variant = 'medium' }) => {
             {article.excerpt}
           </p>
           <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-100 dark:border-slate-700">
-            <div className="flex items-center gap-3">
+            <Link href={`/auteur/${article.author.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               {article.author.avatar ? (
                 <Image
                   src={article.author.avatar}
@@ -64,8 +64,8 @@ const ArticleCard: React.FC<Props> = ({ article, variant = 'medium' }) => {
                   {article.author.name.split(' ').map(n => n[0]).join('')}
                 </div>
               )}
-              <span className="text-xs font-medium">{article.author.name}</span>
-            </div>
+              <span className="text-xs font-medium hover:text-primary dark:hover:text-accent transition-colors">{article.author.name}</span>
+            </Link>
             <span className="text-xs text-slate-400">{article.readingMinutes} min read</span>
           </div>
           <Link 
@@ -143,7 +143,22 @@ const ArticleCard: React.FC<Props> = ({ article, variant = 'medium' }) => {
           {article.excerpt}
         </p>
         <div className="mt-auto pt-4 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-50 dark:border-slate-700">
-          <span>{article.publishedAt && formatDate(article.publishedAt)}</span>
+          <Link href={`/auteur/${article.author.id}`} className="flex items-center gap-2 hover:text-primary dark:hover:text-accent transition-colors">
+            {article.author.avatar ? (
+              <Image
+                src={article.author.avatar}
+                alt={article.author.name}
+                width={20}
+                height={20}
+                className="w-5 h-5 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-[8px] font-bold">
+                {article.author.name.split(' ').map(n => n[0]).join('')}
+              </div>
+            )}
+            <span>{article.author.name}</span>
+          </Link>
           <span>{article.readingMinutes} min</span>
         </div>
       </div>
