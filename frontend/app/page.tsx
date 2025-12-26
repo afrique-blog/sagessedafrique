@@ -19,6 +19,7 @@ function HomeContent() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [dossiers, setDossiers] = useState<Dossier[]>([]);
+  const [dossierDuMoisData, setDossierDuMoisData] = useState<{ dossier: Dossier; article: Article } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,6 +33,17 @@ function HomeContent() {
         setArticles(articlesRes.data);
         setCategories(categoriesRes);
         setDossiers(dossiersRes);
+
+        // Charger le dossier du mois avec ses articles
+        if (dossiersRes.length > 0) {
+          const dossierComplet = await api.getDossier(dossiersRes[0].slug, lang);
+          if (dossierComplet.articles && dossierComplet.articles.length > 0) {
+            setDossierDuMoisData({
+              dossier: dossiersRes[0],
+              article: dossierComplet.articles[0], // L'article le plus récent
+            });
+          }
+        }
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -44,7 +56,6 @@ function HomeContent() {
   const featured = articles.find(a => a.featured) || articles[0];
   const mustRead = articles.slice(1, 4);
   const latest = articles.slice(4, 8); // Limité à 4 articles
-  const dossierDuMois = dossiers[0]; // Le dernier dossier publié
 
   if (loading) {
     return (
@@ -211,8 +222,8 @@ function HomeContent() {
             </div>
           </section>
 
-          {/* Dossier du Mois */}
-          {dossierDuMois && (
+          {/* Dossier du Mois - Affiche l'article le plus récent */}
+          {dossierDuMoisData && (
             <section className="container mx-auto px-4 py-8">
               <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-900 via-orange-800 to-amber-900">
                 {/* Background Image */}
@@ -231,34 +242,34 @@ function HomeContent() {
                   {/* Left: Badge + Title */}
                   <div className="md:w-1/2 text-center md:text-left">
                     <span className="inline-block px-4 py-1 bg-accent text-slate-900 rounded-full text-xs font-bold uppercase tracking-widest mb-4">
-                      📖 {lang === 'fr' ? 'Dossier du Mois' : 'Dossier of the Month'}
+                      📖 {dossierDuMoisData.dossier.title}
                     </span>
                     <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">
-                      {dossierDuMois.title}
+                      {dossierDuMoisData.article.title}
                     </h2>
                     <p className="text-white/80 mb-6 line-clamp-3">
-                      {dossierDuMois.description || (lang === 'fr' 
+                      {dossierDuMoisData.article.excerpt || (lang === 'fr' 
                         ? 'Plongez dans notre dossier spécial du mois, une exploration approfondie d\'un thème majeur de l\'histoire africaine.'
                         : 'Dive into our special dossier of the month, an in-depth exploration of a major theme in African history.')}
                     </p>
                     <Link 
-                      href={`/dossier/${dossierDuMois.slug}`}
+                      href={`/article/${dossierDuMoisData.article.slug}`}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-white text-amber-900 rounded-lg font-bold hover:bg-accent transition-colors"
                     >
-                      {lang === 'fr' ? 'Découvrir le dossier' : 'Discover the dossier'}
+                      {lang === 'fr' ? 'Lire l\'article' : 'Read article'}
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
                     </Link>
                   </div>
                   
-                  {/* Right: Dossier Image */}
+                  {/* Right: Article Image */}
                   <div className="md:w-1/2">
-                    <Link href={`/dossier/${dossierDuMois.slug}`} className="block relative aspect-[16/10] rounded-xl overflow-hidden shadow-2xl group">
-                      {dossierDuMois.heroImage ? (
+                    <Link href={`/article/${dossierDuMoisData.article.slug}`} className="block relative aspect-[16/10] rounded-xl overflow-hidden shadow-2xl group">
+                      {dossierDuMoisData.article.heroImage ? (
                         <Image 
-                          src={dossierDuMois.heroImage} 
-                          alt={dossierDuMois.title}
+                          src={dossierDuMoisData.article.heroImage} 
+                          alt={dossierDuMoisData.article.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
                         />
