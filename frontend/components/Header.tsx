@@ -37,11 +37,6 @@ const Header: React.FC = () => {
     }
   };
 
-  const navLinks = [
-    { name: t('home', lang), path: '/' },
-    { name: t('contact', lang), path: '/contact' },
-  ];
-
   return (
     <header className="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
@@ -59,15 +54,13 @@ const Header: React.FC = () => {
 
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center space-x-8">
-          {navLinks.map((link) => (
-            <Link 
-              key={link.path} 
-              href={link.path}
-              className="text-sm font-medium hover:text-primary dark:hover:text-accent transition-colors"
-            >
-              {link.name}
-            </Link>
-          ))}
+          {/* Accueil */}
+          <Link 
+            href="/"
+            className="text-sm font-medium hover:text-primary dark:hover:text-accent transition-colors"
+          >
+            {t('home', lang)}
+          </Link>
 
           {/* Menu Catégories */}
           {categories.length > 0 && (
@@ -120,6 +113,14 @@ const Header: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Contact - en dernier */}
+          <Link 
+            href="/contact"
+            className="text-sm font-medium hover:text-primary dark:hover:text-accent transition-colors"
+          >
+            {t('contact', lang)}
+          </Link>
         </nav>
 
         {/* Actions */}
@@ -157,9 +158,10 @@ const Header: React.FC = () => {
       {isMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 max-h-[80vh] overflow-y-auto">
           <nav className="flex flex-col space-y-4">
-            {navLinks.map((link) => (
-              <Link key={link.path} href={link.path} onClick={() => setIsMenuOpen(false)} className="text-lg font-medium">{link.name}</Link>
-            ))}
+            {/* Accueil */}
+            <Link href="/" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium">
+              {t('home', lang)}
+            </Link>
             
             {/* Mobile Catégories */}
             {categories.length > 0 && (
@@ -203,6 +205,13 @@ const Header: React.FC = () => {
                   </Link>
                 ))}
               </div>
+            </div>
+
+            {/* Contact - en dernier */}
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+              <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium">
+                {t('contact', lang)}
+              </Link>
             </div>
 
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">

@@ -55,9 +55,17 @@ export async function categoryRoutes(fastify: FastifyInstance) {
           include: {
             translations: { where: { lang } },
             author: { select: { id: true, name: true, avatar: true, bio: true } },
+            personnalites: {
+              include: {
+                categorie: {
+                  include: {
+                    translations: { where: { lang } },
+                  },
+                },
+              },
+            },
           },
           orderBy: { publishedAt: 'desc' },
-          take: 20,
         },
       },
     });
@@ -71,16 +79,26 @@ export async function categoryRoutes(fastify: FastifyInstance) {
       slug: category.slug,
       name: category.translations[0]?.name || '',
       description: category.translations[0]?.description || '',
-      articles: category.articles.map((a: any) => ({
-        id: a.id,
-        slug: a.slug,
-        title: a.translations[0]?.title || '',
-        excerpt: a.translations[0]?.excerpt || '',
-        heroImage: normalizeHeroImage(a.heroImage),
-        readingMinutes: a.readingMinutes,
-        publishedAt: a.publishedAt,
-        author: a.author,
-      })),
+      articles: category.articles.map((a: any) => {
+        // Get personality category if article is linked to a personality
+        const personnalite = a.personnalites?.[0];
+        const personnaliteCategorie = personnalite?.categorie;
+        
+        return {
+          id: a.id,
+          slug: a.slug,
+          title: a.translations[0]?.title || '',
+          excerpt: a.translations[0]?.excerpt || '',
+          heroImage: normalizeHeroImage(a.heroImage),
+          readingMinutes: a.readingMinutes,
+          publishedAt: a.publishedAt,
+          author: a.author,
+          personnaliteCategorie: personnaliteCategorie ? {
+            slug: personnaliteCategorie.slug,
+            nom: personnaliteCategorie.translations[0]?.nom || '',
+          } : null,
+        };
+      }),
     };
   });
 

@@ -121,10 +121,18 @@ const ArticleCard: React.FC<Props> = ({ article, variant = 'medium' }) => {
         )}
       </Link>
       <div className="p-6 flex flex-col flex-grow">
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center justify-between gap-2 mb-3">
           {article.category && (
             <Link href={`/category/${article.category.slug}`} className="text-[10px] font-bold text-primary dark:text-accent uppercase tracking-widest hover:underline">
               {article.category.name}
+            </Link>
+          )}
+          {article.personnaliteCategorie && (
+            <Link 
+              href={`/personnalites/${article.personnaliteCategorie.slug}`} 
+              className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest hover:text-primary dark:hover:text-accent transition-colors"
+            >
+              {article.personnaliteCategorie.nom}
             </Link>
           )}
         </div>

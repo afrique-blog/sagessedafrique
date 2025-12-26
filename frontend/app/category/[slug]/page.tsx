@@ -9,12 +9,15 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
 
+const ARTICLES_PER_PAGE = 12;
+
 export default function CategoryPage() {
   const { slug } = useParams();
   const { lang } = useApp();
   const [category, setCategory] = useState<(Category & { articles: Article[] }) | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     async function fetchData() {
@@ -27,6 +30,7 @@ export default function CategoryPage() {
         ]);
         setCategory(categoryData);
         setCategories(categoriesData);
+        setCurrentPage(1); // Reset page when category changes
       } catch (error) {
         console.error('Failed to fetch category:', error);
       } finally {
@@ -35,6 +39,12 @@ export default function CategoryPage() {
     }
     fetchData();
   }, [slug, lang]);
+
+  // Pagination logic
+  const totalArticles = category?.articles.length || 0;
+  const totalPages = Math.ceil(totalArticles / ARTICLES_PER_PAGE);
+  const startIndex = (currentPage - 1) * ARTICLES_PER_PAGE;
+  const paginatedArticles = category?.articles.slice(startIndex, startIndex + ARTICLES_PER_PAGE) || [];
 
   if (loading) {
     return (
@@ -84,19 +94,67 @@ export default function CategoryPage() {
         {/* Articles Grid */}
         <section className="container mx-auto px-4 py-12">
           {category.articles.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {category.articles.map((article: any) => (
-                <ArticleCard 
-                  key={article.id} 
-                  article={{
-                    ...article,
-                    category: { slug: category.slug, name: category.name },
-                    tags: [],
-                    dossiers: [],
-                  }} 
-                />
-              ))}
-            </div>
+            <>
+              {/* Count */}
+              <p className="text-sm text-slate-500 mb-6">
+                {lang === 'fr' 
+                  ? `${totalArticles} article${totalArticles > 1 ? 's' : ''} • Page ${currentPage} sur ${totalPages}`
+                  : `${totalArticles} article${totalArticles > 1 ? 's' : ''} • Page ${currentPage} of ${totalPages}`
+                }
+              </p>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {paginatedArticles.map((article: any) => (
+                  <ArticleCard 
+                    key={article.id} 
+                    article={{
+                      ...article,
+                      category: { slug: category.slug, name: category.name },
+                      tags: [],
+                      dossiers: [],
+                      personnaliteCategorie: article.personnaliteCategorie || null,
+                    }} 
+                  />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-12">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    {lang === 'fr' ? '← Précédent' : '← Previous'}
+                  </button>
+                  
+                  <div className="flex gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                          currentPage === page
+                            ? 'bg-primary text-white dark:bg-accent dark:text-slate-900'
+                            : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    {lang === 'fr' ? 'Suivant →' : 'Next →'}
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <p className="text-center text-slate-500 py-12">
               {lang === 'fr' ? 'Aucun article dans cette catégorie.' : 'No articles in this category.'}

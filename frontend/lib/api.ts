@@ -16,6 +16,7 @@ export interface Article {
   category: { slug: string; name: string } | null;
   tags: { slug: string; name: string }[];
   dossiers: { slug: string; title: string }[];
+  personnaliteCategorie?: { slug: string; nom: string } | null;
 }
 
 export interface Category {
