@@ -43,7 +43,8 @@ function HomeContent() {
 
   const featured = articles.find(a => a.featured) || articles[0];
   const mustRead = articles.slice(1, 4);
-  const latest = articles.slice(4, 12);
+  const latest = articles.slice(4, 8); // Limité à 4 articles
+  const dossierDuMois = dossiers[0]; // Le dernier dossier publié
 
   if (loading) {
     return (
@@ -209,6 +210,70 @@ function HomeContent() {
               </div>
             </div>
           </section>
+
+          {/* Dossier du Mois */}
+          {dossierDuMois && (
+            <section className="container mx-auto px-4 py-8">
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-900 via-orange-800 to-amber-900">
+                {/* Background Image */}
+                <div className="absolute inset-0">
+                  <Image 
+                    src="/images/dossiers/le-dossier-du-mois.webp" 
+                    alt="Dossier du mois" 
+                    fill 
+                    className="object-cover opacity-30"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-900/90 via-transparent to-amber-900/90" />
+                </div>
+                
+                {/* Content */}
+                <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                  {/* Left: Badge + Title */}
+                  <div className="md:w-1/2 text-center md:text-left">
+                    <span className="inline-block px-4 py-1 bg-accent text-slate-900 rounded-full text-xs font-bold uppercase tracking-widest mb-4">
+                      📖 {lang === 'fr' ? 'Dossier du Mois' : 'Dossier of the Month'}
+                    </span>
+                    <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">
+                      {dossierDuMois.title}
+                    </h2>
+                    <p className="text-white/80 mb-6 line-clamp-3">
+                      {dossierDuMois.description || (lang === 'fr' 
+                        ? 'Plongez dans notre dossier spécial du mois, une exploration approfondie d\'un thème majeur de l\'histoire africaine.'
+                        : 'Dive into our special dossier of the month, an in-depth exploration of a major theme in African history.')}
+                    </p>
+                    <Link 
+                      href={`/dossier/${dossierDuMois.slug}`}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-white text-amber-900 rounded-lg font-bold hover:bg-accent transition-colors"
+                    >
+                      {lang === 'fr' ? 'Découvrir le dossier' : 'Discover the dossier'}
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </Link>
+                  </div>
+                  
+                  {/* Right: Dossier Image */}
+                  <div className="md:w-1/2">
+                    <Link href={`/dossier/${dossierDuMois.slug}`} className="block relative aspect-[16/10] rounded-xl overflow-hidden shadow-2xl group">
+                      {dossierDuMois.heroImage ? (
+                        <Image 
+                          src={dossierDuMois.heroImage} 
+                          alt={dossierDuMois.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-amber-800 flex items-center justify-center">
+                          <span className="text-6xl opacity-50">📖</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
 
           {latest.length > 0 && (
             <section className="container mx-auto px-4">
