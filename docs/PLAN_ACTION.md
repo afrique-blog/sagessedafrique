@@ -134,17 +134,20 @@ docs/
 
 | ID | Tâche | Statut | Risque | Dépendance | Date |
 |----|-------|--------|--------|------------|------|
-| 4.1 | Créer lead magnet PDF "10 penseurs africains" | ⬜ | Aucun | - | - |
-| 4.2 | CTA newsletter amélioré (promesse claire) | ⬜ | Aucun | - | - |
-| 4.3 | Pop-up newsletter (après 45-60s, discret) | ⬜ | Faible | - | - |
-| 4.4 | Séquence email bienvenue (3 emails) | ⬜ | Aucun | Service email | - |
-| 4.5 | Pages auteur enrichies (bio, photo, articles) | ⬜ | Aucun | - | - |
-| 4.6 | Page "Politique éditoriale" | ⬜ | Aucun | - | - |
+| 4.1 | Créer lead magnet PDF "10 penseurs africains" | ✅ | Aucun | - | 26/12 |
+| 4.2 | CTA newsletter amélioré (promesse claire) | ✅ | Aucun | - | 26/12 |
+| 4.3 | Pop-up newsletter (après 45-60s, discret) | ✅ | Faible | - | 26/12 |
+| 4.4 | Séquence email bienvenue (3 emails) | ⏳ | Aucun | Service email | - |
+| 4.5 | Pages auteur enrichies (bio, photo, articles) | ✅ | Aucun | - | 26/12 |
+| 4.6 | Page "Politique éditoriale" | ✅ | Aucun | - | 26/12 |
 
 **Critère de validation Phase 4** :
-- [ ] Lead magnet téléchargeable
-- [ ] Taux de conversion newsletter > 2%
-- [ ] Séquence email automatisée fonctionnelle
+- [x] Lead magnet téléchargeable ✅ (Page /ressources)
+- [ ] Taux de conversion newsletter > 2% (Nécessite analytics)
+- [ ] Séquence email automatisée fonctionnelle (Nécessite Mailchimp/SendGrid)
+
+### ✅ PHASE 4 COMPLÈTE (5/6) — 26/12/2024
+*Note: Tâche 4.4 en attente d'intégration service email*
 
 ---
 
@@ -156,9 +159,9 @@ docs/
 |-------|--------|-----------|---|
 | Phase 1 - Fondations | 6 | 6 | 100% ✅ |
 | Phase 2 - SEO | 16 | 16 | 100% ✅ |
-| Phase 3 - UX | 8 | 0 | 0% |
-| Phase 4 - Conversion | 6 | 0 | 0% |
-| **TOTAL** | **36** | **22** | **61%** |
+| Phase 3 - UX | 8 | 8 | 100% ✅ |
+| Phase 4 - Conversion | 6 | 5 | 83% ✅ |
+| **TOTAL** | **36** | **35** | **97%** ✅ |
 
 ### Historique des déploiements
 
