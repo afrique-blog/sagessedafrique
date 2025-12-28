@@ -17,7 +17,7 @@ function NewPersonnaliteForm() {
   const [form, setForm] = useState({
     slug: '',
     nom: '',
-    categorieId: 0,
+    categorieIds: [] as number[], // Plusieurs catégories possibles
     imageFilename: '', // Juste le nom du fichier
     youtubeUrl: '',
     articleId: '',
@@ -30,14 +30,17 @@ function NewPersonnaliteForm() {
     ]).then(([cats, arts]) => {
       setCategories(cats);
       setArticles(arts.data);
-      if (cats.length > 0) {
-        setForm(f => ({ ...f, categorieId: cats[0].id }));
-      }
     });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (form.categorieIds.length === 0) {
+      alert('Veuillez sélectionner au moins une catégorie');
+      return;
+    }
+    
     setLoading(true);
     try {
       // Construire le chemin complet de l'image
@@ -48,7 +51,7 @@ function NewPersonnaliteForm() {
       await api.createPersonnalite({
         slug: form.slug,
         nom: form.nom,
-        categorieId: form.categorieId,
+        categorieIds: form.categorieIds,
         image: imagePath,
         youtubeUrl: form.youtubeUrl || null,
         articleId: form.articleId ? parseInt(form.articleId) : null,
@@ -107,17 +110,31 @@ function NewPersonnaliteForm() {
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">Catégorie *</label>
-            <select
-              value={form.categorieId}
-              onChange={e => setForm({ ...form, categorieId: parseInt(e.target.value) })}
-              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
-              required
-            >
+            <label className="block text-sm font-medium mb-2">Catégories * (sélectionnez une ou plusieurs)</label>
+            <div className="space-y-2 p-4 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 max-h-48 overflow-y-auto">
               {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.nom}</option>
+                <label key={cat.id} className="flex items-center gap-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 p-2 rounded">
+                  <input
+                    type="checkbox"
+                    checked={form.categorieIds.includes(cat.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setForm({ ...form, categorieIds: [...form.categorieIds, cat.id] });
+                      } else {
+                        setForm({ ...form, categorieIds: form.categorieIds.filter(id => id !== cat.id) });
+                      }
+                    }}
+                    className="w-4 h-4 text-primary rounded border-slate-300 focus:ring-primary"
+                  />
+                  <span>{cat.nom}</span>
+                </label>
               ))}
-            </select>
+            </div>
+            {form.categorieIds.length > 0 && (
+              <p className="text-xs text-slate-500 mt-1">
+                {form.categorieIds.length} catégorie(s) sélectionnée(s)
+              </p>
+            )}
           </div>
 
           <div className="mb-6">

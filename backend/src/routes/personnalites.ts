@@ -25,7 +25,7 @@ const createCategoriePersonnaliteSchema = z.object({
 const createPersonnaliteSchema = z.object({
   slug: z.string().min(1),
   nom: z.string().min(1),
-  categorieId: z.number().int(),
+  categorieIds: z.array(z.number().int()).min(1), // Au moins une catégorie
   image: z.string().optional().nullable(),
   youtubeUrl: z.string().optional().nullable(),
   articleId: z.number().int().optional().nullable(),
@@ -64,8 +64,12 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const personnalites = await prisma.personnalite.findMany({
       include: {
-        categorie: {
-          include: { translations: true },
+        categories: {
+          include: {
+            categorie: {
+              include: { translations: true },
+            },
+          },
         },
         article: {
           include: { translations: true },
@@ -74,7 +78,12 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       orderBy: { nom: 'asc' },
     });
 
-    return personnalites;
+    return personnalites.map((p: any) => ({
+      ...p,
+      // Compatibilité: ajouter categorieId et categorie pour l'admin
+      categorieIds: p.categories.map((pc: any) => pc.categorieId),
+      categories: p.categories.map((pc: any) => pc.categorie),
+    }));
   });
 
   // GET /api/personnalites/admin/:id - Get one for admin
@@ -86,7 +95,11 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
     const personnalite = await prisma.personnalite.findUnique({
       where: { id },
       include: {
-        categorie: true,
+        categories: {
+          include: {
+            categorie: true,
+          },
+        },
         article: true,
       },
     });
@@ -95,7 +108,10 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       return reply.status(404).send({ error: 'Personnalite not found' });
     }
 
-    return personnalite;
+    return {
+      ...personnalite,
+      categorieIds: personnalite.categories.map((pc: any) => pc.categorieId),
+    };
   });
 
   // =====================================================
@@ -109,7 +125,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
     const categories = await prisma.categoriePersonnalite.findMany({
       include: {
         translations: { where: { lang } },
-        _count: { select: { personnalites: true } },
+        _count: { select: { personnalites: true } }, // via la table de jointure
       },
       orderBy: { id: 'asc' },
     });
@@ -135,13 +151,23 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         translations: { where: { lang } },
         personnalites: {
           include: {
-            article: {
+            personnalite: {
               include: {
-                translations: { where: { lang } },
+                article: {
+                  include: {
+                    translations: { where: { lang } },
+                  },
+                },
+                categories: {
+                  include: {
+                    categorie: {
+                      include: { translations: { where: { lang } } },
+                    },
+                  },
+                },
               },
             },
           },
-          orderBy: { nom: 'asc' },
         },
       },
     });
@@ -150,18 +176,28 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       return reply.status(404).send({ error: 'Categorie not found' });
     }
 
+    // Extraire les personnalités et les trier par nom
+    const personnalites = categorie.personnalites
+      .map((pc: any) => pc.personnalite)
+      .sort((a: any, b: any) => a.nom.localeCompare(b.nom));
+
     return {
       id: categorie.id,
       slug: categorie.slug,
       nom: categorie.translations[0]?.nom || '',
       description: categorie.translations[0]?.description || '',
       image: categorie.image,
-      personnalites: categorie.personnalites.map((p: any) => ({
+      personnalites: personnalites.map((p: any) => ({
         id: p.id,
         slug: p.slug,
         nom: p.nom,
         image: normalizePersonnaliteImage(p.image),
         youtubeUrl: p.youtubeUrl,
+        categories: p.categories.map((pc: any) => ({
+          id: pc.categorie.id,
+          slug: pc.categorie.slug,
+          nom: pc.categorie.translations[0]?.nom || '',
+        })),
         article: p.article ? {
           id: p.article.id,
           slug: p.article.slug,
@@ -239,9 +275,13 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
     
     const personnalites = await prisma.personnalite.findMany({
       include: {
-        categorie: {
+        categories: {
           include: {
-            translations: { where: { lang } },
+            categorie: {
+              include: {
+                translations: { where: { lang } },
+              },
+            },
           },
         },
         article: {
@@ -259,11 +299,17 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       nom: p.nom,
       image: normalizePersonnaliteImage(p.image),
       youtubeUrl: p.youtubeUrl,
-      categorie: {
-        id: p.categorie.id,
-        slug: p.categorie.slug,
-        nom: p.categorie.translations[0]?.nom || '',
-      },
+      categories: p.categories.map((pc: any) => ({
+        id: pc.categorie.id,
+        slug: pc.categorie.slug,
+        nom: pc.categorie.translations[0]?.nom || '',
+      })),
+      // Compatibilité: garder "categorie" (la première) pour le code existant
+      categorie: p.categories.length > 0 ? {
+        id: p.categories[0].categorie.id,
+        slug: p.categories[0].categorie.slug,
+        nom: p.categories[0].categorie.translations[0]?.nom || '',
+      } : null,
       article: p.article ? {
         id: p.article.id,
         slug: p.article.slug,
@@ -281,9 +327,13 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
     const personnalite = await prisma.personnalite.findUnique({
       where: { slug },
       include: {
-        categorie: {
+        categories: {
           include: {
-            translations: { where: { lang } },
+            categorie: {
+              include: {
+                translations: { where: { lang } },
+              },
+            },
           },
         },
         article: {
@@ -305,11 +355,17 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       nom: personnalite.nom,
       image: normalizePersonnaliteImage(personnalite.image),
       youtubeUrl: personnalite.youtubeUrl,
-      categorie: {
-        id: personnalite.categorie.id,
-        slug: personnalite.categorie.slug,
-        nom: (personnalite.categorie as any).translations[0]?.nom || '',
-      },
+      categories: personnalite.categories.map((pc: any) => ({
+        id: pc.categorie.id,
+        slug: pc.categorie.slug,
+        nom: pc.categorie.translations[0]?.nom || '',
+      })),
+      // Compatibilité: garder "categorie" (la première) pour le code existant
+      categorie: personnalite.categories.length > 0 ? {
+        id: personnalite.categories[0].categorie.id,
+        slug: personnalite.categories[0].categorie.slug,
+        nom: personnalite.categories[0].categorie.translations[0]?.nom || '',
+      } : null,
       article: personnalite.article ? {
         id: personnalite.article.id,
         slug: personnalite.article.slug,
@@ -332,14 +388,28 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       data: {
         slug: body.slug,
         nom: body.nom,
-        categorieId: body.categorieId,
         image: body.image,
         youtubeUrl: body.youtubeUrl,
         articleId: body.articleId,
+        categories: {
+          create: body.categorieIds.map((categorieId: number) => ({
+            categorieId,
+          })),
+        },
+      },
+      include: {
+        categories: {
+          include: {
+            categorie: true,
+          },
+        },
       },
     });
 
-    return reply.status(201).send(personnalite);
+    return reply.status(201).send({
+      ...personnalite,
+      categorieIds: personnalite.categories.map((pc: any) => pc.categorieId),
+    });
   });
 
   // PUT /api/personnalites/:id - Update (protected)
@@ -349,19 +419,39 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
     const id = parseInt(request.params.id);
     const body = createPersonnaliteSchema.parse(request.body);
 
+    // Supprimer les anciennes associations de catégories
+    await prisma.personnaliteCategorie.deleteMany({
+      where: { personnaliteId: id },
+    });
+
+    // Mettre à jour la personnalité et créer les nouvelles associations
     const personnalite = await prisma.personnalite.update({
       where: { id },
       data: {
         slug: body.slug,
         nom: body.nom,
-        categorieId: body.categorieId,
         image: body.image,
         youtubeUrl: body.youtubeUrl,
         articleId: body.articleId,
+        categories: {
+          create: body.categorieIds.map((categorieId: number) => ({
+            categorieId,
+          })),
+        },
+      },
+      include: {
+        categories: {
+          include: {
+            categorie: true,
+          },
+        },
       },
     });
 
-    return personnalite;
+    return {
+      ...personnalite,
+      categorieIds: personnalite.categories.map((pc: any) => pc.categorieId),
+    };
   });
 
   // DELETE /api/personnalites/:id - Delete (protected)

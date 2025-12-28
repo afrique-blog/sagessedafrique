@@ -146,6 +146,21 @@ export default function CategoriePersonnalitePage() {
                 <div className="p-5">
                   <h3 className="text-lg font-serif font-bold mb-2">{personnalite.nom}</h3>
                   
+                  {/* Badges des catégories */}
+                  {personnalite.categories && personnalite.categories.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {personnalite.categories.map((cat: any) => (
+                        <Link
+                          key={cat.id}
+                          href={`/personnalites/${cat.slug}`}
+                          className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary dark:bg-accent/10 dark:text-accent rounded-full hover:bg-primary/20 dark:hover:bg-accent/20 transition-colors"
+                        >
+                          {cat.nom}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  
                   {personnalite.article && (
                     <p className="text-slate-600 dark:text-slate-400 text-sm mb-3 line-clamp-2">
                       {personnalite.article.excerpt}

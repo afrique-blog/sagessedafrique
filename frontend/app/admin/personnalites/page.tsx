@@ -49,7 +49,7 @@ function PersonnalitesList() {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">ID</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Nom</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Catégorie</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Catégories</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Article</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">YouTube</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Actions</th>
@@ -60,7 +60,19 @@ function PersonnalitesList() {
                   <tr key={p.id}>
                     <td className="px-6 py-4 text-sm">{p.id}</td>
                     <td className="px-6 py-4 text-sm font-medium">{p.nom}</td>
-                    <td className="px-6 py-4 text-sm">{p.categorie.nom}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="flex flex-wrap gap-1">
+                        {p.categories && p.categories.length > 0 ? (
+                          p.categories.map((cat: any) => (
+                            <span key={cat.id} className="inline-block px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
+                              {cat.nom}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-6 py-4 text-sm">
                       {p.article ? (
                         <span className="text-green-600">✓</span>

@@ -157,7 +157,7 @@ model CategoriePersonnalite {
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
   translations CategoriePersonnaliteTranslation[]
-  personnalites Personnalite[]
+  personnalites PersonnaliteCategorie[]
 
   @@map("categories_personnalites")
 }
@@ -179,16 +179,26 @@ model Personnalite {
   id          Int                    @id @default(autoincrement())
   slug        String                 @unique
   nom         String
-  categorieId Int                    @map("categorie_id")
   image       String?
   youtubeUrl  String?                @map("youtube_url")
   articleId   Int?                   @map("article_id")
   createdAt   DateTime               @default(now()) @map("created_at")
   updatedAt   DateTime               @updatedAt @map("updated_at")
-  categorie   CategoriePersonnalite  @relation(fields: [categorieId], references: [id])
+  categories  PersonnaliteCategorie[]
   article     Article?               @relation(fields: [articleId], references: [id])
 
   @@map("personnalites")
+}
+
+// Table de jointure many-to-many entre Personnalite et CategoriePersonnalite
+model PersonnaliteCategorie {
+  personnaliteId Int                   @map("personnalite_id")
+  categorieId    Int                   @map("categorie_id")
+  personnalite   Personnalite          @relation(fields: [personnaliteId], references: [id], onDelete: Cascade)
+  categorie      CategoriePersonnalite @relation(fields: [categorieId], references: [id], onDelete: Cascade)
+
+  @@id([personnaliteId, categorieId])
+  @@map("personnalite_categories")
 }
 
 // Redirections 301 pour SEO
