@@ -132,14 +132,13 @@ function EditArticleForm() {
 
     try {
       // Calculer publishedAt selon le statut
-      let publishedAt: string | undefined;
+      let publishedAt: string | null = null; // Par défaut: brouillon (null)
       if (formData.publishStatus === 'published') {
-        // Si déjà publié, garder la date existante ou mettre maintenant
         publishedAt = new Date().toISOString();
       } else if (formData.publishStatus === 'scheduled' && formData.scheduledDate) {
         publishedAt = new Date(formData.scheduledDate).toISOString();
       }
-      // Si 'draft', publishedAt sera undefined (null en BDD)
+      // Si 'draft', publishedAt reste null
 
       await api.updateArticle(articleId, {
         slug: formData.slug,

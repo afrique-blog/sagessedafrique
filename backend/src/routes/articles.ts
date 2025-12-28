@@ -45,7 +45,7 @@ const createArticleSchema = z.object({
   heroImage: z.string().optional(),
   featured: z.boolean().default(false),
   readingMinutes: z.number().default(5),
-  publishedAt: z.string().datetime().optional(),
+  publishedAt: z.string().datetime().optional().nullable(), // null = brouillon
   translations: z.array(z.object({
     lang: z.enum(['fr', 'en']),
     title: z.string().min(1),
@@ -306,7 +306,10 @@ export async function articleRoutes(fastify: FastifyInstance) {
         heroImage: body.heroImage,
         featured: body.featured,
         readingMinutes: autoReadingMinutes ?? body.readingMinutes,
-        publishedAt: body.publishedAt ? new Date(body.publishedAt) : undefined,
+        // Si publishedAt est explicitement null = brouillon, sinon date ou undefined (pas de changement)
+        publishedAt: body.publishedAt !== undefined 
+          ? (body.publishedAt ? new Date(body.publishedAt) : null)
+          : undefined,
       },
       include: {
         translations: true,
