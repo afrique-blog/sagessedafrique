@@ -298,6 +298,11 @@ export async function articleRoutes(fastify: FastifyInstance) {
       autoReadingMinutes = calculateReadingTime(frTranslation?.contentHtml);
     }
 
+    // Calculer le nouveau publishedAt
+    const newPublishedAt = body.publishedAt !== undefined 
+      ? (body.publishedAt ? new Date(body.publishedAt) : null)
+      : undefined;
+
     const article = await prisma.article.update({
       where: { id },
       data: {
@@ -307,9 +312,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
         featured: body.featured,
         readingMinutes: autoReadingMinutes ?? body.readingMinutes,
         // Si publishedAt est explicitement null = brouillon, sinon date ou undefined (pas de changement)
-        publishedAt: body.publishedAt !== undefined 
-          ? (body.publishedAt ? new Date(body.publishedAt) : null)
-          : undefined,
+        publishedAt: newPublishedAt,
       },
       include: {
         translations: true,
@@ -319,6 +322,14 @@ export async function articleRoutes(fastify: FastifyInstance) {
         dossiers: { include: { dossier: { include: { translations: true } } } },
       },
     });
+
+    // 🔄 SYNCHRONISATION: Si le statut de publication a changé, mettre à jour les personnalités liées
+    if (newPublishedAt !== undefined) {
+      await prisma.personnalite.updateMany({
+        where: { articleId: id },
+        data: { publishedAt: newPublishedAt },
+      });
+    }
 
     return article;
   });

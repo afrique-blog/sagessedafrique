@@ -398,6 +398,9 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     const body = createPersonnaliteSchema.parse(request.body);
 
+    // Calculer le publishedAt
+    const newPublishedAt = body.publishedAt ? new Date(body.publishedAt) : null;
+
     const personnalite = await prisma.personnalite.create({
       data: {
         slug: body.slug,
@@ -405,7 +408,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         image: body.image,
         youtubeUrl: body.youtubeUrl,
         articleId: body.articleId,
-        publishedAt: body.publishedAt ? new Date(body.publishedAt) : null,
+        publishedAt: newPublishedAt,
         categories: {
           create: body.categorieIds.map((categorieId: number) => ({
             categorieId,
@@ -420,6 +423,14 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         },
       },
     });
+
+    // 🔄 SYNCHRONISATION: Si la personnalité a un article lié, mettre à jour son statut aussi
+    if (body.articleId) {
+      await prisma.article.update({
+        where: { id: body.articleId },
+        data: { publishedAt: newPublishedAt },
+      });
+    }
 
     return reply.status(201).send({
       ...personnalite,
@@ -439,6 +450,9 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       where: { personnaliteId: id },
     });
 
+    // Calculer le nouveau publishedAt
+    const newPublishedAt = body.publishedAt ? new Date(body.publishedAt) : null;
+
     // Mettre à jour la personnalité et créer les nouvelles associations
     const personnalite = await prisma.personnalite.update({
       where: { id },
@@ -448,7 +462,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         image: body.image,
         youtubeUrl: body.youtubeUrl,
         articleId: body.articleId,
-        publishedAt: body.publishedAt ? new Date(body.publishedAt) : null,
+        publishedAt: newPublishedAt,
         categories: {
           create: body.categorieIds.map((categorieId: number) => ({
             categorieId,
@@ -463,6 +477,14 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         },
       },
     });
+
+    // 🔄 SYNCHRONISATION: Si la personnalité a un article lié, mettre à jour son statut aussi
+    if (body.articleId) {
+      await prisma.article.update({
+        where: { id: body.articleId },
+        data: { publishedAt: newPublishedAt },
+      });
+    }
 
     return {
       ...personnalite,
