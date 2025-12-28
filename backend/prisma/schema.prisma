@@ -182,6 +182,7 @@ model Personnalite {
   image       String?
   youtubeUrl  String?                @map("youtube_url")
   articleId   Int?                   @map("article_id")
+  publishedAt DateTime?              @map("published_at") // null = brouillon, future = programmé, passé = publié
   createdAt   DateTime               @default(now()) @map("created_at")
   updatedAt   DateTime               @updatedAt @map("updated_at")
   categories  PersonnaliteCategorie[]

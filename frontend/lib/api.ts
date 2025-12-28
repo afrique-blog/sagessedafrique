@@ -12,7 +12,7 @@ export interface Article {
   featured: boolean;
   views: number;
   readingMinutes: number;
-  publishedAt: string;
+  publishedAt: string | null; // null = brouillon, future = programmé
   author: { id: number; name: string; avatar?: string | null; bio?: string | null };
   category: { slug: string; name: string } | null;
   tags: { slug: string; name: string }[];
@@ -116,6 +116,7 @@ export interface PersonnaliteAdmin {
   image: string | null;
   youtubeUrl: string | null;
   articleId: number | null;
+  publishedAt: string | null; // null = brouillon, future = programmé, passé = publié
 }
 
 export interface PaginatedResponse<T> {
@@ -170,6 +171,7 @@ class ApiClient {
     dossier?: string;
     featured?: boolean;
     search?: string;
+    includeUnpublished?: boolean; // Pour l'admin
   } = {}): Promise<PaginatedResponse<Article>> {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -180,8 +182,8 @@ class ApiClient {
     return this.fetch(`/articles?${searchParams}`);
   }
 
-  async getArticle(slug: string, lang: string = 'fr'): Promise<Article> {
-    return this.fetch(`/articles/${slug}?lang=${lang}`);
+  async getArticle(slug: string, lang: string = 'fr', preview: boolean = false): Promise<Article> {
+    return this.fetch(`/articles/${slug}?lang=${lang}${preview ? '&preview=true' : ''}`);
   }
 
   async createArticle(data: any): Promise<Article> {
@@ -355,6 +357,10 @@ class ApiClient {
     return this.fetch(`/personnalites?lang=${lang}`);
   }
 
+  async getPersonnalitesWithStatus(lang: string = 'fr'): Promise<any[]> {
+    return this.fetch(`/personnalites?lang=${lang}&includeUnpublished=true`);
+  }
+
   async getPersonnalite(slug: string, lang: string = 'fr'): Promise<Personnalite> {
     return this.fetch(`/personnalites/${slug}?lang=${lang}`);
   }
@@ -367,14 +373,14 @@ class ApiClient {
     return this.fetch(`/personnalites/admin/${id}`);
   }
 
-  async createPersonnalite(data: { slug: string; nom: string; categorieIds: number[]; image?: string | null; youtubeUrl?: string | null; articleId?: number | null }): Promise<PersonnaliteAdmin> {
+  async createPersonnalite(data: { slug: string; nom: string; categorieIds: number[]; image?: string | null; youtubeUrl?: string | null; articleId?: number | null; publishedAt?: string | null }): Promise<PersonnaliteAdmin> {
     return this.fetch('/personnalites', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updatePersonnalite(id: number, data: { slug: string; nom: string; categorieIds: number[]; image?: string | null; youtubeUrl?: string | null; articleId?: number | null }): Promise<PersonnaliteAdmin> {
+  async updatePersonnalite(id: number, data: { slug: string; nom: string; categorieIds: number[]; image?: string | null; youtubeUrl?: string | null; articleId?: number | null; publishedAt?: string | null }): Promise<PersonnaliteAdmin> {
     return this.fetch(`/personnalites/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),

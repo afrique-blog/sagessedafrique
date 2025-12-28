@@ -36,6 +36,7 @@ const articleQuerySchema = z.object({
   dossier: z.string().optional(),
   featured: z.coerce.boolean().optional(),
   search: z.string().optional(),
+  includeUnpublished: z.coerce.boolean().optional(), // Pour l'admin uniquement
 });
 
 const createArticleSchema = z.object({
@@ -63,9 +64,18 @@ export async function articleRoutes(fastify: FastifyInstance) {
   // GET /api/articles - List articles with pagination and filters
   fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
     const query = articleQuerySchema.parse(request.query);
-    const { page, limit, lang, category, tag, dossier, featured, search } = query;
+    const { page, limit, lang, category, tag, dossier, featured, search, includeUnpublished } = query;
 
     const where: any = {};
+
+    // Par défaut, ne montrer que les articles publiés (publishedAt <= maintenant)
+    // Sauf si includeUnpublished est true (pour l'admin)
+    if (!includeUnpublished) {
+      where.publishedAt = {
+        not: null,
+        lte: new Date(),
+      };
+    }
 
     if (category) {
       where.category = { slug: category };
@@ -144,9 +154,10 @@ export async function articleRoutes(fastify: FastifyInstance) {
   });
 
   // GET /api/articles/:slug - Get single article
-  fastify.get('/:slug', async (request: FastifyRequest<{ Params: { slug: string }; Querystring: { lang?: string } }>, reply: FastifyReply) => {
+  fastify.get('/:slug', async (request: FastifyRequest<{ Params: { slug: string }; Querystring: { lang?: string; preview?: string } }>, reply: FastifyReply) => {
     const { slug } = request.params;
     const lang = (request.query.lang as 'fr' | 'en') || 'fr';
+    const preview = request.query.preview === 'true'; // Pour prévisualiser un brouillon
 
     const article = await prisma.article.findUnique({
       where: { slug },
@@ -181,6 +192,14 @@ export async function articleRoutes(fastify: FastifyInstance) {
 
     if (!article) {
       return reply.status(404).send({ error: 'Article not found' });
+    }
+
+    // Vérifier si l'article est publié (sauf en mode preview)
+    if (!preview) {
+      const now = new Date();
+      if (!article.publishedAt || article.publishedAt > now) {
+        return reply.status(404).send({ error: 'Article not found' });
+      }
     }
 
     // Increment views and get updated count

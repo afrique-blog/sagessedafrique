@@ -27,6 +27,8 @@ function NewArticleForm() {
     heroImage: '',
     featured: false,
     readingMinutes: 5,
+    publishStatus: 'draft' as 'draft' | 'scheduled' | 'published', // Statut de publication
+    scheduledDate: '', // Date programmée
     titleFr: '',
     titleEn: '',
     excerptFr: '',
@@ -68,12 +70,22 @@ function NewArticleForm() {
     setLoading(true);
 
     try {
+      // Calculer publishedAt selon le statut
+      let publishedAt: string | undefined;
+      if (formData.publishStatus === 'published') {
+        publishedAt = new Date().toISOString();
+      } else if (formData.publishStatus === 'scheduled' && formData.scheduledDate) {
+        publishedAt = new Date(formData.scheduledDate).toISOString();
+      }
+      // Si 'draft', publishedAt reste undefined (null en BDD)
+
       await api.createArticle({
         slug: formData.slug,
         categoryId: formData.categoryId,
         heroImage: formData.heroImage || undefined,
         featured: formData.featured,
         readingMinutes: formData.readingMinutes,
+        publishedAt,
         translations: [
           {
             lang: 'fr',
@@ -208,6 +220,63 @@ function NewArticleForm() {
                 className="w-4 h-4"
               />
               <label htmlFor="featured" className="text-sm">Article a la une</label>
+            </div>
+
+            {/* Statut de publication */}
+            <div className="border-t pt-6 mt-6">
+              <label className="block text-sm font-medium mb-3">📅 Statut de publication</label>
+              <div className="flex flex-wrap gap-4">
+                <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer border-2 transition-colors ${formData.publishStatus === 'draft' ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' : 'border-slate-200 dark:border-slate-700'}`}>
+                  <input
+                    type="radio"
+                    name="publishStatus"
+                    value="draft"
+                    checked={formData.publishStatus === 'draft'}
+                    onChange={() => setFormData({ ...formData, publishStatus: 'draft', scheduledDate: '' })}
+                    className="sr-only"
+                  />
+                  <span className="text-orange-500">🔶</span>
+                  <span className="text-sm font-medium">Brouillon</span>
+                </label>
+                <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer border-2 transition-colors ${formData.publishStatus === 'scheduled' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700'}`}>
+                  <input
+                    type="radio"
+                    name="publishStatus"
+                    value="scheduled"
+                    checked={formData.publishStatus === 'scheduled'}
+                    onChange={() => setFormData({ ...formData, publishStatus: 'scheduled' })}
+                    className="sr-only"
+                  />
+                  <span className="text-blue-500">🕐</span>
+                  <span className="text-sm font-medium">Programmé</span>
+                </label>
+                <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer border-2 transition-colors ${formData.publishStatus === 'published' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-700'}`}>
+                  <input
+                    type="radio"
+                    name="publishStatus"
+                    value="published"
+                    checked={formData.publishStatus === 'published'}
+                    onChange={() => setFormData({ ...formData, publishStatus: 'published', scheduledDate: '' })}
+                    className="sr-only"
+                  />
+                  <span className="text-green-500">✅</span>
+                  <span className="text-sm font-medium">Publier maintenant</span>
+                </label>
+              </div>
+              
+              {formData.publishStatus === 'scheduled' && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium mb-2">Date et heure de publication</label>
+                  <input
+                    type="datetime-local"
+                    value={formData.scheduledDate}
+                    onChange={e => setFormData({ ...formData, scheduledDate: e.target.value })}
+                    min={new Date().toISOString().slice(0, 16)}
+                    required={formData.publishStatus === 'scheduled'}
+                    className="w-full md:w-auto px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              )}
             </div>
           </div>
 

@@ -29,6 +29,7 @@ const createPersonnaliteSchema = z.object({
   image: z.string().optional().nullable(),
   youtubeUrl: z.string().optional().nullable(),
   articleId: z.number().int().optional().nullable(),
+  publishedAt: z.string().datetime().optional().nullable(), // null = brouillon, future = programmé
 });
 
 export async function personnalitesRoutes(fastify: FastifyInstance) {
@@ -270,10 +271,22 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
   // =====================================================
 
   // GET /api/personnalites - Liste toutes les personnalites
-  fastify.get('/personnalites', async (request: FastifyRequest<{ Querystring: { lang?: string } }>, reply: FastifyReply) => {
+  fastify.get('/personnalites', async (request: FastifyRequest<{ Querystring: { lang?: string; includeUnpublished?: string } }>, reply: FastifyReply) => {
     const lang = request.query.lang || 'fr';
+    const includeUnpublished = request.query.includeUnpublished === 'true';
+    
+    // Par défaut, ne montrer que les personnalités publiées
+    const where: any = {};
+    if (!includeUnpublished) {
+      where.OR = [
+        { publishedAt: { lte: new Date() } },
+        // Pour compatibilité: les personnalités sans publishedAt sont considérées publiées
+        { publishedAt: null },
+      ];
+    }
     
     const personnalites = await prisma.personnalite.findMany({
+      where,
       include: {
         categories: {
           include: {
@@ -299,6 +312,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       nom: p.nom,
       image: normalizePersonnaliteImage(p.image),
       youtubeUrl: p.youtubeUrl,
+      publishedAt: p.publishedAt, // Pour le statut de publication
       categories: p.categories.map((pc: any) => ({
         id: pc.categorie.id,
         slug: pc.categorie.slug,
@@ -391,6 +405,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         image: body.image,
         youtubeUrl: body.youtubeUrl,
         articleId: body.articleId,
+        publishedAt: body.publishedAt ? new Date(body.publishedAt) : null,
         categories: {
           create: body.categorieIds.map((categorieId: number) => ({
             categorieId,
@@ -433,6 +448,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
         image: body.image,
         youtubeUrl: body.youtubeUrl,
         articleId: body.articleId,
+        publishedAt: body.publishedAt ? new Date(body.publishedAt) : null,
         categories: {
           create: body.categorieIds.map((categorieId: number) => ({
             categorieId,

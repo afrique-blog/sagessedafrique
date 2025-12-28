@@ -6,6 +6,19 @@ import { RequireAuth } from '@/lib/auth';
 import { api, Article } from '@/lib/api';
 import AdminNav from '@/components/AdminNav';
 
+// Helper pour déterminer le statut de publication
+function getPublishStatus(publishedAt: string | null | undefined): { status: 'draft' | 'scheduled' | 'published'; label: string; color: string; icon: string } {
+  if (!publishedAt) {
+    return { status: 'draft', label: 'Brouillon', color: 'orange', icon: '🔶' };
+  }
+  const pubDate = new Date(publishedAt);
+  const now = new Date();
+  if (pubDate > now) {
+    return { status: 'scheduled', label: `${pubDate.toLocaleDateString('fr-FR')}`, color: 'blue', icon: '🕐' };
+  }
+  return { status: 'published', label: 'Publié', color: 'green', icon: '✅' };
+}
+
 function ArticlesList() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +32,8 @@ function ArticlesList() {
   async function fetchArticles() {
     setLoading(true);
     try {
-      const response = await api.getArticles({ page, limit: 20 });
+      // Inclure les non-publiés pour voir les brouillons
+      const response = await api.getArticles({ page, limit: 20, includeUnpublished: true });
       setArticles(response.data);
       setTotalPages(response.pagination.totalPages);
     } catch (error) {
@@ -72,8 +86,10 @@ function ArticlesList() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                  {articles.map(article => (
-                    <tr key={article.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                  {articles.map(article => {
+                    const pubStatus = getPublishStatus(article.publishedAt);
+                    return (
+                    <tr key={article.id} className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 ${pubStatus.status === 'draft' ? 'bg-orange-50/50 dark:bg-orange-900/10' : ''}`}>
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-medium">{article.title}</p>
@@ -83,14 +99,24 @@ function ArticlesList() {
                       <td className="px-6 py-4 text-sm">{article.category?.name || '-'}</td>
                       <td className="px-6 py-4 text-sm">{article.views}</td>
                       <td className="px-6 py-4">
-                        {article.featured && (
-                          <span className="px-2 py-1 bg-accent/10 text-accent text-xs rounded">Featured</span>
-                        )}
+                        <div className="flex flex-col gap-1">
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium w-fit
+                            ${pubStatus.color === 'orange' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' : ''}
+                            ${pubStatus.color === 'blue' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : ''}
+                            ${pubStatus.color === 'green' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : ''}
+                          `}>
+                            <span>{pubStatus.icon}</span>
+                            {pubStatus.label}
+                          </span>
+                          {article.featured && (
+                            <span className="px-2 py-1 bg-accent/10 text-accent text-xs rounded w-fit">⭐ À la une</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link
-                            href={`/article/${article.slug}`}
+                            href={`/article/${article.slug}?preview=true`}
                             target="_blank"
                             className="px-3 py-1 text-sm text-slate-500 hover:text-primary dark:hover:text-accent"
                           >
@@ -111,7 +137,8 @@ function ArticlesList() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

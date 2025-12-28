@@ -6,12 +6,26 @@ import { RequireAuth } from '@/lib/auth';
 import { api, Personnalite } from '@/lib/api';
 import AdminNav from '@/components/AdminNav';
 
+// Helper pour déterminer le statut de publication
+function getPublishStatus(publishedAt: string | null | undefined): { status: 'draft' | 'scheduled' | 'published'; label: string; color: string; icon: string } {
+  if (!publishedAt) {
+    return { status: 'draft', label: 'Brouillon', color: 'orange', icon: '🔶' };
+  }
+  const pubDate = new Date(publishedAt);
+  const now = new Date();
+  if (pubDate > now) {
+    return { status: 'scheduled', label: `Programmé (${pubDate.toLocaleDateString('fr-FR')})`, color: 'blue', icon: '🕐' };
+  }
+  return { status: 'published', label: 'Publié', color: 'green', icon: '✅' };
+}
+
 function PersonnalitesList() {
-  const [personnalites, setPersonnalites] = useState<Personnalite[]>([]);
+  const [personnalites, setPersonnalites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.getPersonnalites('fr')
+    // Utiliser l'API avec includeUnpublished pour voir tous les statuts
+    api.getPersonnalitesWithStatus('fr')
       .then(setPersonnalites)
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -49,6 +63,7 @@ function PersonnalitesList() {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">ID</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Nom</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Statut</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Catégories</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Article</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">YouTube</th>
@@ -56,10 +71,22 @@ function PersonnalitesList() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {personnalites.map(p => (
-                  <tr key={p.id}>
+                {personnalites.map(p => {
+                  const pubStatus = getPublishStatus(p.publishedAt);
+                  return (
+                  <tr key={p.id} className={pubStatus.status === 'draft' ? 'bg-orange-50/50 dark:bg-orange-900/10' : ''}>
                     <td className="px-6 py-4 text-sm">{p.id}</td>
                     <td className="px-6 py-4 text-sm font-medium">{p.nom}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
+                        ${pubStatus.color === 'orange' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' : ''}
+                        ${pubStatus.color === 'blue' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : ''}
+                        ${pubStatus.color === 'green' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : ''}
+                      `}>
+                        <span>{pubStatus.icon}</span>
+                        {pubStatus.label}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 text-sm">
                       <div className="flex flex-wrap gap-1">
                         {p.categories && p.categories.length > 0 ? (
@@ -98,7 +125,8 @@ function PersonnalitesList() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           )}
