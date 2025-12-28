@@ -177,9 +177,11 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       return reply.status(404).send({ error: 'Categorie not found' });
     }
 
-    // Extraire les personnalités et les trier par nom
+    // Extraire les personnalités, filtrer les brouillons/programmés, et trier par nom
+    const now = new Date();
     const personnalites = categorie.personnalites
       .map((pc: any) => pc.personnalite)
+      .filter((p: any) => p.publishedAt && new Date(p.publishedAt) <= now) // Exclure brouillons et programmés
       .sort((a: any, b: any) => a.nom.localeCompare(b.nom));
 
     return {
@@ -360,6 +362,12 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
     });
 
     if (!personnalite) {
+      return reply.status(404).send({ error: 'Personnalite not found' });
+    }
+
+    // Vérifier si la personnalité est publiée (brouillon ou programmé = 404)
+    const now = new Date();
+    if (!personnalite.publishedAt || personnalite.publishedAt > now) {
       return reply.status(404).send({ error: 'Personnalite not found' });
     }
 
