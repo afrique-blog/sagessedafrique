@@ -275,14 +275,14 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
     const lang = request.query.lang || 'fr';
     const includeUnpublished = request.query.includeUnpublished === 'true';
     
-    // Par défaut, ne montrer que les personnalités publiées
+    // Par défaut, ne montrer que les personnalités publiées (publishedAt != null ET <= maintenant)
+    // null = brouillon (non visible), future = programmé (non visible), passé = publié (visible)
     const where: any = {};
     if (!includeUnpublished) {
-      where.OR = [
-        { publishedAt: { lte: new Date() } },
-        // Pour compatibilité: les personnalités sans publishedAt sont considérées publiées
-        { publishedAt: null },
-      ];
+      where.publishedAt = {
+        not: null,
+        lte: new Date(),
+      };
     }
     
     const personnalites = await prisma.personnalite.findMany({
