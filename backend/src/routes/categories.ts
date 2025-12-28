@@ -67,9 +67,13 @@ export async function categoryRoutes(fastify: FastifyInstance) {
             author: { select: { id: true, name: true, avatar: true, bio: true } },
             personnalites: {
               include: {
-                categorie: {
+                categories: {
                   include: {
-                    translations: { where: { lang } },
+                    categorie: {
+                      include: {
+                        translations: { where: { lang } },
+                      },
+                    },
                   },
                 },
               },
@@ -93,7 +97,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
       articles: category.articles.map((a: any) => {
         // Get personality category if article is linked to a personality
         const personnalite = a.personnalites?.[0];
-        const personnaliteCategorie = personnalite?.categorie;
+        const personnaliteCategorie = personnalite?.categories?.[0]?.categorie;
         
         return {
           id: a.id,
