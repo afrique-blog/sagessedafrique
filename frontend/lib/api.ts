@@ -9,6 +9,7 @@ export interface Article {
   takeaway: string;
   sources: string;
   heroImage: string | null;
+  youtubeUrl: string | null;
   featured: boolean;
   views: number;
   readingMinutes: number;

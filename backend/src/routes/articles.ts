@@ -43,6 +43,7 @@ const createArticleSchema = z.object({
   slug: z.string().min(1),
   categoryId: z.number(),
   heroImage: z.string().optional(),
+  youtubeUrl: z.string().optional(),
   featured: z.boolean().default(false),
   readingMinutes: z.number().default(5),
   publishedAt: z.string().datetime().optional().nullable(), // null = brouillon
@@ -230,6 +231,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
         categoryId: body.categoryId,
         authorId: user.id,
         heroImage: body.heroImage,
+        youtubeUrl: body.youtubeUrl,
         featured: body.featured,
         readingMinutes: autoReadingMinutes,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : new Date(),
@@ -309,6 +311,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
         slug: body.slug,
         categoryId: body.categoryId,
         heroImage: body.heroImage,
+        youtubeUrl: body.youtubeUrl,
         featured: body.featured,
         readingMinutes: autoReadingMinutes ?? body.readingMinutes,
         // Si publishedAt est explicitement null = brouillon, sinon date ou undefined (pas de changement)

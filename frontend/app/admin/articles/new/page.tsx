@@ -25,6 +25,7 @@ function NewArticleForm() {
     slug: '',
     categoryId: 0,
     heroImage: '',
+    youtubeUrl: '',
     featured: false,
     readingMinutes: 5,
     publishStatus: 'draft' as 'draft' | 'scheduled' | 'published', // Statut de publication
@@ -83,6 +84,7 @@ function NewArticleForm() {
         slug: formData.slug,
         categoryId: formData.categoryId,
         heroImage: formData.heroImage || undefined,
+        youtubeUrl: formData.youtubeUrl || undefined,
         featured: formData.featured,
         readingMinutes: formData.readingMinutes,
         publishedAt,
@@ -209,6 +211,17 @@ function NewArticleForm() {
                   className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">URL YouTube (vidéo liée à l'article)</label>
+              <input
+                type="text"
+                value={formData.youtubeUrl}
+                onChange={e => setFormData({ ...formData, youtubeUrl: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
             </div>
 
             <div className="flex items-center gap-2">

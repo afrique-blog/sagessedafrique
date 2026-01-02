@@ -98,6 +98,7 @@ model Article {
   categoryId     Int                  @map("category_id")
   authorId       Int                  @map("author_id")
   heroImage      String?              @map("hero_image")
+  youtubeUrl     String?              @map("youtube_url")
   featured       Boolean              @default(false)
   views          Int                  @default(0)
   readingMinutes Int                  @default(5) @map("reading_minutes")
