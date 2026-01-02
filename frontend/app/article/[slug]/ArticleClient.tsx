@@ -21,6 +21,25 @@ interface TOCItem {
   level: number;
 }
 
+// Extract YouTube video ID from various URL formats
+function getYouTubeVideoId(url: string): string | null {
+  if (!url) return null;
+  
+  // Match various YouTube URL formats
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  
+  return null;
+}
+
 // Extract headings from HTML content for Table of Contents
 function extractHeadings(html: string): TOCItem[] {
   const headings: TOCItem[] = [];
@@ -279,6 +298,27 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
             className="article-content prose prose-lg dark:prose-invert max-w-none"
             dangerouslySetInnerHTML={{ __html: contentWithIds }}
           />
+
+          {/* YouTube Video */}
+          {article.youtubeUrl && getYouTubeVideoId(article.youtubeUrl) && (
+            <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+              <h3 className="flex items-center gap-2 font-bold text-lg mb-4">
+                <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                {lang === 'fr' ? 'Vidéo associée' : 'Related Video'}
+              </h3>
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg">
+                <iframe
+                  src={`https://www.youtube.com/embed/${getYouTubeVideoId(article.youtubeUrl)}`}
+                  title={lang === 'fr' ? 'Vidéo YouTube' : 'YouTube Video'}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Mobile share buttons */}
           <div className="lg:hidden flex justify-center gap-4 mt-8 py-4 border-y border-slate-200 dark:border-slate-700">
