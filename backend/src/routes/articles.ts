@@ -367,6 +367,7 @@ function formatArticle(article: any) {
     takeaway: translation?.takeaway || '',
     sources: translation?.sources || '',
     heroImage: normalizeHeroImage(article.heroImage),
+    youtubeUrl: article.youtubeUrl || null,
     featured: article.featured,
     views: article.views,
     readingMinutes: article.readingMinutes,
