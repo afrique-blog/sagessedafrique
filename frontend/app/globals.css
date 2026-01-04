@@ -68,4 +68,8 @@ body {
   @apply mb-2;
 }
 
+/* Optionnel: style éditorial léger */
+article h2, .display-6 { letter-spacing: -0.02em; }
+.blockquote { font-size: 1.05rem; }
+.list-group-item { border-color: rgba(0,0,0,.08); }
 

@@ -30,11 +30,8 @@ function EditArticleForm() {
     slug: '',
     categoryId: 0,
     heroImage: '',
-    youtubeUrl: '',
     featured: false,
     readingMinutes: 5,
-    publishStatus: 'draft' as 'draft' | 'scheduled' | 'published',
-    scheduledDate: '',
     titleFr: '',
     titleEn: '',
     excerptFr: '',
@@ -67,41 +64,23 @@ function EditArticleForm() {
           api.getArticle(articleId.toString(), 'en').catch(() => null),
         ]);
 
-        // Try to find article by ID through the list (includeUnpublished pour voir les brouillons)
-        const articlesRes = await api.getArticles({ limit: 200, includeUnpublished: true });
+        // Try to find article by ID through the list
+        const articlesRes = await api.getArticles({ limit: 100 });
         const article = articlesRes.data.find(a => a.id === articleId);
         
         if (article) {
-          // Fetch full article data (avec preview pour les brouillons)
-          const fullArticleFr = await api.getArticle(article.slug, 'fr', true);
-          const fullArticleEn = await api.getArticle(article.slug, 'en', true);
+          // Fetch full article data
+          const fullArticleFr = await api.getArticle(article.slug, 'fr');
+          const fullArticleEn = await api.getArticle(article.slug, 'en');
           
           const category = cats.find(c => c.slug === fullArticleFr.category?.slug);
-          
-          // Déterminer le statut de publication
-          let publishStatus: 'draft' | 'scheduled' | 'published' = 'draft';
-          let scheduledDate = '';
-          
-          if (fullArticleFr.publishedAt) {
-            const pubDate = new Date(fullArticleFr.publishedAt);
-            const now = new Date();
-            if (pubDate > now) {
-              publishStatus = 'scheduled';
-              scheduledDate = pubDate.toISOString().slice(0, 16); // Format datetime-local
-            } else {
-              publishStatus = 'published';
-            }
-          }
           
           setFormData({
             slug: fullArticleFr.slug,
             categoryId: category?.id || cats[0]?.id || 0,
             heroImage: fullArticleFr.heroImage || '',
-            youtubeUrl: fullArticleFr.youtubeUrl || '',
             featured: fullArticleFr.featured,
             readingMinutes: fullArticleFr.readingMinutes,
-            publishStatus,
-            scheduledDate,
             titleFr: fullArticleFr.title,
             titleEn: fullArticleEn.title,
             excerptFr: fullArticleFr.excerpt,
@@ -133,23 +112,12 @@ function EditArticleForm() {
     setSaving(true);
 
     try {
-      // Calculer publishedAt selon le statut
-      let publishedAt: string | null = null; // Par défaut: brouillon (null)
-      if (formData.publishStatus === 'published') {
-        publishedAt = new Date().toISOString();
-      } else if (formData.publishStatus === 'scheduled' && formData.scheduledDate) {
-        publishedAt = new Date(formData.scheduledDate).toISOString();
-      }
-      // Si 'draft', publishedAt reste null
-
       await api.updateArticle(articleId, {
         slug: formData.slug,
         categoryId: formData.categoryId,
         heroImage: formData.heroImage || undefined,
-        youtubeUrl: formData.youtubeUrl || undefined,
         featured: formData.featured,
         readingMinutes: formData.readingMinutes,
-        publishedAt,
         translations: [
           {
             lang: 'fr',
@@ -178,15 +146,6 @@ function EditArticleForm() {
     } finally {
       setSaving(false);
     }
-  };
-
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
   };
 
   const handleDelete = async () => {
@@ -272,24 +231,13 @@ function EditArticleForm() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-2">Slug (URL)</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={formData.slug}
-                    onChange={e => setFormData({ ...formData, slug: e.target.value })}
-                    required
-                    className="flex-1 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, slug: generateSlug(formData.titleFr) })}
-                    className="px-3 py-2 bg-slate-200 dark:bg-slate-600 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors text-sm"
-                    title="Régénérer depuis le titre"
-                  >
-                    🔄
-                  </button>
-                </div>
-                <p className="text-xs text-slate-500 mt-1">Cliquez 🔄 pour régénérer depuis le titre</p>
+                <input
+                  type="text"
+                  value={formData.slug}
+                  onChange={e => setFormData({ ...formData, slug: e.target.value })}
+                  required
+                  className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Categorie</label>
@@ -331,17 +279,6 @@ function EditArticleForm() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">URL YouTube (vidéo liée à l'article)</label>
-              <input
-                type="text"
-                value={formData.youtubeUrl}
-                onChange={e => setFormData({ ...formData, youtubeUrl: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="https://www.youtube.com/watch?v=..."
-              />
-            </div>
-
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
@@ -351,63 +288,6 @@ function EditArticleForm() {
                 className="w-4 h-4"
               />
               <label htmlFor="featured" className="text-sm">Article a la une</label>
-            </div>
-
-            {/* Statut de publication */}
-            <div className="border-t pt-6 mt-6">
-              <label className="block text-sm font-medium mb-3">📅 Statut de publication</label>
-              <div className="flex flex-wrap gap-4">
-                <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer border-2 transition-colors ${formData.publishStatus === 'draft' ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' : 'border-slate-200 dark:border-slate-700'}`}>
-                  <input
-                    type="radio"
-                    name="publishStatus"
-                    value="draft"
-                    checked={formData.publishStatus === 'draft'}
-                    onChange={() => setFormData({ ...formData, publishStatus: 'draft', scheduledDate: '' })}
-                    className="sr-only"
-                  />
-                  <span className="text-orange-500">🔶</span>
-                  <span className="text-sm font-medium">Brouillon</span>
-                </label>
-                <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer border-2 transition-colors ${formData.publishStatus === 'scheduled' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700'}`}>
-                  <input
-                    type="radio"
-                    name="publishStatus"
-                    value="scheduled"
-                    checked={formData.publishStatus === 'scheduled'}
-                    onChange={() => setFormData({ ...formData, publishStatus: 'scheduled' })}
-                    className="sr-only"
-                  />
-                  <span className="text-blue-500">🕐</span>
-                  <span className="text-sm font-medium">Programmé</span>
-                </label>
-                <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer border-2 transition-colors ${formData.publishStatus === 'published' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-700'}`}>
-                  <input
-                    type="radio"
-                    name="publishStatus"
-                    value="published"
-                    checked={formData.publishStatus === 'published'}
-                    onChange={() => setFormData({ ...formData, publishStatus: 'published', scheduledDate: '' })}
-                    className="sr-only"
-                  />
-                  <span className="text-green-500">✅</span>
-                  <span className="text-sm font-medium">Publié</span>
-                </label>
-              </div>
-              
-              {formData.publishStatus === 'scheduled' && (
-                <div className="mt-4">
-                  <label className="block text-sm font-medium mb-2">Date et heure de publication</label>
-                  <input
-                    type="datetime-local"
-                    value={formData.scheduledDate}
-                    onChange={e => setFormData({ ...formData, scheduledDate: e.target.value })}
-                    min={new Date().toISOString().slice(0, 16)}
-                    required={formData.publishStatus === 'scheduled'}
-                    className="w-full md:w-auto px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-              )}
             </div>
           </div>
 
@@ -434,11 +314,12 @@ function EditArticleForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">À retenir</label>
-              <RichTextEditor
+              <label className="block text-sm font-medium mb-2">A retenir</label>
+              <input
+                type="text"
                 value={formData.takeawayFr}
-                onChange={(content) => setFormData({ ...formData, takeawayFr: content })}
-                placeholder="Points clés à retenir..."
+                onChange={e => setFormData({ ...formData, takeawayFr: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <div>
@@ -450,15 +331,12 @@ function EditArticleForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">📚 Sources & Références</label>
-              <textarea
+              <label className="block text-sm font-medium mb-2">Sources & Références</label>
+              <RichTextEditor
                 value={formData.sourcesFr}
-                onChange={e => setFormData({ ...formData, sourcesFr: e.target.value })}
-                rows={4}
-                className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                placeholder="• Livre 1, Auteur, Année&#10;• Article, Journal, Date&#10;• Site web, URL"
+                onChange={(content) => setFormData({ ...formData, sourcesFr: content })}
+                placeholder="Ajoutez vos sources et références..."
               />
-              <p className="text-xs text-slate-500 mt-1">Une source par ligne, format libre</p>
             </div>
           </div>
 
@@ -486,10 +364,11 @@ function EditArticleForm() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Key Takeaway</label>
-              <RichTextEditor
+              <input
+                type="text"
                 value={formData.takeawayEn}
-                onChange={(content) => setFormData({ ...formData, takeawayEn: content })}
-                placeholder="Key points to remember..."
+                onChange={e => setFormData({ ...formData, takeawayEn: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <div>
@@ -501,15 +380,12 @@ function EditArticleForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">📚 Sources & References</label>
-              <textarea
+              <label className="block text-sm font-medium mb-2">Sources & References</label>
+              <RichTextEditor
                 value={formData.sourcesEn}
-                onChange={e => setFormData({ ...formData, sourcesEn: e.target.value })}
-                rows={4}
-                className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                placeholder="• Book 1, Author, Year&#10;• Article, Journal, Date&#10;• Website, URL"
+                onChange={(content) => setFormData({ ...formData, sourcesEn: content })}
+                placeholder="Add your sources and references..."
               />
-              <p className="text-xs text-slate-500 mt-1">One source per line, free format</p>
             </div>
           </div>
 

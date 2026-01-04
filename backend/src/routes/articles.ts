@@ -2,51 +2,24 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../lib/prisma.js';
 import { z } from 'zod';
 
-const IMAGE_PREFIX = '/images/personnalites/';
-
-// Normalise l'URL de l'image hero de l'article
-function normalizeHeroImage(image: string | null | undefined): string | null {
-  if (!image) return null;
-  if (image.startsWith('/') || image.startsWith('http')) return image;
-  return `${IMAGE_PREFIX}${image}`;
-}
-
-// Calcule le temps de lecture basé sur le contenu (environ 200 mots/minute)
-function calculateReadingTime(contentHtml: string | null | undefined): number {
-  if (!contentHtml) return 1;
-  
-  // Supprimer les balises HTML
-  const textContent = contentHtml.replace(/<[^>]*>/g, ' ');
-  
-  // Compter les mots (séparés par des espaces)
-  const words = textContent.trim().split(/\s+/).filter(word => word.length > 0);
-  const wordCount = words.length;
-  
-  // 200 mots par minute, minimum 1 minute
-  const minutes = Math.ceil(wordCount / 200);
-  return Math.max(1, minutes);
-}
-
 const articleQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(200).default(10),
+  limit: z.coerce.number().min(1).max(50).default(10),
   lang: z.enum(['fr', 'en']).default('fr'),
   category: z.string().optional(),
   tag: z.string().optional(),
   dossier: z.string().optional(),
   featured: z.coerce.boolean().optional(),
   search: z.string().optional(),
-  includeUnpublished: z.coerce.boolean().optional(), // Pour l'admin uniquement
 });
 
 const createArticleSchema = z.object({
   slug: z.string().min(1),
   categoryId: z.number(),
   heroImage: z.string().optional(),
-  youtubeUrl: z.string().optional(),
   featured: z.boolean().default(false),
   readingMinutes: z.number().default(5),
-  publishedAt: z.string().datetime().optional().nullable(), // null = brouillon
+  publishedAt: z.string().datetime().optional(),
   translations: z.array(z.object({
     lang: z.enum(['fr', 'en']),
     title: z.string().min(1),
@@ -65,18 +38,9 @@ export async function articleRoutes(fastify: FastifyInstance) {
   // GET /api/articles - List articles with pagination and filters
   fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
     const query = articleQuerySchema.parse(request.query);
-    const { page, limit, lang, category, tag, dossier, featured, search, includeUnpublished } = query;
+    const { page, limit, lang, category, tag, dossier, featured, search } = query;
 
     const where: any = {};
-
-    // Par défaut, ne montrer que les articles publiés (publishedAt <= maintenant)
-    // Sauf si includeUnpublished est true (pour l'admin)
-    if (!includeUnpublished) {
-      where.publishedAt = {
-        not: null,
-        lte: new Date(),
-      };
-    }
 
     if (category) {
       where.category = { slug: category };
@@ -118,7 +82,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
               translations: { where: { lang } },
             },
           },
-          author: { select: { id: true, name: true, avatar: true, bio: true } },
+          author: { select: { id: true, name: true } },
           translations: { where: { lang } },
           tags: {
             include: {
@@ -155,10 +119,9 @@ export async function articleRoutes(fastify: FastifyInstance) {
   });
 
   // GET /api/articles/:slug - Get single article
-  fastify.get('/:slug', async (request: FastifyRequest<{ Params: { slug: string }; Querystring: { lang?: string; preview?: string } }>, reply: FastifyReply) => {
+  fastify.get('/:slug', async (request: FastifyRequest<{ Params: { slug: string }; Querystring: { lang?: string } }>, reply: FastifyReply) => {
     const { slug } = request.params;
     const lang = (request.query.lang as 'fr' | 'en') || 'fr';
-    const preview = request.query.preview === 'true'; // Pour prévisualiser un brouillon
 
     const article = await prisma.article.findUnique({
       where: { slug },
@@ -168,7 +131,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
             translations: { where: { lang } },
           },
         },
-        author: { select: { id: true, name: true, avatar: true, bio: true } },
+        author: { select: { id: true, name: true } },
         translations: { where: { lang } },
         tags: {
           include: {
@@ -195,23 +158,13 @@ export async function articleRoutes(fastify: FastifyInstance) {
       return reply.status(404).send({ error: 'Article not found' });
     }
 
-    // Vérifier si l'article est publié (sauf en mode preview)
-    if (!preview) {
-      const now = new Date();
-      if (!article.publishedAt || article.publishedAt > now) {
-        return reply.status(404).send({ error: 'Article not found' });
-      }
-    }
-
-    // Increment views and get updated count
-    const updatedArticle = await prisma.article.update({
+    // Increment views
+    await prisma.article.update({
       where: { id: article.id },
       data: { views: { increment: 1 } },
-      select: { views: true },
     });
 
-    // Return article with updated view count
-    return formatArticle({ ...article, views: updatedArticle.views });
+    return formatArticle(article);
   });
 
   // POST /api/articles - Create article (protected)
@@ -221,19 +174,14 @@ export async function articleRoutes(fastify: FastifyInstance) {
     const body = createArticleSchema.parse(request.body);
     const user = (request as any).user;
 
-    // Calculer automatiquement le temps de lecture basé sur le contenu français
-    const frTranslation = body.translations.find(t => t.lang === 'fr');
-    const autoReadingMinutes = calculateReadingTime(frTranslation?.contentHtml);
-
     const article = await prisma.article.create({
       data: {
         slug: body.slug,
         categoryId: body.categoryId,
         authorId: user.id,
         heroImage: body.heroImage,
-        youtubeUrl: body.youtubeUrl,
         featured: body.featured,
-        readingMinutes: autoReadingMinutes,
+        readingMinutes: body.readingMinutes,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : new Date(),
         translations: {
           create: body.translations,
@@ -248,7 +196,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
       include: {
         translations: true,
         category: { include: { translations: true } },
-        author: { select: { id: true, name: true, avatar: true, bio: true } },
+        author: { select: { id: true, name: true } },
         tags: { include: { tag: { include: { translations: true } } } },
         dossiers: { include: { dossier: { include: { translations: true } } } },
       },
@@ -293,46 +241,24 @@ export async function articleRoutes(fastify: FastifyInstance) {
       });
     }
 
-    // Calculer automatiquement le temps de lecture si les traductions sont mises à jour
-    let autoReadingMinutes: number | undefined;
-    if (body.translations) {
-      const frTranslation = body.translations.find(t => t.lang === 'fr');
-      autoReadingMinutes = calculateReadingTime(frTranslation?.contentHtml);
-    }
-
-    // Calculer le nouveau publishedAt
-    const newPublishedAt = body.publishedAt !== undefined 
-      ? (body.publishedAt ? new Date(body.publishedAt) : null)
-      : undefined;
-
     const article = await prisma.article.update({
       where: { id },
       data: {
         slug: body.slug,
         categoryId: body.categoryId,
         heroImage: body.heroImage,
-        youtubeUrl: body.youtubeUrl,
         featured: body.featured,
-        readingMinutes: autoReadingMinutes ?? body.readingMinutes,
-        // Si publishedAt est explicitement null = brouillon, sinon date ou undefined (pas de changement)
-        publishedAt: newPublishedAt,
+        readingMinutes: body.readingMinutes,
+        publishedAt: body.publishedAt ? new Date(body.publishedAt) : undefined,
       },
       include: {
         translations: true,
         category: { include: { translations: true } },
-        author: { select: { id: true, name: true, avatar: true, bio: true } },
+        author: { select: { id: true, name: true } },
         tags: { include: { tag: { include: { translations: true } } } },
         dossiers: { include: { dossier: { include: { translations: true } } } },
       },
     });
-
-    // 🔄 SYNCHRONISATION: Si le statut de publication a changé, mettre à jour les personnalités liées
-    if (newPublishedAt !== undefined) {
-      await prisma.personnalite.updateMany({
-        where: { articleId: id },
-        data: { publishedAt: newPublishedAt },
-      });
-    }
 
     return article;
   });
@@ -366,8 +292,7 @@ function formatArticle(article: any) {
     contentHtml: translation?.contentHtml || '',
     takeaway: translation?.takeaway || '',
     sources: translation?.sources || '',
-    heroImage: normalizeHeroImage(article.heroImage),
-    youtubeUrl: article.youtubeUrl || null,
+    heroImage: article.heroImage,
     featured: article.featured,
     views: article.views,
     readingMinutes: article.readingMinutes,

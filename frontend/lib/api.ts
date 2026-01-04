@@ -9,22 +9,19 @@ export interface Article {
   takeaway: string;
   sources: string;
   heroImage: string | null;
-  youtubeUrl: string | null;
   featured: boolean;
   views: number;
   readingMinutes: number;
-  publishedAt: string | null; // null = brouillon, future = programmé
-  author: { id: number; name: string; avatar?: string | null; bio?: string | null };
+  publishedAt: string;
+  author: { id: number; name: string };
   category: { slug: string; name: string } | null;
   tags: { slug: string; name: string }[];
   dossiers: { slug: string; title: string }[];
-  personnaliteCategorie?: { slug: string; nom: string } | null;
 }
 
 export interface Category {
   id: number;
   slug: string;
-  image: string | null;
   name: string;
   description: string;
   articleCount: number;
@@ -33,7 +30,6 @@ export interface Category {
 export interface CategoryAdmin {
   id: number;
   slug: string;
-  image: string | null;
   translations: { id: number; lang: string; name: string; description: string | null }[];
 }
 
@@ -88,18 +84,11 @@ export interface Personnalite {
   nom: string;
   image: string | null;
   youtubeUrl: string | null;
-  // Plusieurs catégories possibles
-  categories: {
-    id: number;
-    slug: string;
-    nom: string;
-  }[];
-  // Compatibilité: la première catégorie (peut être null si pas de catégorie)
   categorie: {
     id: number;
     slug: string;
     nom: string;
-  } | null;
+  };
   article: {
     id: number;
     slug: string;
@@ -113,11 +102,10 @@ export interface PersonnaliteAdmin {
   id: number;
   slug: string;
   nom: string;
-  categorieIds: number[]; // Tableau d'IDs de catégories
+  categorieId: number;
   image: string | null;
   youtubeUrl: string | null;
   articleId: number | null;
-  publishedAt: string | null; // null = brouillon, future = programmé, passé = publié
 }
 
 export interface PaginatedResponse<T> {
@@ -172,7 +160,6 @@ class ApiClient {
     dossier?: string;
     featured?: boolean;
     search?: string;
-    includeUnpublished?: boolean; // Pour l'admin
   } = {}): Promise<PaginatedResponse<Article>> {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -183,8 +170,8 @@ class ApiClient {
     return this.fetch(`/articles?${searchParams}`);
   }
 
-  async getArticle(slug: string, lang: string = 'fr', preview: boolean = false): Promise<Article> {
-    return this.fetch(`/articles/${slug}?lang=${lang}${preview ? '&preview=true' : ''}`);
+  async getArticle(slug: string, lang: string = 'fr'): Promise<Article> {
+    return this.fetch(`/articles/${slug}?lang=${lang}`);
   }
 
   async createArticle(data: any): Promise<Article> {
@@ -220,14 +207,14 @@ class ApiClient {
     return this.fetch(`/categories/admin/${id}`);
   }
 
-  async createCategory(data: { slug: string; image?: string | null; translations: { lang: string; name: string; description?: string }[] }): Promise<CategoryAdmin> {
+  async createCategory(data: { slug: string; translations: { lang: string; name: string; description?: string }[] }): Promise<CategoryAdmin> {
     return this.fetch('/categories', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updateCategory(id: number, data: { slug: string; image?: string | null; translations: { lang: string; name: string; description?: string }[] }): Promise<CategoryAdmin> {
+  async updateCategory(id: number, data: { slug: string; translations: { lang: string; name: string; description?: string }[] }): Promise<CategoryAdmin> {
     return this.fetch(`/categories/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -358,10 +345,6 @@ class ApiClient {
     return this.fetch(`/personnalites?lang=${lang}`);
   }
 
-  async getPersonnalitesWithStatus(lang: string = 'fr'): Promise<any[]> {
-    return this.fetch(`/personnalites?lang=${lang}&includeUnpublished=true`);
-  }
-
   async getPersonnalite(slug: string, lang: string = 'fr'): Promise<Personnalite> {
     return this.fetch(`/personnalites/${slug}?lang=${lang}`);
   }
@@ -374,14 +357,14 @@ class ApiClient {
     return this.fetch(`/personnalites/admin/${id}`);
   }
 
-  async createPersonnalite(data: { slug: string; nom: string; categorieIds: number[]; image?: string | null; youtubeUrl?: string | null; articleId?: number | null; publishedAt?: string | null }): Promise<PersonnaliteAdmin> {
+  async createPersonnalite(data: { slug: string; nom: string; categorieId: number; image?: string | null; youtubeUrl?: string | null; articleId?: number | null }): Promise<PersonnaliteAdmin> {
     return this.fetch('/personnalites', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updatePersonnalite(id: number, data: { slug: string; nom: string; categorieIds: number[]; image?: string | null; youtubeUrl?: string | null; articleId?: number | null; publishedAt?: string | null }): Promise<PersonnaliteAdmin> {
+  async updatePersonnalite(id: number, data: { slug: string; nom: string; categorieId: number; image?: string | null; youtubeUrl?: string | null; articleId?: number | null }): Promise<PersonnaliteAdmin> {
     return this.fetch(`/personnalites/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -390,18 +373,6 @@ class ApiClient {
 
   async deletePersonnalite(id: number): Promise<void> {
     return this.fetch(`/personnalites/${id}`, { method: 'DELETE' });
-  }
-
-  // Newsletter
-  async subscribe(email: string, source: string): Promise<{ success: boolean; message: string }> {
-    return this.fetch('/subscribers', {
-      method: 'POST',
-      body: JSON.stringify({ email, source }),
-    });
-  }
-
-  async getSubscriberCount(): Promise<{ count: number }> {
-    return this.fetch('/subscribers/count');
   }
 }
 

@@ -12,8 +12,6 @@ model User {
   email        String    @unique
   passwordHash String    @map("password_hash")
   name         String
-  avatar       String?
-  bio          String?   @db.Text
   role         String    @default("admin")
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
@@ -25,7 +23,6 @@ model User {
 model Category {
   id           Int                   @id @default(autoincrement())
   slug         String                @unique
-  image        String?
   createdAt    DateTime              @default(now()) @map("created_at")
   updatedAt    DateTime              @updatedAt @map("updated_at")
   translations CategoryTranslation[]
@@ -98,7 +95,6 @@ model Article {
   categoryId     Int                  @map("category_id")
   authorId       Int                  @map("author_id")
   heroImage      String?              @map("hero_image")
-  youtubeUrl     String?              @map("youtube_url")
   featured       Boolean              @default(false)
   views          Int                  @default(0)
   readingMinutes Int                  @default(5) @map("reading_minutes")
@@ -123,7 +119,7 @@ model ArticleTranslation {
   excerpt     String? @db.Text
   contentHtml String? @db.LongText @map("content_html")
   takeaway    String? @db.Text
-  sources     String? @db.Text  // Sources et références bibliographiques
+  sources     String? @db.Text
   article     Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   @@unique([articleId, lang])
@@ -158,7 +154,7 @@ model CategoriePersonnalite {
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
   translations CategoriePersonnaliteTranslation[]
-  personnalites PersonnaliteCategorie[]
+  personnalites Personnalite[]
 
   @@map("categories_personnalites")
 }
@@ -180,50 +176,15 @@ model Personnalite {
   id          Int                    @id @default(autoincrement())
   slug        String                 @unique
   nom         String
+  categorieId Int                    @map("categorie_id")
   image       String?
   youtubeUrl  String?                @map("youtube_url")
   articleId   Int?                   @map("article_id")
-  publishedAt DateTime?              @map("published_at") // null = brouillon, future = programmé, passé = publié
   createdAt   DateTime               @default(now()) @map("created_at")
   updatedAt   DateTime               @updatedAt @map("updated_at")
-  categories  PersonnaliteCategorie[]
+  categorie   CategoriePersonnalite  @relation(fields: [categorieId], references: [id])
   article     Article?               @relation(fields: [articleId], references: [id])
 
   @@map("personnalites")
-}
-
-// Table de jointure many-to-many entre Personnalite et CategoriePersonnalite
-model PersonnaliteCategorie {
-  personnaliteId Int                   @map("personnalite_id")
-  categorieId    Int                   @map("categorie_id")
-  personnalite   Personnalite          @relation(fields: [personnaliteId], references: [id], onDelete: Cascade)
-  categorie      CategoriePersonnalite @relation(fields: [categorieId], references: [id], onDelete: Cascade)
-
-  @@id([personnaliteId, categorieId])
-  @@map("personnalite_categories")
-}
-
-// Redirections 301 pour SEO
-model Redirect {
-  id         Int      @id @default(autoincrement())
-  oldPath    String   @unique @map("old_path") @db.VarChar(500)
-  newPath    String   @map("new_path") @db.VarChar(500)
-  entityType String   @map("entity_type") @db.VarChar(50) // article, personnalite, tag
-  entityId   Int      @map("entity_id")
-  hits       Int      @default(0) // Nombre de fois utilisée
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  @@map("redirects")
-}
-
-// Abonnés newsletter
-model Subscriber {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique @db.VarChar(255)
-  source    String?  @db.VarChar(50) // 'popup', 'footer', 'ressources'
-  status    String   @default("pending") @db.VarChar(20) // 'pending', 'confirmed', 'unsubscribed'
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("subscribers")
 }
 
