@@ -183,11 +183,32 @@ model Personnalite {
   image       String?
   youtubeUrl  String?                @map("youtube_url")
   articleId   Int?                   @map("article_id")
+  publishedAt DateTime?              @map("published_at")
   createdAt   DateTime               @default(now()) @map("created_at")
   updatedAt   DateTime               @updatedAt @map("updated_at")
   categorie   CategoriePersonnalite? @relation(fields: [categorieId], references: [id])
   article     Article?               @relation(fields: [articleId], references: [id])
+  categories  PersonnaliteCategory[]
 
   @@map("personnalites")
 }
 
+// Table de liaison personnalité-catégorie (legacy)
+model PersonnaliteCategory {
+  personnaliteId Int          @map("personnalite_id")
+  categoryId     Int          @map("category_id")
+  personnalite   Personnalite @relation(fields: [personnaliteId], references: [id], onDelete: Cascade)
+
+  @@id([personnaliteId, categoryId])
+  @@map("personnalite_categories")
+}
+
+// Redirections
+model Redirect {
+  id        Int      @id @default(autoincrement())
+  fromPath  String   @unique @map("from_path")
+  toPath    String   @map("to_path")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("redirects")
+}
