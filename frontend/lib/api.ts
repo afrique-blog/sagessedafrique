@@ -104,6 +104,7 @@ export interface PersonnaliteAdmin {
   slug: string;
   nom: string;
   categorieId: number;
+  categorieIds: number[];
   image: string | null;
   youtubeUrl: string | null;
   articleId: number | null;
