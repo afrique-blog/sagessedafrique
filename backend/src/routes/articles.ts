@@ -11,6 +11,7 @@ const articleQuerySchema = z.object({
   dossier: z.string().optional(),
   featured: z.coerce.boolean().optional(),
   search: z.string().optional(),
+  includeUnpublished: z.coerce.boolean().optional(),
 });
 
 const createArticleSchema = z.object({
@@ -38,9 +39,14 @@ export async function articleRoutes(fastify: FastifyInstance) {
   // GET /api/articles - List articles with pagination and filters
   fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
     const query = articleQuerySchema.parse(request.query);
-    const { page, limit, lang, category, tag, dossier, featured, search } = query;
+    const { page, limit, lang, category, tag, dossier, featured, search, includeUnpublished } = query;
 
     const where: any = {};
+
+    // Par défaut, ne montrer que les articles publiés sauf si includeUnpublished est true
+    if (!includeUnpublished) {
+      where.publishedAt = { not: null };
+    }
 
     if (category) {
       where.category = { slug: category };

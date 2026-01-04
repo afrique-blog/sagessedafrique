@@ -160,6 +160,7 @@ class ApiClient {
     dossier?: string;
     featured?: boolean;
     search?: string;
+    includeUnpublished?: boolean;
   } = {}): Promise<PaginatedResponse<Article>> {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
