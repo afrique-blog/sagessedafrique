@@ -176,13 +176,13 @@ model Personnalite {
   id          Int                    @id @default(autoincrement())
   slug        String                 @unique
   nom         String
-  categorieId Int                    @map("categorie_id")
+  categorieId Int?                   @map("categorie_id")
   image       String?
   youtubeUrl  String?                @map("youtube_url")
   articleId   Int?                   @map("article_id")
   createdAt   DateTime               @default(now()) @map("created_at")
   updatedAt   DateTime               @updatedAt @map("updated_at")
-  categorie   CategoriePersonnalite  @relation(fields: [categorieId], references: [id])
+  categorie   CategoriePersonnalite? @relation(fields: [categorieId], references: [id])
   article     Article?               @relation(fields: [articleId], references: [id])
 
   @@map("personnalites")
