@@ -209,14 +209,14 @@ class ApiClient {
     return this.fetch(`/categories/admin/${id}`);
   }
 
-  async createCategory(data: { slug: string; translations: { lang: string; name: string; description?: string }[] }): Promise<CategoryAdmin> {
+  async createCategory(data: { slug: string; image?: string | null; translations: { lang: string; name: string; description?: string }[] }): Promise<CategoryAdmin> {
     return this.fetch('/categories', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updateCategory(id: number, data: { slug: string; translations: { lang: string; name: string; description?: string }[] }): Promise<CategoryAdmin> {
+  async updateCategory(id: number, data: { slug: string; image?: string | null; translations: { lang: string; name: string; description?: string }[] }): Promise<CategoryAdmin> {
     return this.fetch(`/categories/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
