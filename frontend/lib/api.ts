@@ -357,6 +357,10 @@ class ApiClient {
     return this.fetch('/personnalites/admin/all');
   }
 
+  async getPersonnalitesWithStatus(lang: string = 'fr'): Promise<PersonnaliteAdmin[]> {
+    return this.fetch(`/personnalites/admin/all?lang=${lang}`);
+  }
+
   async getPersonnaliteAdmin(id: number): Promise<PersonnaliteAdmin> {
     return this.fetch(`/personnalites/admin/${id}`);
   }
