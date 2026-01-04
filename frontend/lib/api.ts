@@ -361,14 +361,14 @@ class ApiClient {
     return this.fetch(`/personnalites/admin/${id}`);
   }
 
-  async createPersonnalite(data: { slug: string; nom: string; categorieId: number; image?: string | null; youtubeUrl?: string | null; articleId?: number | null }): Promise<PersonnaliteAdmin> {
+  async createPersonnalite(data: { slug: string; nom: string; categorieId?: number; categorieIds?: number[]; image?: string | null; youtubeUrl?: string | null; articleId?: number | null; publishedAt?: string | null }): Promise<PersonnaliteAdmin> {
     return this.fetch('/personnalites', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updatePersonnalite(id: number, data: { slug: string; nom: string; categorieId: number; image?: string | null; youtubeUrl?: string | null; articleId?: number | null }): Promise<PersonnaliteAdmin> {
+  async updatePersonnalite(id: number, data: { slug: string; nom: string; categorieId?: number; categorieIds?: number[]; image?: string | null; youtubeUrl?: string | null; articleId?: number | null; publishedAt?: string | null }): Promise<PersonnaliteAdmin> {
     return this.fetch(`/personnalites/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
