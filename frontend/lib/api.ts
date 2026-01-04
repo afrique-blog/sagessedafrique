@@ -103,7 +103,6 @@ export interface PersonnaliteAdmin {
   id: number;
   slug: string;
   nom: string;
-  categorieId: number;
   categorieIds: number[];
   image: string | null;
   youtubeUrl: string | null;
