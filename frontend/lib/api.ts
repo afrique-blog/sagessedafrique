@@ -17,6 +17,7 @@ export interface Article {
   category: { slug: string; name: string } | null;
   tags: { slug: string; name: string }[];
   dossiers: { slug: string; title: string }[];
+  personnaliteCategorie?: { slug: string; nom: string } | null;
 }
 
 export interface Category {
@@ -386,6 +387,27 @@ class ApiClient {
 
   async deletePersonnalite(id: number): Promise<void> {
     return this.fetch(`/personnalites/${id}`, { method: 'DELETE' });
+  }
+
+  // =====================================================
+  // SUBSCRIBERS / NEWSLETTER
+  // =====================================================
+  async subscribe(email: string, source?: string): Promise<{ success: boolean; message: string }> {
+    return this.fetch('/subscribers', {
+      method: 'POST',
+      body: JSON.stringify({ email, source }),
+    });
+  }
+
+  async unsubscribe(email: string): Promise<{ success: boolean; message: string }> {
+    return this.fetch('/subscribers/unsubscribe', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async getSubscribersCount(): Promise<{ count: number }> {
+    return this.fetch('/subscribers/count');
   }
 }
 
