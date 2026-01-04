@@ -107,6 +107,7 @@ export interface PersonnaliteAdmin {
   image: string | null;
   youtubeUrl: string | null;
   articleId: number | null;
+  publishedAt: string | null;
 }
 
 export interface PaginatedResponse<T> {
