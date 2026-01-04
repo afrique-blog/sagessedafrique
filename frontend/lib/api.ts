@@ -13,7 +13,7 @@ export interface Article {
   views: number;
   readingMinutes: number;
   publishedAt: string;
-  author: { id: number; name: string };
+  author: { id: number; name: string; avatar?: string; bio?: string };
   category: { slug: string; name: string } | null;
   tags: { slug: string; name: string }[];
   dossiers: { slug: string; title: string }[];
