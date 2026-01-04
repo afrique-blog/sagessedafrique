@@ -30,6 +30,7 @@ export interface Category {
 export interface CategoryAdmin {
   id: number;
   slug: string;
+  image: string | null;
   translations: { id: number; lang: string; name: string; description: string | null }[];
 }
 
