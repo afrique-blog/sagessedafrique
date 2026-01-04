@@ -454,7 +454,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
     const body = createPersonnaliteSchema.parse(request.body);
 
     // Supprimer les anciennes associations de catégories
-    await prisma.personnaliteCategory.deleteMany({
+    await (prisma as any).personnaliteCategory.deleteMany({
       where: { personnaliteId: id },
     });
 
