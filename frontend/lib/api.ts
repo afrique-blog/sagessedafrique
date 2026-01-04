@@ -90,7 +90,12 @@ export interface Personnalite {
     id: number;
     slug: string;
     nom: string;
-  };
+  } | null;
+  categories: {
+    id: number;
+    slug: string;
+    nom: string;
+  }[];
   article: {
     id: number;
     slug: string;
