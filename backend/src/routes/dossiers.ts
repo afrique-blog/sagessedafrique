@@ -72,13 +72,20 @@ export async function dossierRoutes(fastify: FastifyInstance) {
       return reply.status(404).send({ error: 'Dossier not found' });
     }
 
+    // Trier les articles par date de publication décroissante (le plus récent en premier)
+    const sortedArticles = [...dossier.articles].sort((a: any, b: any) => {
+      const dateA = new Date(a.article.publishedAt || 0).getTime();
+      const dateB = new Date(b.article.publishedAt || 0).getTime();
+      return dateB - dateA; // Décroissant
+    });
+
     return {
       id: dossier.id,
       slug: dossier.slug,
       heroImage: dossier.heroImage,
       title: dossier.translations[0]?.title || '',
       description: dossier.translations[0]?.description || '',
-      articles: dossier.articles.map((ad: any) => ({
+      articles: sortedArticles.map((ad: any) => ({
         id: ad.article.id,
         slug: ad.article.slug,
         title: ad.article.translations[0]?.title || '',
