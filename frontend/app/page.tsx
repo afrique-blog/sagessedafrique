@@ -34,14 +34,31 @@ function HomeContent() {
         setCategories(categoriesRes);
         setDossiers(dossiersRes);
 
-        // Charger le dossier du mois avec ses articles
+        // Charger le dossier du mois - celui avec l'article le plus récent
         if (dossiersRes.length > 0) {
-          const dossierComplet = await api.getDossier(dossiersRes[0].slug, lang);
-          if (dossierComplet.articles && dossierComplet.articles.length > 0) {
-            setDossierDuMoisData({
-              dossier: dossiersRes[0],
-              article: dossierComplet.articles[0], // L'article le plus récent
-            });
+          // Récupérer tous les dossiers avec leurs articles
+          const dossiersComplets = await Promise.all(
+            dossiersRes.map(d => api.getDossier(d.slug, lang))
+          );
+          
+          // Trouver l'article le plus récent parmi tous les dossiers
+          let articlePlusRecent: { dossier: Dossier; article: any } | null = null;
+          
+          for (let i = 0; i < dossiersComplets.length; i++) {
+            const dossierComplet = dossiersComplets[i];
+            if (dossierComplet.articles && dossierComplet.articles.length > 0) {
+              const article = dossierComplet.articles[0]; // Déjà trié par date décroissante
+              if (!articlePlusRecent || new Date(article.publishedAt) > new Date(articlePlusRecent.article.publishedAt)) {
+                articlePlusRecent = {
+                  dossier: dossiersRes[i],
+                  article: article,
+                };
+              }
+            }
+          }
+          
+          if (articlePlusRecent) {
+            setDossierDuMoisData(articlePlusRecent);
           }
         }
       } catch (error) {

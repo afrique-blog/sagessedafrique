@@ -63,6 +63,7 @@ export async function dossierRoutes(fastify: FastifyInstance) {
               },
             },
           },
+          orderBy: { article: { publishedAt: 'desc' } },
         },
       },
     });
