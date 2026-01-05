@@ -58,43 +58,33 @@ function EditArticleForm() {
         setTags(tgs);
         setDossiers(doss);
 
-        // Fetch article data for both languages
-        const [articleFr, articleEn] = await Promise.all([
-          api.getArticle(articleId.toString(), 'fr').catch(() => null),
-          api.getArticle(articleId.toString(), 'en').catch(() => null),
+        // Fetch article data by ID for both languages
+        const [fullArticleFr, fullArticleEn] = await Promise.all([
+          api.getArticleById(articleId, 'fr'),
+          api.getArticleById(articleId, 'en'),
         ]);
-
-        // Try to find article by ID through the list
-        const articlesRes = await api.getArticles({ limit: 100 });
-        const article = articlesRes.data.find(a => a.id === articleId);
         
-        if (article) {
-          // Fetch full article data
-          const fullArticleFr = await api.getArticle(article.slug, 'fr');
-          const fullArticleEn = await api.getArticle(article.slug, 'en');
-          
-          const category = cats.find(c => c.slug === fullArticleFr.category?.slug);
-          
-          setFormData({
-            slug: fullArticleFr.slug,
-            categoryId: category?.id || cats[0]?.id || 0,
-            heroImage: fullArticleFr.heroImage || '',
-            featured: fullArticleFr.featured,
-            readingMinutes: fullArticleFr.readingMinutes,
-            titleFr: fullArticleFr.title,
-            titleEn: fullArticleEn.title,
-            excerptFr: fullArticleFr.excerpt,
-            excerptEn: fullArticleEn.excerpt,
-            contentFr: fullArticleFr.contentHtml,
-            contentEn: fullArticleEn.contentHtml,
-            takeawayFr: fullArticleFr.takeaway,
-            takeawayEn: fullArticleEn.takeaway,
-            sourcesFr: fullArticleFr.sources || '',
-            sourcesEn: fullArticleEn.sources || '',
-            tagIds: fullArticleFr.tags.map(t => tgs.find(tag => tag.slug === t.slug)?.id).filter(Boolean) as number[],
-            dossierIds: fullArticleFr.dossiers.map(d => doss.find(dos => dos.slug === d.slug)?.id).filter(Boolean) as number[],
-          });
-        }
+        const category = cats.find(c => c.slug === fullArticleFr.category?.slug);
+        
+        setFormData({
+          slug: fullArticleFr.slug,
+          categoryId: category?.id || cats[0]?.id || 0,
+          heroImage: fullArticleFr.heroImage || '',
+          featured: fullArticleFr.featured,
+          readingMinutes: fullArticleFr.readingMinutes,
+          titleFr: fullArticleFr.title,
+          titleEn: fullArticleEn.title,
+          excerptFr: fullArticleFr.excerpt,
+          excerptEn: fullArticleEn.excerpt,
+          contentFr: fullArticleFr.contentHtml,
+          contentEn: fullArticleEn.contentHtml,
+          takeawayFr: fullArticleFr.takeaway,
+          takeawayEn: fullArticleEn.takeaway,
+          sourcesFr: fullArticleFr.sources || '',
+          sourcesEn: fullArticleEn.sources || '',
+          tagIds: fullArticleFr.tags.map(t => tgs.find(tag => tag.slug === t.slug)?.id).filter(Boolean) as number[],
+          dossierIds: fullArticleFr.dossiers.map(d => doss.find(dos => dos.slug === d.slug)?.id).filter(Boolean) as number[],
+        });
       } catch (err) {
         console.error('Failed to fetch data:', err);
         setError('Impossible de charger l\'article');

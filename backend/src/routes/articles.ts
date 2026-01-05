@@ -124,6 +124,51 @@ export async function articleRoutes(fastify: FastifyInstance) {
     };
   });
 
+  // GET /api/articles/admin/:id - Get single article by ID (for admin editing)
+  fastify.get('/admin/:id', {
+    preHandler: [(fastify as any).authenticate],
+  }, async (request: FastifyRequest<{ Params: { id: string }; Querystring: { lang?: string } }>, reply: FastifyReply) => {
+    const id = parseInt(request.params.id);
+    const lang = (request.query.lang as 'fr' | 'en') || 'fr';
+
+    const article = await prisma.article.findUnique({
+      where: { id },
+      include: {
+        category: {
+          include: {
+            translations: { where: { lang } },
+          },
+        },
+        author: { select: { id: true, name: true, avatar: true, bio: true } },
+        translations: { where: { lang } },
+        tags: {
+          include: {
+            tag: {
+              include: {
+                translations: { where: { lang } },
+              },
+            },
+          },
+        },
+        dossiers: {
+          include: {
+            dossier: {
+              include: {
+                translations: { where: { lang } },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!article) {
+      return reply.status(404).send({ error: 'Article not found' });
+    }
+
+    return formatArticle(article);
+  });
+
   // GET /api/articles/:slug - Get single article
   fastify.get('/:slug', async (request: FastifyRequest<{ Params: { slug: string }; Querystring: { lang?: string } }>, reply: FastifyReply) => {
     const { slug } = request.params;

@@ -184,6 +184,10 @@ class ApiClient {
     return this.fetch(`/articles/${slug}?lang=${lang}`);
   }
 
+  async getArticleById(id: number, lang: string = 'fr'): Promise<Article> {
+    return this.fetch(`/articles/admin/${id}?lang=${lang}`);
+  }
+
   async createArticle(data: any): Promise<Article> {
     return this.fetch('/articles', {
       method: 'POST',
