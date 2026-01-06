@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth, RequireAuth } from '@/lib/auth';
 import { api, Category, Tag, Dossier } from '@/lib/api';
+import ImageUpload from '@/components/ImageUpload';
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { 
   ssr: false,
@@ -177,16 +178,13 @@ function NewArticleForm() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2">Image hero (URL)</label>
-                <input
-                  type="text"
-                  value={formData.heroImage}
-                  onChange={e => setFormData({ ...formData, heroImage: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="https://..."
-                />
-              </div>
+              <ImageUpload
+                value={formData.heroImage}
+                onChange={(path) => setFormData({ ...formData, heroImage: path })}
+                folder="articles"
+                prefix={formData.slug || 'article'}
+                label="Image hero"
+              />
               <div>
                 <label className="block text-sm font-medium mb-2">Temps de lecture (min)</label>
                 <input
