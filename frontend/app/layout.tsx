@@ -115,6 +115,18 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
+        {/* Google Analytics 4 */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-G77L80MD0W" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-G77L80MD0W');`,
+          }}
+        />
+        {/* End Google Analytics 4 */}
+        
         {/* Google Tag Manager */}
         <script
           dangerouslySetInnerHTML={{
