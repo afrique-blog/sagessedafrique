@@ -221,24 +221,6 @@ model Contact {
   isSubscriber       Boolean   @default(false) @map("is_subscriber")
   subscribedAt       DateTime? @map("subscribed_at")
   subscriptionSource String?   @map("subscription_source") @db.VarChar(50)
-  subscriptionStatus String?   @map("subscription_status") @db.VarChar(20)
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
-  comments           Comment[]
-
-  @@map("contacts")
-}
-
-// DEPRECATED - Utiliser Contact à la place
-// Gardé temporairement pour la rétrocompatibilité
-// Table centrale pour tous les contacts (emails unifiés)
-model Contact {
-  id                 Int       @id @default(autoincrement())
-  email              String    @unique @db.VarChar(255)
-  name               String?   @db.VarChar(100)
-  isSubscriber       Boolean   @default(false) @map("is_subscriber")
-  subscribedAt       DateTime? @map("subscribed_at")
-  subscriptionSource String?   @map("subscription_source") @db.VarChar(50)
   subscriptionStatus String?   @default("pending") @map("subscription_status") @db.VarChar(20)
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
