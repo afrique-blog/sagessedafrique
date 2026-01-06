@@ -9,6 +9,7 @@ import { api, Article, Category } from '@/lib/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
+import Comments from '@/components/Comments';
 
 interface ArticleClientProps {
   initialArticle: Article;
@@ -371,6 +372,9 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
               </p>
             </div>
           </div>
+
+          {/* Comments Section */}
+          <Comments articleId={article.id} articleSlug={slug} lang={lang} />
         </article>
 
         {/* Related Articles - Enhanced */}

@@ -7,19 +7,20 @@ import { api, Article } from '@/lib/api';
 import AdminNav from '@/components/AdminNav';
 
 function AdminDashboard() {
-  const [stats, setStats] = useState({ articles: 0, categories: 0, tags: 0, dossiers: 0, catPersonnalites: 0, personnalites: 0 });
+  const [stats, setStats] = useState({ articles: 0, categories: 0, tags: 0, dossiers: 0, catPersonnalites: 0, personnalites: 0, pendingComments: 0 });
   const [recentArticles, setRecentArticles] = useState<Article[]>([]);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [articles, categories, tags, dossiers, catPers, personnalites] = await Promise.all([
+        const [articles, categories, tags, dossiers, catPers, personnalites, commentsStats] = await Promise.all([
           api.getArticles({ limit: 5 }),
           api.getCategories(),
           api.getTags(),
           api.getDossiers(),
           api.getCategoriesPersonnalites(),
           api.getPersonnalites(),
+          api.getCommentsStats().catch(() => ({ pending: 0 })),
         ]);
         setStats({
           articles: articles.pagination.total,
@@ -28,6 +29,7 @@ function AdminDashboard() {
           dossiers: dossiers.length,
           catPersonnalites: catPers.length,
           personnalites: personnalites.length,
+          pendingComments: commentsStats.pending,
         });
         setRecentArticles(articles.data);
       } catch (error) {
@@ -69,6 +71,12 @@ function AdminDashboard() {
           <Link href="/admin/personnalites" className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
             <p className="text-3xl font-bold text-primary dark:text-accent">{stats.personnalites}</p>
             <p className="text-sm text-slate-500 mt-1">Personnalités</p>
+          </Link>
+          <Link href="/admin/comments" className={`rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow ${stats.pendingComments > 0 ? 'bg-yellow-50 dark:bg-yellow-900/20 ring-2 ring-yellow-400' : 'bg-white dark:bg-slate-800'}`}>
+            <p className={`text-3xl font-bold ${stats.pendingComments > 0 ? 'text-yellow-600' : 'text-primary dark:text-accent'}`}>
+              {stats.pendingComments > 0 ? `⏳ ${stats.pendingComments}` : '💬'}
+            </p>
+            <p className="text-sm text-slate-500 mt-1">Commentaires à modérer</p>
           </Link>
         </div>
 

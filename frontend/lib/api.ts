@@ -117,6 +117,27 @@ export interface PersonnaliteAdmin {
   publishedAt: string | null;
 }
 
+export interface Comment {
+  id: number;
+  authorName: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface CommentAdmin {
+  id: number;
+  authorName: string;
+  authorEmail: string;
+  content: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+  article: {
+    id: number;
+    slug: string;
+    title: string;
+  };
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
@@ -412,6 +433,57 @@ class ApiClient {
 
   async getSubscribersCount(): Promise<{ count: number }> {
     return this.fetch('/subscribers/count');
+  }
+
+  // =====================================================
+  // COMMENTS
+  // =====================================================
+  async getComments(articleSlug: string): Promise<Comment[]> {
+    return this.fetch(`/comments?articleSlug=${articleSlug}`);
+  }
+
+  async getCommentsCount(articleSlug: string): Promise<{ count: number }> {
+    return this.fetch(`/comments/count?articleSlug=${articleSlug}`);
+  }
+
+  async createComment(data: { articleId: number; authorName: string; authorEmail: string; content: string; recaptchaToken: string }): Promise<{ success: boolean; message: string }> {
+    return this.fetch('/comments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Admin
+  async getCommentsAdmin(params: { status?: string; page?: number; limit?: number } = {}): Promise<PaginatedResponse<CommentAdmin>> {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.set(key, String(value));
+      }
+    });
+    return this.fetch(`/comments/admin?${searchParams}`);
+  }
+
+  async getCommentsStats(): Promise<{ pending: number; approved: number; rejected: number; total: number }> {
+    return this.fetch('/comments/admin/stats');
+  }
+
+  async updateCommentStatus(id: number, status: 'approved' | 'rejected' | 'pending'): Promise<{ success: boolean }> {
+    return this.fetch(`/comments/admin/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async deleteComment(id: number): Promise<void> {
+    return this.fetch(`/comments/admin/${id}`, { method: 'DELETE' });
+  }
+
+  async bulkCommentAction(ids: number[], action: 'approve' | 'reject' | 'delete'): Promise<{ success: boolean; affected: number }> {
+    return this.fetch('/comments/admin/bulk', {
+      method: 'POST',
+      body: JSON.stringify({ ids, action }),
+    });
   }
 }
 

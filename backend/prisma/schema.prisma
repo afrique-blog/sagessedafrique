@@ -111,6 +111,7 @@ model Article {
   tags           ArticleTag[]
   dossiers       ArticleDossier[]
   personnalites  Personnalite[]
+  comments       Comment[]
 
   @@map("articles")
 }
@@ -220,4 +221,16 @@ model Subscriber {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("subscribers")
+}
+model Comment {
+  id          Int      @id @default(autoincrement())
+  articleId   Int      @map("article_id")
+  authorName  String   @map("author_name") @db.VarChar(100)
+  authorEmail String   @map("author_email") @db.VarChar(255)
+  content     String   @db.Text
+  status      String   @default("pending") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
+  article     Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
 }
