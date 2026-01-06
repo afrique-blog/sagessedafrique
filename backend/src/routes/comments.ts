@@ -8,7 +8,8 @@ const createCommentSchema = z.object({
   authorEmail: z.string().email(),
   content: z.string().min(10).max(2000),
   recaptchaToken: z.string().min(1),
-  subscribeNewsletter: z.boolean().optional(), // Option inscription newsletter
+  subscribeNewsletter: z.boolean().optional(),
+  parentId: z.number().optional(), // Pour les réponses
 });
 
 const updateStatusSchema = z.object({
@@ -66,6 +67,9 @@ export async function commentRoutes(fastify: FastifyInstance) {
       where.articleId = article.id;
     }
 
+    // Récupérer les commentaires racines (sans parent) avec leurs réponses
+    where.parentId = null;
+    
     const comments = await prisma.comment.findMany({
       where,
       orderBy: { createdAt: 'desc' },
@@ -74,6 +78,16 @@ export async function commentRoutes(fastify: FastifyInstance) {
         authorName: true,
         content: true,
         createdAt: true,
+        replies: {
+          where: { status: 'approved' },
+          orderBy: { createdAt: 'asc' },
+          select: {
+            id: true,
+            authorName: true,
+            content: true,
+            createdAt: true,
+          },
+        },
       },
     });
 
@@ -153,11 +167,23 @@ export async function commentRoutes(fastify: FastifyInstance) {
         }
       }
 
+      // Vérifier si c'est une réponse à un commentaire existant
+      if (body.parentId) {
+        const parentComment = await prisma.comment.findUnique({ 
+          where: { id: body.parentId },
+          select: { articleId: true, status: true },
+        });
+        if (!parentComment || parentComment.articleId !== body.articleId) {
+          return reply.status(400).send({ error: 'Commentaire parent invalide' });
+        }
+      }
+
       // Create comment (pending moderation) avec lien vers contact
       const comment = await prisma.comment.create({
         data: {
           articleId: body.articleId,
           contactId: contact.id,
+          parentId: body.parentId || null,
           authorName: body.authorName,
           authorEmail: body.authorEmail,
           content: body.content,

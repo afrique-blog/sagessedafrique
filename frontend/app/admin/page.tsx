@@ -78,6 +78,10 @@ function AdminDashboard() {
             </p>
             <p className="text-sm text-slate-500 mt-1">Commentaires à modérer</p>
           </Link>
+          <Link href="/admin/contacts" className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">📧</p>
+            <p className="text-sm text-slate-500 mt-1">Contacts & Abonnés</p>
+          </Link>
         </div>
 
         {/* Quick Actions */}

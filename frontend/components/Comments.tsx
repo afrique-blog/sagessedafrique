@@ -12,6 +12,10 @@ declare global {
   }
 }
 
+interface CommentWithReplies extends Comment {
+  replies?: Comment[];
+}
+
 interface CommentsProps {
   articleId: number;
   articleSlug: string;
@@ -19,11 +23,12 @@ interface CommentsProps {
 }
 
 export default function Comments({ articleId, articleSlug, lang }: CommentsProps) {
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<CommentWithReplies[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [replyingTo, setReplyingTo] = useState<{ id: number; authorName: string } | null>(null);
   
   const [formData, setFormData] = useState({
     authorName: '',
@@ -96,15 +101,27 @@ export default function Comments({ articleId, articleSlug, lang }: CommentsProps
         content: formData.content,
         recaptchaToken,
         subscribeNewsletter: formData.subscribeNewsletter,
+        parentId: replyingTo?.id,
       });
 
       setSuccess(result.message);
       setFormData({ authorName: '', authorEmail: '', content: '', subscribeNewsletter: false });
+      setReplyingTo(null);
     } catch (err: any) {
       setError(err.message || (lang === 'fr' ? 'Une erreur est survenue' : 'An error occurred'));
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleReply = (comment: Comment) => {
+    setReplyingTo({ id: comment.id, authorName: comment.authorName });
+    // Scroll to form
+    document.getElementById('comment-form')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const cancelReply = () => {
+    setReplyingTo(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -116,16 +133,68 @@ export default function Comments({ articleId, articleSlug, lang }: CommentsProps
     });
   };
 
+  // Compte total des commentaires (avec réponses)
+  const totalCount = comments.reduce((acc, c) => acc + 1 + (c.replies?.length || 0), 0);
+
+  // Composant pour afficher un commentaire
+  const CommentItem = ({ comment, isReply = false }: { comment: Comment; isReply?: boolean }) => (
+    <div className={`${isReply ? 'ml-12 border-l-2 border-slate-200 dark:border-slate-600 pl-4' : ''}`}>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm">
+        <div className="flex items-start gap-4">
+          <div className={`${isReply ? 'w-8 h-8 text-sm' : 'w-10 h-10'} rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold flex-shrink-0`}>
+            {comment.authorName.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex-grow min-w-0">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span className="font-bold">{comment.authorName}</span>
+              {isReply && (
+                <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500">
+                  {lang === 'fr' ? 'Réponse' : 'Reply'}
+                </span>
+              )}
+              <span className="text-xs text-slate-500">
+                {formatDate(comment.createdAt)}
+              </span>
+            </div>
+            <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
+              {comment.content}
+            </p>
+            {!isReply && (
+              <button
+                onClick={() => handleReply(comment)}
+                className="mt-3 text-sm text-primary dark:text-accent hover:underline flex items-center gap-1"
+              >
+                ↩️ {lang === 'fr' ? 'Répondre' : 'Reply'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="mt-16 pt-12 border-t border-slate-200 dark:border-slate-700">
       <h2 className="text-2xl font-serif font-bold mb-8">
-        💬 {lang === 'fr' ? 'Commentaires' : 'Comments'} ({comments.length})
+        💬 {lang === 'fr' ? 'Commentaires' : 'Comments'} ({totalCount})
       </h2>
 
       {/* Comment Form */}
-      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 mb-10">
+      <div id="comment-form" className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 mb-10">
         <h3 className="font-bold text-lg mb-4">
-          {lang === 'fr' ? 'Laisser un commentaire' : 'Leave a comment'}
+          {replyingTo ? (
+            <span className="flex items-center gap-2 flex-wrap">
+              ↩️ {lang === 'fr' ? 'Répondre à' : 'Reply to'} <span className="text-primary dark:text-accent">{replyingTo.authorName}</span>
+              <button
+                onClick={cancelReply}
+                className="text-sm text-slate-500 hover:text-red-500 ml-2"
+              >
+                ✕ {lang === 'fr' ? 'Annuler' : 'Cancel'}
+              </button>
+            </span>
+          ) : (
+            lang === 'fr' ? 'Laisser un commentaire' : 'Leave a comment'
+          )}
         </h3>
         
         {success && (
@@ -174,7 +243,10 @@ export default function Comments({ articleId, articleSlug, lang }: CommentsProps
           
           <div>
             <label className="block text-sm font-medium mb-1">
-              {lang === 'fr' ? 'Commentaire' : 'Comment'} *
+              {replyingTo 
+                ? (lang === 'fr' ? 'Votre réponse' : 'Your reply')
+                : (lang === 'fr' ? 'Commentaire' : 'Comment')
+              } *
             </label>
             <textarea
               value={formData.content}
@@ -184,7 +256,10 @@ export default function Comments({ articleId, articleSlug, lang }: CommentsProps
               maxLength={2000}
               rows={4}
               className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              placeholder={lang === 'fr' ? 'Partagez votre réflexion...' : 'Share your thoughts...'}
+              placeholder={replyingTo
+                ? (lang === 'fr' ? 'Votre réponse...' : 'Your reply...')
+                : (lang === 'fr' ? 'Partagez votre réflexion...' : 'Share your thoughts...')
+              }
             />
             <p className="text-xs text-slate-500 mt-1">
               {formData.content.length}/2000 {lang === 'fr' ? 'caractères' : 'characters'}
@@ -225,7 +300,10 @@ export default function Comments({ articleId, articleSlug, lang }: CommentsProps
               ) : (
                 <>
                   <span>📤</span>
-                  {lang === 'fr' ? 'Envoyer' : 'Submit'}
+                  {replyingTo 
+                    ? (lang === 'fr' ? 'Répondre' : 'Reply')
+                    : (lang === 'fr' ? 'Envoyer' : 'Submit')
+                  }
                 </>
               )}
             </button>
@@ -248,23 +326,18 @@ export default function Comments({ articleId, articleSlug, lang }: CommentsProps
       ) : (
         <div className="space-y-6">
           {comments.map((comment) => (
-            <div key={comment.id} className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
-                  {comment.authorName.charAt(0).toUpperCase()}
+            <div key={comment.id} className="space-y-4">
+              {/* Commentaire principal */}
+              <CommentItem comment={comment} />
+              
+              {/* Réponses */}
+              {comment.replies && comment.replies.length > 0 && (
+                <div className="space-y-4">
+                  {comment.replies.map((reply) => (
+                    <CommentItem key={reply.id} comment={reply} isReply />
+                  ))}
                 </div>
-                <div className="flex-grow">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="font-bold">{comment.authorName}</span>
-                    <span className="text-xs text-slate-500">
-                      {formatDate(comment.createdAt)}
-                    </span>
-                  </div>
-                  <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
-                    {comment.content}
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
           ))}
         </div>

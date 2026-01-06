@@ -122,6 +122,8 @@ export interface Comment {
   authorName: string;
   content: string;
   createdAt: string;
+  parentId?: number;
+  replies?: Comment[];
 }
 
 export interface CommentAdmin {
@@ -453,6 +455,7 @@ class ApiClient {
     content: string; 
     recaptchaToken: string;
     subscribeNewsletter?: boolean;
+    parentId?: number;
   }): Promise<{ success: boolean; message: string }> {
     return this.fetch('/comments', {
       method: 'POST',
@@ -491,6 +494,47 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ ids, action }),
     });
+  }
+
+  // =====================================================
+  // CONTACTS (Admin)
+  // =====================================================
+  
+  async getContactsAdmin(params: { filter?: string; page?: number; limit?: number } = {}): Promise<PaginatedResponse<any>> {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.set(key, String(value));
+      }
+    });
+    return this.fetch(`/contacts/admin?${searchParams}`);
+  }
+
+  async getContactsStats(): Promise<{ totalContacts: number; subscribers: number; activeSubscribers: number; commenters: number }> {
+    return this.fetch('/contacts/admin/stats');
+  }
+
+  async updateContact(id: number, data: { name?: string; isSubscriber?: boolean; subscriptionStatus?: string }): Promise<{ success: boolean }> {
+    return this.fetch(`/contacts/admin/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteContact(id: number): Promise<void> {
+    return this.fetch(`/contacts/admin/${id}`, { method: 'DELETE' });
+  }
+
+  async exportContacts(filter?: string): Promise<string> {
+    const url = filter ? `/contacts/admin/export?filter=${filter}` : '/contacts/admin/export';
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    if (this.token) {
+      (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`;
+    }
+    const response = await fetch(`${API_URL}${url}`, { headers });
+    return response.text();
   }
 }
 
