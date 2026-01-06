@@ -8,6 +8,7 @@ const createCommentSchema = z.object({
   authorEmail: z.string().email(),
   content: z.string().min(10).max(2000),
   recaptchaToken: z.string().min(1),
+  subscribeNewsletter: z.boolean().optional(), // Option inscription newsletter
 });
 
 const updateStatusSchema = z.object({
@@ -116,10 +117,47 @@ export async function commentRoutes(fastify: FastifyInstance) {
         return reply.status(404).send({ error: 'Article not found' });
       }
 
-      // Create comment (pending moderation)
+      // Créer ou mettre à jour le contact
+      const contact = await prisma.contact.upsert({
+        where: { email: body.authorEmail },
+        update: {
+          name: body.authorName,
+          // Si demande inscription newsletter
+          ...(body.subscribeNewsletter && {
+            isSubscriber: true,
+            subscribedAt: new Date(),
+            subscriptionSource: 'comment',
+            subscriptionStatus: 'pending',
+          }),
+        },
+        create: {
+          email: body.authorEmail,
+          name: body.authorName,
+          isSubscriber: body.subscribeNewsletter || false,
+          subscribedAt: body.subscribeNewsletter ? new Date() : null,
+          subscriptionSource: body.subscribeNewsletter ? 'comment' : null,
+          subscriptionStatus: body.subscribeNewsletter ? 'pending' : null,
+        },
+      });
+
+      // Aussi ajouter à subscribers si inscription newsletter (rétrocompatibilité)
+      if (body.subscribeNewsletter) {
+        try {
+          await prisma.subscriber.upsert({
+            where: { email: body.authorEmail },
+            update: { status: 'pending', source: 'comment' },
+            create: { email: body.authorEmail, source: 'comment', status: 'pending' },
+          });
+        } catch (e) {
+          // Ignorer les erreurs de la table legacy
+        }
+      }
+
+      // Create comment (pending moderation) avec lien vers contact
       const comment = await prisma.comment.create({
         data: {
           articleId: body.articleId,
+          contactId: contact.id,
           authorName: body.authorName,
           authorEmail: body.authorEmail,
           content: body.content,
@@ -129,7 +167,9 @@ export async function commentRoutes(fastify: FastifyInstance) {
 
       return reply.status(201).send({
         success: true,
-        message: 'Votre commentaire a été soumis et sera publié après modération.',
+        message: body.subscribeNewsletter 
+          ? 'Votre commentaire a été soumis et sera publié après modération. Vous êtes également inscrit à notre newsletter !'
+          : 'Votre commentaire a été soumis et sera publié après modération.',
         comment: {
           id: comment.id,
           authorName: comment.authorName,

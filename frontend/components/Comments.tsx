@@ -29,6 +29,7 @@ export default function Comments({ articleId, articleSlug, lang }: CommentsProps
     authorName: '',
     authorEmail: '',
     content: '',
+    subscribeNewsletter: false,
   });
 
   const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
@@ -94,10 +95,11 @@ export default function Comments({ articleId, articleSlug, lang }: CommentsProps
         authorEmail: formData.authorEmail,
         content: formData.content,
         recaptchaToken,
+        subscribeNewsletter: formData.subscribeNewsletter,
       });
 
       setSuccess(result.message);
-      setFormData({ authorName: '', authorEmail: '', content: '' });
+      setFormData({ authorName: '', authorEmail: '', content: '', subscribeNewsletter: false });
     } catch (err: any) {
       setError(err.message || (lang === 'fr' ? 'Une erreur est survenue' : 'An error occurred'));
     } finally {
@@ -188,6 +190,21 @@ export default function Comments({ articleId, articleSlug, lang }: CommentsProps
               {formData.content.length}/2000 {lang === 'fr' ? 'caractères' : 'characters'}
             </p>
           </div>
+
+          {/* Option inscription newsletter */}
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={formData.subscribeNewsletter}
+              onChange={(e) => setFormData({ ...formData, subscribeNewsletter: e.target.checked })}
+              className="w-5 h-5 rounded border-2 border-slate-300 dark:border-slate-500 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer"
+            />
+            <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">
+              📧 {lang === 'fr' 
+                ? "M'inscrire à la newsletter pour recevoir les nouveaux articles" 
+                : 'Subscribe to newsletter to receive new articles'}
+            </span>
+          </label>
 
           <div className="flex items-center justify-between">
             <p className="text-xs text-slate-500">

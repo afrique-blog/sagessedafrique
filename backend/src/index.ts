@@ -10,6 +10,7 @@ import { personnalitesRoutes } from './routes/personnalites.js';
 import { redirectRoutes } from './routes/redirects.js';
 import { subscriberRoutes } from './routes/subscribers.js';
 import { commentRoutes } from './routes/comments.js';
+import { contactRoutes } from './routes/contacts.js';
 
 const fastify = Fastify({
   logger: true,
@@ -44,6 +45,7 @@ await fastify.register(personnalitesRoutes, { prefix: '/api' });
 await fastify.register(redirectRoutes, { prefix: '/api/redirects' });
 await fastify.register(subscriberRoutes, { prefix: '/api/subscribers' });
 await fastify.register(commentRoutes, { prefix: '/api/comments' });
+await fastify.register(contactRoutes, { prefix: '/api/contacts' });
 
 // Health check
 fastify.get('/api/health', async () => {

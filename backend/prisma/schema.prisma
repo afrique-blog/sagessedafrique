@@ -213,6 +213,41 @@ model Redirect {
   @@map("redirects")
 }
 
+// Table contacts - source unique pour tous les emails
+model Contact {
+  id                 Int       @id @default(autoincrement())
+  email              String    @unique @db.VarChar(255)
+  name               String?   @db.VarChar(100)
+  isSubscriber       Boolean   @default(false) @map("is_subscriber")
+  subscribedAt       DateTime? @map("subscribed_at")
+  subscriptionSource String?   @map("subscription_source") @db.VarChar(50)
+  subscriptionStatus String?   @map("subscription_status") @db.VarChar(20)
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  comments           Comment[]
+
+  @@map("contacts")
+}
+
+// DEPRECATED - Utiliser Contact à la place
+// Gardé temporairement pour la rétrocompatibilité
+// Table centrale pour tous les contacts (emails unifiés)
+model Contact {
+  id                 Int       @id @default(autoincrement())
+  email              String    @unique @db.VarChar(255)
+  name               String?   @db.VarChar(100)
+  isSubscriber       Boolean   @default(false) @map("is_subscriber")
+  subscribedAt       DateTime? @map("subscribed_at")
+  subscriptionSource String?   @map("subscription_source") @db.VarChar(50)
+  subscriptionStatus String?   @default("pending") @map("subscription_status") @db.VarChar(20)
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  comments           Comment[]
+
+  @@map("contacts")
+}
+
+// DEPRECATED: Garder pour rétrocompatibilité, sera supprimé plus tard
 model Subscriber {
   id        Int      @id @default(autoincrement())
   email     String   @unique @db.VarChar(255)
@@ -225,12 +260,14 @@ model Subscriber {
 model Comment {
   id          Int      @id @default(autoincrement())
   articleId   Int      @map("article_id")
+  contactId   Int?     @map("contact_id")
   authorName  String   @map("author_name") @db.VarChar(100)
   authorEmail String   @map("author_email") @db.VarChar(255)
   content     String   @db.Text
   status      String   @default("pending") @db.VarChar(20)
   createdAt   DateTime @default(now()) @map("created_at")
   article     Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  contact     Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
 
   @@map("comments")
 }

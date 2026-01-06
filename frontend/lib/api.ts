@@ -418,21 +418,21 @@ class ApiClient {
   // SUBSCRIBERS / NEWSLETTER
   // =====================================================
   async subscribe(email: string, source?: string): Promise<{ success: boolean; message: string }> {
-    return this.fetch('/subscribers', {
+    return this.fetch('/contacts/subscribe', {
       method: 'POST',
       body: JSON.stringify({ email, source }),
     });
   }
 
   async unsubscribe(email: string): Promise<{ success: boolean; message: string }> {
-    return this.fetch('/subscribers/unsubscribe', {
+    return this.fetch('/contacts/unsubscribe', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
   }
 
   async getSubscribersCount(): Promise<{ count: number }> {
-    return this.fetch('/subscribers/count');
+    return this.fetch('/contacts/subscribers/count');
   }
 
   // =====================================================
@@ -446,7 +446,14 @@ class ApiClient {
     return this.fetch(`/comments/count?articleSlug=${articleSlug}`);
   }
 
-  async createComment(data: { articleId: number; authorName: string; authorEmail: string; content: string; recaptchaToken: string }): Promise<{ success: boolean; message: string }> {
+  async createComment(data: { 
+    articleId: number; 
+    authorName: string; 
+    authorEmail: string; 
+    content: string; 
+    recaptchaToken: string;
+    subscribeNewsletter?: boolean;
+  }): Promise<{ success: boolean; message: string }> {
     return this.fetch('/comments', {
       method: 'POST',
       body: JSON.stringify(data),
