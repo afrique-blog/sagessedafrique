@@ -43,8 +43,12 @@ export default function ImageUpload({
       const formData = new FormData();
       formData.append('file', file);
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('admin_token');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+      
+      if (!token) {
+        throw new Error('Vous devez être connecté pour uploader une image');
+      }
       
       const response = await fetch(
         `${apiUrl}/uploads/image?folder=${folder}&prefix=${encodeURIComponent(prefix)}`,
