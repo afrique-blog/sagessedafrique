@@ -191,6 +191,19 @@ export default function ProfilPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Retour à l'accueil */}
+        <div className="mb-6">
+          <Link 
+            href="/" 
+            className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-accent transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            {lang === 'fr' ? 'Retour à l\'accueil' : 'Back to home'}
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 mb-6">
           <div className="flex items-center gap-6">
