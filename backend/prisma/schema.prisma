@@ -244,6 +244,7 @@ model Comment {
   articleId   Int       @map("article_id")
   contactId   Int?      @map("contact_id")
   parentId    Int?      @map("parent_id")
+  memberId    Int?      @map("member_id")
   authorName  String    @map("author_name") @db.VarChar(100)
   authorEmail String    @map("author_email") @db.VarChar(255)
   content     String    @db.Text
@@ -251,8 +252,122 @@ model Comment {
   createdAt   DateTime  @default(now()) @map("created_at")
   article     Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
   contact     Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  member      Member?   @relation(fields: [memberId], references: [id], onDelete: SetNull)
   parent      Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies     Comment[] @relation("CommentReplies")
 
   @@map("comments")
+}
+
+// =====================================================
+// SYSTÈME COMMUNAUTÉ - MEMBRES
+// =====================================================
+
+// Membre de la communauté (différent de User qui est admin)
+model Member {
+  id                Int                @id @default(autoincrement())
+  email             String             @unique @db.VarChar(255)
+  passwordHash      String?            @map("password_hash") @db.VarChar(255)
+  name              String             @db.VarChar(100)
+  avatar            String?            @db.VarChar(500)
+  bio               String?            @db.Text
+  preferredLang     String             @default("fr") @map("preferred_lang") @db.VarChar(2)
+  isEmailVerified   Boolean            @default(false) @map("is_email_verified")
+  isSubscriber      Boolean            @default(false) @map("is_subscriber")
+  lastLoginAt       DateTime?          @map("last_login_at")
+  loginCount        Int                @default(0) @map("login_count")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  
+  // Relations
+  oauthAccounts     OAuthAccount[]
+  emailVerifications EmailVerification[]
+  passwordResets    PasswordReset[]
+  favorites         MemberFavorite[]
+  readingHistory    ReadingHistory[]
+  comments          Comment[]
+  sessions          MemberSession[]
+
+  @@map("members")
+}
+
+// Sessions des membres (pour invalidation)
+model MemberSession {
+  id          String   @id @default(uuid()) @db.VarChar(36)
+  memberId    Int      @map("member_id")
+  token       String   @unique @db.VarChar(500)
+  userAgent   String?  @map("user_agent") @db.VarChar(500)
+  ipAddress   String?  @map("ip_address") @db.VarChar(45)
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  member      Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("member_sessions")
+}
+
+// Comptes OAuth (Google, Facebook)
+model OAuthAccount {
+  id           Int      @id @default(autoincrement())
+  memberId     Int      @map("member_id")
+  provider     String   @db.VarChar(20) // 'google' | 'facebook'
+  providerId   String   @map("provider_id") @db.VarChar(255)
+  accessToken  String?  @map("access_token") @db.Text
+  refreshToken String?  @map("refresh_token") @db.Text
+  expiresAt    DateTime? @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  member       Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@map("oauth_accounts")
+}
+
+// Vérification email
+model EmailVerification {
+  id        Int      @id @default(autoincrement())
+  memberId  Int      @map("member_id")
+  token     String   @unique @db.VarChar(100)
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("email_verifications")
+}
+
+// Réinitialisation mot de passe
+model PasswordReset {
+  id        Int      @id @default(autoincrement())
+  memberId  Int      @map("member_id")
+  token     String   @unique @db.VarChar(100)
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("password_resets")
+}
+
+// Favoris des membres (persistants)
+model MemberFavorite {
+  memberId  Int      @map("member_id")
+  articleId Int      @map("article_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([memberId, articleId])
+  @@map("member_favorites")
+}
+
+// Historique de lecture
+model ReadingHistory {
+  id        Int      @id @default(autoincrement())
+  memberId  Int      @map("member_id")
+  articleId Int      @map("article_id")
+  progress  Int      @default(0) // Pourcentage de lecture (0-100)
+  readAt    DateTime @default(now()) @map("read_at")
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, articleId])
+  @@map("reading_history")
 }

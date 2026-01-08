@@ -7,13 +7,16 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context';
 import { t } from '@/lib/i18n';
 import { api, CategoriePersonnalite, Category } from '@/lib/api';
+import { useMemberAuth } from '@/lib/memberAuth';
 
 const Header: React.FC = () => {
   const { lang, setLang, theme, setTheme } = useApp();
+  const { member, isAuthenticated, isLoading: authLoading, logout } = useMemberAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoriesPersonnalites, setCategoriesPersonnalites] = useState<CategoriePersonnalite[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -179,6 +182,71 @@ const Header: React.FC = () => {
           >
             {t('switchLang', lang)}
           </button>
+
+          {/* Authentification */}
+          {!authLoading && (
+            isAuthenticated && member ? (
+              <div className="relative">
+                <button 
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+                >
+                  <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">
+                    {member.avatar ? (
+                      <img src={member.avatar} alt="" className="w-full h-full rounded-full object-cover" />
+                    ) : (
+                      member.name.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <span className="text-sm font-medium max-w-[100px] truncate">{member.name}</span>
+                </button>
+                
+                {showUserMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-2 z-50">
+                      <Link 
+                        href="/profil" 
+                        onClick={() => setShowUserMenu(false)}
+                        className="block px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                      >
+                        {lang === 'fr' ? '👤 Mon profil' : '👤 My profile'}
+                      </Link>
+                      <Link 
+                        href="/favoris" 
+                        onClick={() => setShowUserMenu(false)}
+                        className="block px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                      >
+                        {lang === 'fr' ? '⭐ Mes favoris' : '⭐ My favorites'}
+                      </Link>
+                      <hr className="my-2 border-slate-200 dark:border-slate-700" />
+                      <button 
+                        onClick={() => { logout(); setShowUserMenu(false); }}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        {lang === 'fr' ? '🚪 Déconnexion' : '🚪 Log out'}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link 
+                  href="/connexion"
+                  className="text-sm font-medium hover:text-primary transition-colors"
+                >
+                  {lang === 'fr' ? 'Connexion' : 'Log in'}
+                </Link>
+                <Link 
+                  href="/inscription"
+                  className="text-sm font-medium px-4 py-1.5 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors"
+                >
+                  {lang === 'fr' ? 'Inscription' : 'Sign up'}
+                </Link>
+              </div>
+            )
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -258,6 +326,59 @@ const Header: React.FC = () => {
                 {t('contact', lang)}
               </Link>
             </div>
+
+            {/* Authentification Mobile */}
+            {!authLoading && (
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                {isAuthenticated && member ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                        {member.avatar ? (
+                          <img src={member.avatar} alt="" className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          member.name.charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">{member.name}</p>
+                        <p className="text-sm text-slate-500">{member.email}</p>
+                      </div>
+                    </div>
+                    <Link 
+                      href="/profil" 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block py-2 text-primary font-medium"
+                    >
+                      {lang === 'fr' ? '👤 Mon profil' : '👤 My profile'}
+                    </Link>
+                    <button 
+                      onClick={() => { logout(); setIsMenuOpen(false); }}
+                      className="text-red-600 font-medium"
+                    >
+                      {lang === 'fr' ? '🚪 Déconnexion' : '🚪 Log out'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-3">
+                    <Link 
+                      href="/connexion"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex-1 py-2 text-center border border-primary text-primary rounded-lg font-medium"
+                    >
+                      {lang === 'fr' ? 'Connexion' : 'Log in'}
+                    </Link>
+                    <Link 
+                      href="/inscription"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex-1 py-2 text-center bg-primary text-white rounded-lg font-medium"
+                    >
+                      {lang === 'fr' ? 'Inscription' : 'Sign up'}
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <button onClick={toggleTheme} className="text-sm">{theme === 'light' ? t('darkMode', lang) : t('lightMode', lang)}</button>

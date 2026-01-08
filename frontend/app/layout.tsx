@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { AppProvider } from '@/lib/context';
+import { MemberAuthProvider } from '@/lib/memberAuth';
 import NewsletterPopup from '@/components/NewsletterPopup';
 import './globals.css';
 
@@ -185,8 +186,10 @@ _paq.push(['enableLinkTracking']);
         {/* End Google Tag Manager (noscript) */}
         
         <AppProvider>
-          {children}
-          <NewsletterPopup />
+          <MemberAuthProvider>
+            {children}
+            <NewsletterPopup />
+          </MemberAuthProvider>
         </AppProvider>
       </body>
     </html>

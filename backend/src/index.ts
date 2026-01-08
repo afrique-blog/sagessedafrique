@@ -12,6 +12,8 @@ import { subscriberRoutes } from './routes/subscribers.js';
 import { commentRoutes } from './routes/comments.js';
 import { contactRoutes } from './routes/contacts.js';
 import { uploadRoutes } from './routes/uploads.js';
+import { memberRoutes } from './routes/members.js';
+import { verifyEmailConnection } from './services/email.js';
 
 const fastify = Fastify({
   logger: true,
@@ -48,6 +50,7 @@ await fastify.register(subscriberRoutes, { prefix: '/api/subscribers' });
 await fastify.register(commentRoutes, { prefix: '/api/comments' });
 await fastify.register(contactRoutes, { prefix: '/api/contacts' });
 await fastify.register(uploadRoutes, { prefix: '/api/uploads' });
+await fastify.register(memberRoutes, { prefix: '/api/members' });
 
 // Health check
 fastify.get('/api/health', async () => {
@@ -57,6 +60,9 @@ fastify.get('/api/health', async () => {
 // Start server
 const start = async () => {
   try {
+    // Vérifier le service email
+    await verifyEmailConnection();
+    
     const port = parseInt(process.env.PORT || '3001');
     await fastify.listen({ port, host: '0.0.0.0' });
     console.log(`🚀 Server running on http://localhost:${port}`);
