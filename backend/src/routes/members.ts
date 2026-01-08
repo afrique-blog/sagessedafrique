@@ -392,9 +392,23 @@ export async function memberRoutes(fastify: FastifyInstance) {
     // Vérifier le token avec le provider
     if (provider === 'google') {
       try {
-        const response = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`);
+        // Google Sign-In envoie un ID Token (JWT), on le vérifie via tokeninfo
+        const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${accessToken}`);
         if (!response.ok) throw new Error('Invalid token');
-        const data = await response.json() as { sub: string; email: string; name: string; picture?: string };
+        const data = await response.json() as { 
+          sub: string; 
+          email: string; 
+          name: string; 
+          picture?: string;
+          aud: string;
+        };
+        
+        // Optionnel: vérifier que le token est pour notre application
+        const googleClientId = process.env.GOOGLE_CLIENT_ID;
+        if (googleClientId && data.aud !== googleClientId) {
+          throw new Error('Token not for this app');
+        }
+        
         userInfo = {
           id: data.sub,
           email: data.email,
