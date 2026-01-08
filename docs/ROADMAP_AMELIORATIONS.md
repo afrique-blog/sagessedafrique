@@ -71,11 +71,11 @@
 
 | Tâche | Priorité | Effort | Statut |
 |-------|----------|--------|--------|
-| Articles liés | 🔴 Haute | 4h | ⬜ À faire |
-| Barre de progression lecture | 🟡 Moyenne | 2h | ⬜ À faire |
-| Table des matières | 🟡 Moyenne | 3h | ⬜ À faire |
-| Réactions sur articles | 🟡 Moyenne | 4h | ⬜ À faire |
-| Temps de lecture estimé | 🟢 Basse | 1h | ⬜ À faire |
+| Articles liés | 🔴 Haute | 4h | ✅ Fait (déjà présent) |
+| Barre de progression lecture | 🟡 Moyenne | 2h | ✅ Fait |
+| Table des matières | 🟡 Moyenne | 3h | ✅ Fait (déjà présent) |
+| Réactions sur articles | 🟡 Moyenne | 4h | ✅ Fait |
+| Temps de lecture estimé | 🟢 Basse | 1h | ✅ Fait (déjà présent) |
 
 ### Phase 3 : Navigation & Contenu (2 semaines) 🧭
 
@@ -149,6 +149,8 @@
 
 | Date | Modification | Fichiers |
 |------|--------------|----------|
+| 08/01 | Barre de progression de lecture | `frontend/app/article/[slug]/ArticleClient.tsx` |
+| 08/01 | Réactions sur articles (👍 ❤️ 🔥) | `frontend/app/article/[slug]/ArticleClient.tsx` |
 | 08/01 | Boutons partage social (déjà présents) | `frontend/app/article/[slug]/ArticleClient.tsx` |
 | 08/01 | Newsletter homepage fonctionnelle | `frontend/app/page.tsx` |
 | 08/01 | Bouton "Voir plus" → lien catégories | `frontend/app/page.tsx` |

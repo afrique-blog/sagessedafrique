@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useApp } from '@/lib/context';
@@ -10,6 +10,14 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
 import Comments from '@/components/Comments';
+
+// Types for reactions
+type ReactionType = 'like' | 'love' | 'fire';
+interface Reactions {
+  like: number;
+  love: number;
+  fire: number;
+}
 
 interface ArticleClientProps {
   initialArticle: Article;
@@ -57,6 +65,92 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
   const [categories, setCategories] = useState<Category[]>([]);
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
   const [showTOC, setShowTOC] = useState(false);
+  
+  // Reading progress
+  const [readingProgress, setReadingProgress] = useState(0);
+  
+  // Reactions state
+  const [reactions, setReactions] = useState<Reactions>({ like: 0, love: 0, fire: 0 });
+  const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
+
+  // Reading progress handler
+  const handleScroll = useCallback(() => {
+    const article = document.querySelector('article');
+    if (!article) return;
+    
+    const articleTop = article.offsetTop;
+    const articleHeight = article.offsetHeight;
+    const windowHeight = window.innerHeight;
+    const scrollY = window.scrollY;
+    
+    // Calculate progress based on article position
+    const start = articleTop - windowHeight;
+    const end = articleTop + articleHeight - windowHeight;
+    const progress = Math.min(100, Math.max(0, ((scrollY - start) / (end - start)) * 100));
+    
+    setReadingProgress(progress);
+  }, []);
+
+  // Load reactions from localStorage
+  useEffect(() => {
+    const storageKey = `reactions_${slug}`;
+    const userReactionKey = `user_reaction_${slug}`;
+    
+    // Load saved reactions
+    const savedReactions = localStorage.getItem(storageKey);
+    if (savedReactions) {
+      setReactions(JSON.parse(savedReactions));
+    } else {
+      // Initialize with random counts for demo
+      setReactions({
+        like: Math.floor(Math.random() * 50) + 10,
+        love: Math.floor(Math.random() * 30) + 5,
+        fire: Math.floor(Math.random() * 20) + 3,
+      });
+    }
+    
+    // Load user's reaction
+    const savedUserReaction = localStorage.getItem(userReactionKey);
+    if (savedUserReaction) {
+      setUserReaction(savedUserReaction as ReactionType);
+    }
+  }, [slug]);
+
+  // Scroll listener for reading progress
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial call
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  // Handle reaction click
+  const handleReaction = (type: ReactionType) => {
+    const storageKey = `reactions_${slug}`;
+    const userReactionKey = `user_reaction_${slug}`;
+    
+    setReactions(prev => {
+      const newReactions = { ...prev };
+      
+      // If user already reacted with this type, remove it
+      if (userReaction === type) {
+        newReactions[type] = Math.max(0, prev[type] - 1);
+        setUserReaction(null);
+        localStorage.removeItem(userReactionKey);
+      } else {
+        // If user had a different reaction, remove it first
+        if (userReaction) {
+          newReactions[userReaction] = Math.max(0, prev[userReaction] - 1);
+        }
+        // Add new reaction
+        newReactions[type] = prev[type] + 1;
+        setUserReaction(type);
+        localStorage.setItem(userReactionKey, type);
+      }
+      
+      localStorage.setItem(storageKey, JSON.stringify(newReactions));
+      return newReactions;
+    });
+  };
 
   // Extract TOC from content
   const toc = useMemo(() => extractHeadings(article.contentHtml || ''), [article.contentHtml]);
@@ -108,6 +202,14 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Reading Progress Bar */}
+      <div className="fixed top-0 left-0 right-0 z-[60] h-1 bg-slate-200 dark:bg-slate-800">
+        <div 
+          className="h-full bg-gradient-to-r from-primary via-accent to-primary transition-all duration-150 ease-out"
+          style={{ width: `${readingProgress}%` }}
+        />
+      </div>
+      
       <Header />
       <main className="flex-grow">
         {/* Hero */}
@@ -311,6 +413,56 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             </a>
+          </div>
+
+          {/* Reactions */}
+          <div className="mt-8 py-6 border-y border-slate-200 dark:border-slate-700">
+            <div className="text-center">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                {lang === 'fr' ? 'Cet article vous a plu ?' : 'Did you enjoy this article?'}
+              </p>
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => handleReaction('like')}
+                  className={`group flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all ${
+                    userReaction === 'like'
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                      : 'border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                  }`}
+                >
+                  <span className={`text-xl transition-transform ${userReaction === 'like' ? 'scale-125' : 'group-hover:scale-110'}`}>👍</span>
+                  <span className={`text-sm font-medium ${userReaction === 'like' ? 'text-blue-600' : 'text-slate-600 dark:text-slate-400'}`}>
+                    {reactions.like}
+                  </span>
+                </button>
+                <button
+                  onClick={() => handleReaction('love')}
+                  className={`group flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all ${
+                    userReaction === 'love'
+                      ? 'border-red-500 bg-red-50 dark:bg-red-900/30'
+                      : 'border-slate-200 dark:border-slate-700 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
+                  }`}
+                >
+                  <span className={`text-xl transition-transform ${userReaction === 'love' ? 'scale-125' : 'group-hover:scale-110'}`}>❤️</span>
+                  <span className={`text-sm font-medium ${userReaction === 'love' ? 'text-red-600' : 'text-slate-600 dark:text-slate-400'}`}>
+                    {reactions.love}
+                  </span>
+                </button>
+                <button
+                  onClick={() => handleReaction('fire')}
+                  className={`group flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all ${
+                    userReaction === 'fire'
+                      ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/30'
+                      : 'border-slate-200 dark:border-slate-700 hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20'
+                  }`}
+                >
+                  <span className={`text-xl transition-transform ${userReaction === 'fire' ? 'scale-125' : 'group-hover:scale-110'}`}>🔥</span>
+                  <span className={`text-sm font-medium ${userReaction === 'fire' ? 'text-orange-600' : 'text-slate-600 dark:text-slate-400'}`}>
+                    {reactions.fire}
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Sources & Références */}
