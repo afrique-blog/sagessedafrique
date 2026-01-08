@@ -81,10 +81,10 @@
 
 | Tâche | Priorité | Effort | Statut |
 |-------|----------|--------|--------|
-| Page Archives | 🟡 Moyenne | 4h | ⬜ À faire |
+| Page Archives | 🟡 Moyenne | 4h | ✅ Fait |
 | Recherche avancée | 🟡 Moyenne | 6h | ⬜ À faire |
-| Articles populaires sidebar | 🟡 Moyenne | 3h | ⬜ À faire |
-| Favoris/Bookmarks | 🟢 Basse | 4h | ⬜ À faire |
+| Articles populaires sidebar | 🟡 Moyenne | 3h | ✅ Fait |
+| Favoris/Bookmarks | 🟢 Basse | 4h | ✅ Fait |
 | Mode lecture | 🟢 Basse | 2h | ⬜ À faire |
 
 ### Phase 4 : Communauté (3-4 semaines) 👥
@@ -149,6 +149,10 @@
 
 | Date | Modification | Fichiers |
 |------|--------------|----------|
+| 08/01 | Page Archives (articles par année/mois) | `frontend/app/archives/page.tsx` |
+| 08/01 | Articles populaires dans la sidebar | `frontend/app/page.tsx` |
+| 08/01 | Système de favoris/bookmarks | `frontend/app/favoris/page.tsx`, `frontend/components/ArticleCard.tsx` |
+| 08/01 | Liens Archives + Favoris dans Header | `frontend/components/Header.tsx` |
 | 08/01 | Barre de progression de lecture | `frontend/app/article/[slug]/ArticleClient.tsx` |
 | 08/01 | Réactions sur articles (👍 ❤️ 🔥) | `frontend/app/article/[slug]/ArticleClient.tsx` |
 | 08/01 | Boutons partage social (déjà présents) | `frontend/app/article/[slug]/ArticleClient.tsx` |

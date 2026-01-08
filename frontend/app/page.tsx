@@ -20,6 +20,7 @@ function HomeContent() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [dossiers, setDossiers] = useState<Dossier[]>([]);
   const [dossierDuMoisData, setDossierDuMoisData] = useState<{ dossier: Dossier; article: Article } | null>(null);
+  const [popularArticles, setPopularArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Newsletter state
@@ -62,6 +63,10 @@ function HomeContent() {
         setArticles(articlesRes.data);
         setCategories(categoriesRes);
         setDossiers(dossiersRes);
+        
+        // Get popular articles (sorted by views)
+        const sortedByViews = [...articlesRes.data].sort((a, b) => b.views - a.views).slice(0, 5);
+        setPopularArticles(sortedByViews);
 
         // Charger le dossier du mois - celui avec l'article le plus récent
         if (dossiersRes.length > 0) {
@@ -350,6 +355,37 @@ function HomeContent() {
                   </div>
                 </div>
                 <aside className="lg:w-1/3 space-y-12">
+                  {/* Popular Articles */}
+                  {popularArticles.length > 0 && (
+                    <div>
+                      <h3 className="text-xs uppercase tracking-widest font-bold mb-6 text-slate-400 flex items-center gap-2">
+                        🔥 {lang === 'fr' ? 'Articles Populaires' : 'Popular Articles'}
+                      </h3>
+                      <div className="space-y-4">
+                        {popularArticles.map((article, index) => (
+                          <Link 
+                            key={article.id} 
+                            href={`/article/${article.slug}`}
+                            className="flex gap-4 group"
+                          >
+                            <span className="text-3xl font-bold text-slate-200 dark:text-slate-700 group-hover:text-accent transition-colors">
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-sm leading-tight group-hover:text-primary dark:group-hover:text-accent transition-colors line-clamp-2">
+                                {article.title}
+                              </h4>
+                              <span className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                                👁 {article.views} {lang === 'fr' ? 'vues' : 'views'}
+                              </span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Categories */}
                   <div>
                     <h3 className="text-xs uppercase tracking-widest font-bold mb-6 text-slate-400">{t('popularCategories', lang)}</h3>
                     <div className="space-y-4">

@@ -129,6 +129,24 @@ const Header: React.FC = () => {
             {lang === 'fr' ? 'Ressources' : 'Resources'}
           </Link>
 
+          {/* Archives */}
+          <Link 
+            href="/archives"
+            className="text-sm font-medium hover:text-primary dark:hover:text-accent transition-colors flex items-center gap-1"
+          >
+            <span>📅</span>
+            {lang === 'fr' ? 'Archives' : 'Archives'}
+          </Link>
+
+          {/* Favoris */}
+          <Link 
+            href="/favoris"
+            className="text-sm font-medium hover:text-primary dark:hover:text-accent transition-colors flex items-center gap-1"
+          >
+            <span>⭐</span>
+            {lang === 'fr' ? 'Favoris' : 'Favorites'}
+          </Link>
+
           {/* Contact - en dernier */}
           <Link 
             href="/contact"
