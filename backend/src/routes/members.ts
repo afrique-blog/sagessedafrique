@@ -394,7 +394,7 @@ export async function memberRoutes(fastify: FastifyInstance) {
       try {
         const response = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`);
         if (!response.ok) throw new Error('Invalid token');
-        const data = await response.json();
+        const data = await response.json() as { sub: string; email: string; name: string; picture?: string };
         userInfo = {
           id: data.sub,
           email: data.email,
@@ -408,7 +408,7 @@ export async function memberRoutes(fastify: FastifyInstance) {
       try {
         const response = await fetch(`https://graph.facebook.com/me?fields=id,email,name,picture&access_token=${accessToken}`);
         if (!response.ok) throw new Error('Invalid token');
-        const data = await response.json();
+        const data = await response.json() as { id: string; email: string; name: string; picture?: { data?: { url?: string } } };
         userInfo = {
           id: data.id,
           email: data.email,

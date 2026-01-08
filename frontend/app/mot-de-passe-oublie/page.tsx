@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useLanguage } from '@/lib/context';
+import { useApp } from '@/lib/context';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sagessedafrique.blog/api';
 
@@ -30,7 +30,7 @@ const translations = {
 };
 
 export default function MotDePasseOubliePage() {
-  const { lang } = useLanguage();
+  const { lang } = useApp();
   const t = translations[lang as keyof typeof translations] || translations.fr;
 
   const [email, setEmail] = useState('');

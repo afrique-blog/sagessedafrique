@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useLanguage } from '@/lib/context';
+import { useApp } from '@/lib/context';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sagessedafrique.blog/api';
 
@@ -35,7 +35,7 @@ const translations = {
 function VerificationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { lang } = useLanguage();
+  const { lang } = useApp();
   const t = translations[lang as keyof typeof translations] || translations.fr;
   
   const token = searchParams.get('token');
@@ -130,7 +130,7 @@ function VerificationContent() {
 }
 
 export default function VerificationEmailPage() {
-  const { lang } = useLanguage();
+  const { lang } = useApp();
   const t = translations[lang as keyof typeof translations] || translations.fr;
 
   return (

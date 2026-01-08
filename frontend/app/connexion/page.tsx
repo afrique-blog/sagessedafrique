@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useMemberAuth } from '@/lib/memberAuth';
-import { useLanguage } from '@/lib/context';
+import { useApp } from '@/lib/context';
 
 declare global {
   interface Window {
@@ -59,7 +59,7 @@ const translations = {
 export default function ConnexionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { lang } = useLanguage();
+  const { lang } = useApp();
   const { login, loginWithGoogle, loginWithFacebook, isAuthenticated } = useMemberAuth();
   const t = translations[lang as keyof typeof translations] || translations.fr;
 

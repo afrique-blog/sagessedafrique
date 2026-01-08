@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useMemberAuth, useMemberFavorites, useReadingHistory } from '@/lib/memberAuth';
-import { useLanguage } from '@/lib/context';
+import { useApp } from '@/lib/context';
 
 const translations = {
   fr: {
@@ -107,7 +107,7 @@ const translations = {
 
 export default function ProfilPage() {
   const router = useRouter();
-  const { lang } = useLanguage();
+  const { lang } = useApp();
   const { member, isLoading, isAuthenticated, updateProfile, logout } = useMemberAuth();
   const { favorites } = useMemberFavorites();
   const { getHistory } = useReadingHistory();
