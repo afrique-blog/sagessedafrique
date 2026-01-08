@@ -40,13 +40,9 @@
 
 ### Priorité Haute
 
-- [ ] **Newsletter Homepage** : Le formulaire dans la sidebar ne soumet pas les données
-  - Fichier : `frontend/app/page.tsx` (ligne 335-338)
-  - Solution : Connecter au endpoint `/api/contacts/subscribe`
+- [x] ~~**Newsletter Homepage** : Le formulaire dans la sidebar ne soumet pas les données~~ ✅ Corrigé le 08/01/2026
 
-- [ ] **Bouton "Voir plus"** : Ne fait rien actuellement
-  - Fichier : `frontend/app/page.tsx` (ligne 315)
-  - Solution : Implémenter la pagination ou rediriger vers une page archive
+- [x] ~~**Bouton "Voir plus"** : Ne fait rien actuellement~~ ✅ Corrigé le 08/01/2026
 
 ### Priorité Moyenne
 
@@ -65,11 +61,11 @@
 
 | Tâche | Priorité | Effort | Statut |
 |-------|----------|--------|--------|
-| Boutons partage social | 🔴 Haute | 2h | ⬜ À faire |
-| Corriger newsletter homepage | 🔴 Haute | 1h | ⬜ À faire |
+| Boutons partage social | 🔴 Haute | 2h | ✅ Fait |
+| Corriger newsletter homepage | 🔴 Haute | 1h | ✅ Fait |
 | Skeleton loaders | 🟡 Moyenne | 2h | ⬜ À faire |
-| Bouton "Voir plus" fonctionnel | 🟡 Moyenne | 1h | ⬜ À faire |
-| Fil d'Ariane (breadcrumbs) | 🟡 Moyenne | 2h | ⬜ À faire |
+| Bouton "Voir plus" fonctionnel | 🟡 Moyenne | 1h | ✅ Fait |
+| Fil d'Ariane (breadcrumbs) | 🟡 Moyenne | 2h | ✅ Fait (articles) |
 
 ### Phase 2 : Engagement Utilisateur (1 semaine) 📈
 
@@ -153,6 +149,9 @@
 
 | Date | Modification | Fichiers |
 |------|--------------|----------|
+| 08/01 | Boutons partage social (déjà présents) | `frontend/app/article/[slug]/ArticleClient.tsx` |
+| 08/01 | Newsletter homepage fonctionnelle | `frontend/app/page.tsx` |
+| 08/01 | Bouton "Voir plus" → lien catégories | `frontend/app/page.tsx` |
 | 08/01 | Installation Matomo Analytics | `frontend/app/layout.tsx`, config Nginx |
 | 08/01 | Système d'upload d'images pour articles | `backend/src/routes/uploads.ts`, `frontend/components/ImageUpload.tsx` |
 | 08/01 | Page admin contacts | `frontend/app/admin/contacts/page.tsx` |

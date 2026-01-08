@@ -21,6 +21,35 @@ function HomeContent() {
   const [dossiers, setDossiers] = useState<Dossier[]>([]);
   const [dossierDuMoisData, setDossierDuMoisData] = useState<{ dossier: Dossier; article: Article } | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Newsletter state
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    
+    setNewsletterLoading(true);
+    setNewsletterMessage(null);
+    
+    try {
+      await api.subscribe(newsletterEmail, 'homepage_sidebar');
+      setNewsletterMessage({ 
+        type: 'success', 
+        text: lang === 'fr' ? '✅ Inscription réussie !' : '✅ Successfully subscribed!' 
+      });
+      setNewsletterEmail('');
+    } catch (error) {
+      setNewsletterMessage({ 
+        type: 'error', 
+        text: lang === 'fr' ? '❌ Erreur. Réessayez.' : '❌ Error. Please try again.' 
+      });
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -312,9 +341,12 @@ function HomeContent() {
                     {latest.map(a => <ArticleCard key={a.id} article={a} />)}
                   </div>
                   <div className="mt-12 text-center">
-                    <button className="px-10 py-3 border-2 border-primary text-primary dark:border-accent dark:text-accent font-bold hover:bg-primary hover:text-white dark:hover:bg-accent dark:hover:text-slate-900 transition-all">
+                    <Link 
+                      href="/categories"
+                      className="inline-block px-10 py-3 border-2 border-primary text-primary dark:border-accent dark:text-accent font-bold hover:bg-primary hover:text-white dark:hover:bg-accent dark:hover:text-slate-900 transition-all"
+                    >
                       {t('viewMore', lang)}
-                    </button>
+                    </Link>
                   </div>
                 </div>
                 <aside className="lg:w-1/3 space-y-12">
@@ -332,9 +364,30 @@ function HomeContent() {
                   <div className="bg-slate-100 dark:bg-slate-800 p-8 rounded-2xl">
                     <h3 className="font-serif font-bold text-xl mb-4">{t('newsletter', lang)}</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">{t('newsletterDesc', lang)}</p>
-                    <form className="space-y-3">
-                      <input type="email" placeholder="Email" className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 focus:outline-none ring-1 ring-slate-200 dark:ring-slate-600" />
-                      <button type="submit" className="w-full py-2 bg-primary text-white rounded-lg font-bold">{t('subscribe', lang)}</button>
+                    <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                      <input 
+                        type="email" 
+                        placeholder="Email" 
+                        value={newsletterEmail}
+                        onChange={(e) => setNewsletterEmail(e.target.value)}
+                        disabled={newsletterLoading}
+                        required
+                        className="w-full px-4 py-2 rounded-lg bg-white dark:bg-slate-700 focus:outline-none ring-1 ring-slate-200 dark:ring-slate-600 disabled:opacity-50" 
+                      />
+                      <button 
+                        type="submit" 
+                        disabled={newsletterLoading}
+                        className="w-full py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
+                      >
+                        {newsletterLoading 
+                          ? (lang === 'fr' ? 'Inscription...' : 'Subscribing...') 
+                          : t('subscribe', lang)}
+                      </button>
+                      {newsletterMessage && (
+                        <p className={`text-sm text-center ${newsletterMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                          {newsletterMessage.text}
+                        </p>
+                      )}
                     </form>
                   </div>
                 </aside>
