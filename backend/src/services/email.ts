@@ -9,6 +9,10 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  tls: {
+    // Accepter les certificats auto-signés (serveur Plesk)
+    rejectUnauthorized: false,
+  },
 });
 
 const FROM_EMAIL = process.env.SMTP_FROM || 'noreply@sagessedafrique.blog';
