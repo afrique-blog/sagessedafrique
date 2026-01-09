@@ -82,7 +82,7 @@
 | Tâche | Priorité | Effort | Statut |
 |-------|----------|--------|--------|
 | Page Archives | 🟡 Moyenne | 4h | ✅ Fait |
-| Recherche avancée | 🟡 Moyenne | 6h | ⬜ À faire |
+| Recherche avancée | 🟡 Moyenne | 6h | ✅ Fait |
 | Articles populaires sidebar | 🟡 Moyenne | 3h | ✅ Fait |
 | Favoris/Bookmarks | 🟢 Basse | 4h | ✅ Fait |
 | Mode lecture | 🟢 Basse | 2h | ⬜ À faire |
@@ -153,6 +153,8 @@
 
 | Date | Modification | Fichiers |
 |------|--------------|----------|
+| 09/01 | Recherche avancée (filtres, tri) | `frontend/app/recherche/page.tsx`, `backend/src/routes/articles.ts` |
+| 09/01 | Tags triés par date (plus récent) | `backend/src/routes/tags.ts` |
 | 09/01 | Skeleton loaders (UX chargement) | `frontend/components/Skeleton.tsx`, pages principales |
 | 09/01 | **Système communautaire complet** | `backend/src/routes/members.ts`, `frontend/lib/memberAuth.tsx` |
 | 09/01 | Inscription/Connexion membres | `frontend/app/inscription/page.tsx`, `frontend/app/connexion/page.tsx` |

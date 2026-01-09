@@ -12,6 +12,10 @@ const articleQuerySchema = z.object({
   featured: z.coerce.boolean().optional(),
   search: z.string().optional(),
   includeUnpublished: z.coerce.boolean().optional(),
+  dateFrom: z.string().optional(), // Filter: articles from this date
+  dateTo: z.string().optional(),   // Filter: articles until this date
+  sortBy: z.enum(['date', 'views', 'title']).default('date'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
 const createArticleSchema = z.object({
@@ -39,7 +43,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
   // GET /api/articles - List articles with pagination and filters
   fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
     const query = articleQuerySchema.parse(request.query);
-    const { page, limit, lang, category, tag, dossier, featured, search, includeUnpublished } = query;
+    const { page, limit, lang, category, tag, dossier, featured, search, includeUnpublished, dateFrom, dateTo, sortBy, sortOrder } = query;
 
     const where: any = {};
 
@@ -64,6 +68,15 @@ export async function articleRoutes(fastify: FastifyInstance) {
       where.featured = featured;
     }
 
+    // Date filters
+    if (dateFrom || dateTo) {
+      where.publishedAt = {
+        ...where.publishedAt,
+        ...(dateFrom && { gte: new Date(dateFrom) }),
+        ...(dateTo && { lte: new Date(dateTo + 'T23:59:59.999Z') }),
+      };
+    }
+
     if (search) {
       where.translations = {
         some: {
@@ -76,12 +89,23 @@ export async function articleRoutes(fastify: FastifyInstance) {
       };
     }
 
+    // Dynamic ordering
+    let orderBy: any = { publishedAt: 'desc' };
+    if (sortBy === 'views') {
+      orderBy = { views: sortOrder };
+    } else if (sortBy === 'title') {
+      // For title sorting, we need to sort after fetching due to translations
+      orderBy = { publishedAt: sortOrder };
+    } else {
+      orderBy = { publishedAt: sortOrder };
+    }
+
     const [articles, total] = await Promise.all([
       prisma.article.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { publishedAt: 'desc' },
+        orderBy,
         include: {
           category: {
             include: {

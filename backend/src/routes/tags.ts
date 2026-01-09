@@ -29,7 +29,7 @@ export async function tagRoutes(fastify: FastifyInstance) {
         translations: { where: { lang } },
         _count: { select: { articles: true } },
       },
-      orderBy: { slug: 'asc' },
+      orderBy: { createdAt: 'desc' }, // Plus récent en premier
     });
 
     return tags.map((tag: any) => ({

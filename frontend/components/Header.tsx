@@ -150,6 +150,15 @@ const Header: React.FC = () => {
             {lang === 'fr' ? 'Favoris' : 'Favorites'}
           </Link>
 
+          {/* Recherche avancée */}
+          <Link 
+            href="/recherche"
+            className="text-sm font-medium hover:text-primary dark:hover:text-accent transition-colors flex items-center gap-1"
+          >
+            <span>🔍</span>
+            {lang === 'fr' ? 'Recherche' : 'Search'}
+          </Link>
+
           {/* Contact - en dernier */}
           <Link 
             href="/contact"
@@ -317,6 +326,34 @@ const Header: React.FC = () => {
               <Link href="/ressources" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium flex items-center gap-2">
                 <span>📚</span>
                 {lang === 'fr' ? 'Ressources Gratuites' : 'Free Resources'}
+              </Link>
+            </div>
+
+            {/* Liens rapides mobile */}
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-3 gap-3">
+              <Link 
+                href="/archives" 
+                onClick={() => setIsMenuOpen(false)} 
+                className="flex flex-col items-center gap-1 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                <span className="text-2xl">📅</span>
+                <span className="text-xs font-medium">{lang === 'fr' ? 'Archives' : 'Archives'}</span>
+              </Link>
+              <Link 
+                href="/favoris" 
+                onClick={() => setIsMenuOpen(false)} 
+                className="flex flex-col items-center gap-1 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                <span className="text-2xl">⭐</span>
+                <span className="text-xs font-medium">{lang === 'fr' ? 'Favoris' : 'Favorites'}</span>
+              </Link>
+              <Link 
+                href="/recherche" 
+                onClick={() => setIsMenuOpen(false)} 
+                className="flex flex-col items-center gap-1 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              >
+                <span className="text-2xl">🔍</span>
+                <span className="text-xs font-medium">{lang === 'fr' ? 'Recherche' : 'Search'}</span>
               </Link>
             </div>
 
