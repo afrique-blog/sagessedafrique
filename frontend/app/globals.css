@@ -73,3 +73,40 @@ article h2, .display-6 { letter-spacing: -0.02em; }
 .blockquote { font-size: 1.05rem; }
 .list-group-item { border-color: rgba(0,0,0,.08); }
 
+/* Reading Mode Styles */
+.reading-mode {
+  @apply bg-amber-50 dark:bg-slate-950;
+}
+
+.reading-mode-content {
+  @apply text-lg leading-loose;
+}
+
+.reading-mode-content p {
+  @apply mb-6 text-slate-800 dark:text-slate-200;
+  line-height: 1.9;
+}
+
+.reading-mode-content h2 {
+  @apply text-2xl mt-12 mb-6;
+}
+
+.reading-mode-content h3 {
+  @apply text-xl mt-10 mb-5;
+}
+
+.reading-mode-content blockquote {
+  @apply my-8 text-lg;
+}
+
+/* Sepia effect for reading mode in light theme */
+.reading-mode:not(.dark) .reading-mode-content {
+  color: #3d3d3d;
+}
+
+.reading-mode:not(.dark) .reading-mode-content h1,
+.reading-mode:not(.dark) .reading-mode-content h2,
+.reading-mode:not(.dark) .reading-mode-content h3 {
+  color: #2d2d2d;
+}
+

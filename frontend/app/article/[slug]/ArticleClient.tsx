@@ -69,6 +69,9 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
   // Reading progress
   const [readingProgress, setReadingProgress] = useState(0);
   
+  // Reading mode (zen mode)
+  const [readingMode, setReadingMode] = useState(false);
+  
   // Reactions state
   const [reactions, setReactions] = useState<Reactions>({ like: 0, love: 0, fire: 0 });
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
@@ -200,8 +203,28 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
     : `https://sagessedafrique.blog/article/${slug}`;
   const shareTitle = article.title;
 
+  // Toggle reading mode
+  const toggleReadingMode = () => {
+    setReadingMode(!readingMode);
+    // Scroll to top when entering reading mode
+    if (!readingMode) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Exit reading mode with Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && readingMode) {
+        setReadingMode(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [readingMode]);
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={`min-h-screen flex flex-col ${readingMode ? 'reading-mode' : ''}`}>
       {/* Reading Progress Bar */}
       <div className="fixed top-0 left-0 right-0 z-[60] h-1 bg-slate-200 dark:bg-slate-800">
         <div 
@@ -209,84 +232,142 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
           style={{ width: `${readingProgress}%` }}
         />
       </div>
-      
-      <Header />
-      <main className="flex-grow">
-        {/* Hero */}
-        <div className="relative h-[50vh] min-h-[400px]">
-          {article.heroImage ? (
-            <Image 
-              src={article.heroImage} 
-              alt={article.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          ) : (
-            <div className="w-full h-full bg-slate-200 dark:bg-slate-800" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <div className="container mx-auto max-w-4xl">
-              {article.category && (
-                <Link 
-                  href={`/category/${article.category.slug}`}
-                  className="inline-block px-3 py-1 rounded-full bg-accent text-slate-900 text-xs font-bold uppercase tracking-wider mb-4"
-                >
-                  {article.category.name}
-                </Link>
-              )}
-              <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-                {article.title}
-              </h1>
-              <div className="flex items-center gap-6 text-white/80 text-sm flex-wrap">
-                <Link href={`/auteur/${article.author.id}`} className="hover:text-white transition-colors">
-                  {article.author.name}
-                </Link>
-                <span>•</span>
-                <span>{article.publishedAt && formatDate(article.publishedAt)}</span>
-                <span>•</span>
-                <span>{article.readingMinutes} {t('readingTime', lang)}</span>
-                <span>•</span>
-                <span>{article.views} {t('views', lang)}</span>
-              </div>
+
+      {/* Reading Mode Header */}
+      {readingMode && (
+        <div className="fixed top-1 left-0 right-0 z-[55] bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800">
+          <div className="container mx-auto max-w-4xl px-4 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={toggleReadingMode}
+                className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-accent transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                {lang === 'fr' ? 'Quitter le mode lecture' : 'Exit reading mode'}
+              </button>
+            </div>
+            <div className="flex items-center gap-4 text-sm text-slate-500">
+              <span>{Math.round(readingProgress)}%</span>
+              <span>•</span>
+              <span>{article.readingMinutes} min</span>
             </div>
           </div>
         </div>
-
-        {/* Breadcrumb */}
-        <nav className="container mx-auto max-w-4xl px-4 py-4">
-          <ol className="flex items-center text-sm text-slate-500 dark:text-slate-400 flex-wrap gap-2">
-            <li>
-              <Link href="/" className="hover:text-primary dark:hover:text-accent transition-colors">
-                {lang === 'fr' ? 'Accueil' : 'Home'}
-              </Link>
-            </li>
-            <li className="flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-              </svg>
-              {article.category && (
-                <Link href={`/category/${article.category.slug}`} className="hover:text-primary dark:hover:text-accent transition-colors">
-                  {article.category.name}
-                </Link>
-              )}
-            </li>
-            <li className="flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-              </svg>
-              <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[200px] md:max-w-none">
+      )}
+      
+      {!readingMode && <Header />}
+      <main className="flex-grow">
+        {/* Hero - Hidden in reading mode */}
+        {!readingMode && (
+          <div className="relative h-[50vh] min-h-[400px]">
+            {article.heroImage ? (
+              <Image 
+                src={article.heroImage} 
+                alt={article.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full bg-slate-200 dark:bg-slate-800" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-8">
+              <div className="container mx-auto max-w-4xl">
+                {article.category && (
+                  <Link 
+                    href={`/category/${article.category.slug}`}
+                    className="inline-block px-3 py-1 rounded-full bg-accent text-slate-900 text-xs font-bold uppercase tracking-wider mb-4"
+                  >
+                    {article.category.name}
+                  </Link>
+                )}
+                <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
+                  {article.title}
+                </h1>
+                <div className="flex items-center gap-6 text-white/80 text-sm flex-wrap">
+                  <Link href={`/auteur/${article.author.id}`} className="hover:text-white transition-colors">
+                    {article.author.name}
+                  </Link>
+                  <span>•</span>
+                  <span>{article.publishedAt && formatDate(article.publishedAt)}</span>
+                  <span>•</span>
+                  <span>{article.readingMinutes} {t('readingTime', lang)}</span>
+                  <span>•</span>
+                  <span>{article.views} {t('views', lang)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Reading Mode Title */}
+        {readingMode && (
+          <div className="pt-20 pb-8 border-b border-slate-200 dark:border-slate-800">
+            <div className="container mx-auto max-w-3xl px-4">
+              <h1 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 dark:text-white mb-4">
                 {article.title}
-              </span>
-            </li>
-          </ol>
-        </nav>
+              </h1>
+              <div className="flex items-center gap-4 text-sm text-slate-500">
+                <span>{article.author.name}</span>
+                <span>•</span>
+                <span>{article.publishedAt && formatDate(article.publishedAt)}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Breadcrumb - Hidden in reading mode */}
+        {!readingMode && (
+          <nav className="container mx-auto max-w-4xl px-4 py-4">
+            <div className="flex items-center justify-between">
+              <ol className="flex items-center text-sm text-slate-500 dark:text-slate-400 flex-wrap gap-2">
+                <li>
+                  <Link href="/" className="hover:text-primary dark:hover:text-accent transition-colors">
+                    {lang === 'fr' ? 'Accueil' : 'Home'}
+                  </Link>
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                  {article.category && (
+                    <Link href={`/category/${article.category.slug}`} className="hover:text-primary dark:hover:text-accent transition-colors">
+                      {article.category.name}
+                    </Link>
+                  )}
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[200px] md:max-w-none">
+                    {article.title}
+                  </span>
+                </li>
+              </ol>
+              
+              {/* Reading Mode Button */}
+              <button
+                onClick={toggleReadingMode}
+                className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-accent bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                title={lang === 'fr' ? 'Mode lecture (Echap pour quitter)' : 'Reading mode (Esc to exit)'}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                {lang === 'fr' ? 'Mode lecture' : 'Reading mode'}
+              </button>
+            </div>
+          </nav>
+        )}
 
         {/* Content */}
-        <article className="container mx-auto max-w-4xl px-4 py-8">
-          {/* Share buttons - floating */}
-          <div className="hidden lg:flex fixed left-8 top-1/2 -translate-y-1/2 flex-col gap-3 z-50">
+        <article className={`container mx-auto px-4 py-8 ${readingMode ? 'max-w-3xl reading-mode-content' : 'max-w-4xl'}`}>
+          {/* Share buttons - floating (hidden in reading mode) */}
+          <div className={`hidden lg:flex fixed left-8 top-1/2 -translate-y-1/2 flex-col gap-3 z-50 ${readingMode ? '!hidden' : ''}`}>
             <a
               href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
               target="_blank"
@@ -525,12 +606,30 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
             </div>
           </div>
 
-          {/* Comments Section */}
-          <Comments articleId={article.id} articleSlug={slug} lang={lang} />
+          {/* Comments Section - Hidden in reading mode */}
+          {!readingMode && <Comments articleId={article.id} articleSlug={slug} lang={lang} />}
+          
+          {/* Exit reading mode button at end */}
+          {readingMode && (
+            <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
+              <p className="text-slate-500 dark:text-slate-400 mb-4">
+                {lang === 'fr' ? 'Fin de l\'article' : 'End of article'}
+              </p>
+              <button
+                onClick={toggleReadingMode}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                {lang === 'fr' ? 'Quitter le mode lecture' : 'Exit reading mode'}
+              </button>
+            </div>
+          )}
         </article>
 
-        {/* Related Articles - Enhanced */}
-        {relatedArticles.length > 0 && (
+        {/* Related Articles - Hidden in reading mode */}
+        {!readingMode && relatedArticles.length > 0 && (
           <section className="bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/30 py-16">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12">
@@ -569,7 +668,7 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
           </section>
         )}
       </main>
-      <Footer categories={categories} />
+      {!readingMode && <Footer categories={categories} />}
     </div>
   );
 }

@@ -85,7 +85,7 @@
 | Recherche avancée | 🟡 Moyenne | 6h | ✅ Fait |
 | Articles populaires sidebar | 🟡 Moyenne | 3h | ✅ Fait |
 | Favoris/Bookmarks | 🟢 Basse | 4h | ✅ Fait |
-| Mode lecture | 🟢 Basse | 2h | ⬜ À faire |
+| Mode lecture | 🟢 Basse | 2h | ✅ Fait |
 
 ### Phase 4 : Communauté (3-4 semaines) 👥 ✅ COMPLÉTÉ
 
@@ -153,6 +153,7 @@
 
 | Date | Modification | Fichiers |
 |------|--------------|----------|
+| 09/01 | Mode lecture zen pour articles | `frontend/app/article/[slug]/ArticleClient.tsx`, `frontend/app/globals.css` |
 | 09/01 | Recherche avancée (filtres, tri) | `frontend/app/recherche/page.tsx`, `backend/src/routes/articles.ts` |
 | 09/01 | Tags triés par date (plus récent) | `backend/src/routes/tags.ts` |
 | 09/01 | Skeleton loaders (UX chargement) | `frontend/components/Skeleton.tsx`, pages principales |
