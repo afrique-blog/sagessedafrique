@@ -63,7 +63,7 @@
 |-------|----------|--------|--------|
 | Boutons partage social | 🔴 Haute | 2h | ✅ Fait |
 | Corriger newsletter homepage | 🔴 Haute | 1h | ✅ Fait |
-| Skeleton loaders | 🟡 Moyenne | 2h | ⬜ À faire |
+| Skeleton loaders | 🟡 Moyenne | 2h | ✅ Fait |
 | Bouton "Voir plus" fonctionnel | 🟡 Moyenne | 1h | ✅ Fait |
 | Fil d'Ariane (breadcrumbs) | 🟡 Moyenne | 2h | ✅ Fait (articles) |
 
@@ -153,6 +153,7 @@
 
 | Date | Modification | Fichiers |
 |------|--------------|----------|
+| 09/01 | Skeleton loaders (UX chargement) | `frontend/components/Skeleton.tsx`, pages principales |
 | 09/01 | **Système communautaire complet** | `backend/src/routes/members.ts`, `frontend/lib/memberAuth.tsx` |
 | 09/01 | Inscription/Connexion membres | `frontend/app/inscription/page.tsx`, `frontend/app/connexion/page.tsx` |
 | 09/01 | OAuth Google & Facebook | `backend/src/routes/members.ts` |

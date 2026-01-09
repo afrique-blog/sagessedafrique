@@ -9,6 +9,7 @@ import { api, Article, Category } from '@/lib/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
+import { Skeleton, ArticleCardSkeleton } from '@/components/Skeleton';
 
 const ARTICLES_PER_PAGE = 12;
 
@@ -51,10 +52,29 @@ export default function CategoryPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="animate-pulse text-lg">{lang === 'fr' ? 'Chargement...' : 'Loading...'}</div>
+        <main className="flex-grow">
+          {/* Hero Skeleton */}
+          <section className="relative h-80 bg-slate-200 dark:bg-slate-800">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-8">
+              <div className="container mx-auto">
+                <Skeleton className="w-24 h-4 mb-4 bg-white/20" />
+                <Skeleton className="w-64 h-10 mb-4 bg-white/20" />
+                <Skeleton className="w-96 h-5 bg-white/20" />
+              </div>
+            </div>
+          </section>
+
+          {/* Articles Grid Skeleton */}
+          <section className="container mx-auto px-4 py-12">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <ArticleCardSkeleton key={i} />
+              ))}
+            </div>
+          </section>
         </main>
-        <Footer categories={categories} />
+        <Footer categories={[]} />
       </div>
     );
   }

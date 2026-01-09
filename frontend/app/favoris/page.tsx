@@ -8,6 +8,7 @@ import { api, Article, Category } from '@/lib/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
+import { Skeleton, ArticleCardSkeleton } from '@/components/Skeleton';
 
 export default function FavorisPage() {
   const { lang } = useApp();
@@ -57,8 +58,32 @@ export default function FavorisPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="animate-pulse text-lg">{lang === 'fr' ? 'Chargement...' : 'Loading...'}</div>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow">
+          {/* Hero Skeleton */}
+          <section className="bg-gradient-to-br from-amber-600 via-orange-600 to-red-600 text-white py-20">
+            <div className="container mx-auto px-4 text-center">
+              <Skeleton className="w-32 h-6 mx-auto mb-4 bg-white/20" />
+              <Skeleton className="w-48 h-12 mx-auto mb-4 bg-white/20" />
+              <Skeleton className="w-80 h-6 mx-auto bg-white/20" />
+            </div>
+          </section>
+
+          {/* Articles Grid Skeleton */}
+          <section className="container mx-auto px-4 py-12">
+            <div className="flex justify-between items-center mb-8">
+              <Skeleton className="w-40 h-8" />
+              <Skeleton className="w-32 h-10" />
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <ArticleCardSkeleton key={i} />
+              ))}
+            </div>
+          </section>
+        </main>
+        <Footer categories={[]} />
       </div>
     );
   }

@@ -10,6 +10,7 @@ import { api, Article, Category, Dossier } from '@/lib/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
+import { HomePageSkeleton, ArticleListSkeleton } from '@/components/Skeleton';
 
 function HomeContent() {
   const { lang } = useApp();
@@ -112,10 +113,10 @@ function HomeContent() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="animate-pulse text-lg">{lang === 'fr' ? 'Chargement...' : 'Loading...'}</div>
+        <main className="flex-grow">
+          <HomePageSkeleton />
         </main>
-        <Footer categories={categories} />
+        <Footer categories={[]} />
       </div>
     );
   }

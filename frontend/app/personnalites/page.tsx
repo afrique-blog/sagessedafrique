@@ -7,6 +7,7 @@ import { useApp } from '@/lib/context';
 import { api, Category, CategoriePersonnalite } from '@/lib/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Skeleton, CategorySkeleton } from '@/components/Skeleton';
 
 export default function PersonnalitesPage() {
   const { lang } = useApp();
@@ -29,8 +30,27 @@ export default function PersonnalitesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="animate-pulse text-lg">{lang === 'fr' ? 'Chargement...' : 'Loading...'}</div>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow">
+          {/* Hero Skeleton */}
+          <section className="bg-primary text-white py-20">
+            <div className="container mx-auto px-4 text-center">
+              <Skeleton className="w-72 h-12 mx-auto mb-4 bg-white/20" />
+              <Skeleton className="w-96 h-6 mx-auto bg-white/20" />
+            </div>
+          </section>
+
+          {/* Categories Grid Skeleton */}
+          <section className="container mx-auto px-4 py-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <CategorySkeleton key={i} />
+              ))}
+            </div>
+          </section>
+        </main>
+        <Footer categories={[]} />
       </div>
     );
   }

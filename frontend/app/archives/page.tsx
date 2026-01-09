@@ -7,6 +7,7 @@ import { useApp } from '@/lib/context';
 import { api, Article, Category } from '@/lib/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Skeleton, ArticleCardSkeleton } from '@/components/Skeleton';
 
 interface GroupedArticles {
   [year: string]: {
@@ -99,8 +100,65 @@ export default function ArchivesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="animate-pulse text-lg">{lang === 'fr' ? 'Chargement...' : 'Loading...'}</div>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow">
+          {/* Hero Skeleton */}
+          <section className="bg-gradient-to-br from-primary via-primary to-slate-900 text-white py-20">
+            <div className="container mx-auto px-4 text-center">
+              <Skeleton className="w-32 h-6 mx-auto mb-4 bg-white/20" />
+              <Skeleton className="w-48 h-12 mx-auto mb-4 bg-white/20" />
+              <Skeleton className="w-96 h-6 mx-auto bg-white/20" />
+            </div>
+          </section>
+          
+          {/* Stats Skeleton */}
+          <section className="container mx-auto px-4 -mt-8 relative z-10">
+            <div className="grid grid-cols-3 gap-4 max-w-3xl mx-auto">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl text-center">
+                  <Skeleton className="w-16 h-10 mx-auto mb-2" />
+                  <Skeleton className="w-20 h-4 mx-auto" />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Content Skeleton */}
+          <section className="container mx-auto px-4 py-16">
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Years sidebar */}
+              <div className="lg:w-1/4">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
+                  <Skeleton className="w-32 h-6 mb-4" />
+                  <div className="space-y-2">
+                    {[1, 2, 3, 4].map((i) => (
+                      <Skeleton key={i} className="w-full h-12" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Articles */}
+              <div className="lg:w-3/4">
+                <div className="grid gap-6">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-4 flex gap-4">
+                      <Skeleton className="w-32 h-24 flex-shrink-0" />
+                      <div className="flex-grow">
+                        <Skeleton className="w-20 h-4 mb-2" />
+                        <Skeleton className="w-full h-5 mb-2" />
+                        <Skeleton className="w-3/4 h-5 mb-2" />
+                        <Skeleton className="w-24 h-3" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+        <Footer categories={[]} />
       </div>
     );
   }
