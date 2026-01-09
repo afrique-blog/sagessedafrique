@@ -193,6 +193,10 @@ class ApiClient {
     featured?: boolean;
     search?: string;
     includeUnpublished?: boolean;
+    dateFrom?: string;
+    dateTo?: string;
+    sortBy?: 'date' | 'views' | 'title';
+    sortOrder?: 'asc' | 'desc';
   } = {}): Promise<PaginatedResponse<Article>> {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {

@@ -146,7 +146,7 @@ function SearchContent() {
 
       const result = await api.getArticles(params);
       setArticles(result.data);
-      setTotal(result.total);
+      setTotal(result.pagination.total);
 
       // Update URL
       const urlParams = new URLSearchParams();
