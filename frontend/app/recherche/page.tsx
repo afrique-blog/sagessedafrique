@@ -318,7 +318,7 @@ function SearchContent() {
                       <option value="">{t.allDossiers}</option>
                       {dossiers.map((dos) => (
                         <option key={dos.slug} value={dos.slug}>
-                          {dos.name}
+                          {dos.title}
                         </option>
                       ))}
                     </select>
