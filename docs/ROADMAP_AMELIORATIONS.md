@@ -1,7 +1,7 @@
 # 🗺️ Roadmap Améliorations - Sagesse d'Afrique
 
 > Document créé le : 8 janvier 2026  
-> Dernière mise à jour : 8 janvier 2026
+> Dernière mise à jour : 9 janvier 2026
 
 ---
 
@@ -87,14 +87,18 @@
 | Favoris/Bookmarks | 🟢 Basse | 4h | ✅ Fait |
 | Mode lecture | 🟢 Basse | 2h | ⬜ À faire |
 
-### Phase 4 : Communauté (3-4 semaines) 👥
+### Phase 4 : Communauté (3-4 semaines) 👥 ✅ COMPLÉTÉ
 
 | Tâche | Priorité | Effort | Statut |
 |-------|----------|--------|--------|
-| Inscription utilisateurs | 🟡 Moyenne | 8h | ⬜ À faire |
-| Profil utilisateur | 🟡 Moyenne | 6h | ⬜ À faire |
-| Historique de lecture | 🟢 Basse | 4h | ⬜ À faire |
-| Notifications email | 🟢 Basse | 6h | ⬜ À faire |
+| Inscription utilisateurs (email + OAuth) | 🟡 Moyenne | 8h | ✅ Fait |
+| Connexion OAuth Google | 🟡 Moyenne | 4h | ✅ Fait |
+| Connexion OAuth Facebook | 🟡 Moyenne | 4h | ✅ Fait |
+| Profil utilisateur | 🟡 Moyenne | 6h | ✅ Fait |
+| Historique de lecture | 🟢 Basse | 4h | ✅ Fait |
+| Vérification email | 🟡 Moyenne | 4h | ✅ Fait |
+| Réinitialisation mot de passe | 🟡 Moyenne | 3h | ✅ Fait |
+| Favoris synchronisés | 🟡 Moyenne | 4h | ✅ Fait |
 
 ### Phase 5 : Monétisation (1-2 mois) 💰
 
@@ -149,6 +153,12 @@
 
 | Date | Modification | Fichiers |
 |------|--------------|----------|
+| 09/01 | **Système communautaire complet** | `backend/src/routes/members.ts`, `frontend/lib/memberAuth.tsx` |
+| 09/01 | Inscription/Connexion membres | `frontend/app/inscription/page.tsx`, `frontend/app/connexion/page.tsx` |
+| 09/01 | OAuth Google & Facebook | `backend/src/routes/members.ts` |
+| 09/01 | Page profil membre | `frontend/app/profil/page.tsx` |
+| 09/01 | Vérification email + Reset password | `backend/src/services/email.ts` |
+| 09/01 | Favoris & historique synchronisés | `backend/prisma/schema.prisma` |
 | 08/01 | Page Archives (articles par année/mois) | `frontend/app/archives/page.tsx` |
 | 08/01 | Articles populaires dans la sidebar | `frontend/app/page.tsx` |
 | 08/01 | Système de favoris/bookmarks | `frontend/app/favoris/page.tsx`, `frontend/components/ArticleCard.tsx` |
@@ -203,4 +213,4 @@ cd ../frontend && npm run build && npx pm2 restart frontend
 
 ---
 
-*Ce document est mis à jour régulièrement. Dernière révision : 8 janvier 2026*
+*Ce document est mis à jour régulièrement. Dernière révision : 9 janvier 2026*
