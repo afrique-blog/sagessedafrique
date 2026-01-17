@@ -78,7 +78,8 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
 
   // Reading progress handler
   const handleScroll = useCallback(() => {
-    const article = document.querySelector('article');
+    // Use specific ID to avoid conflict with <article> tags in content
+    const article = document.getElementById('article-content');
     if (!article) return;
     
     const articleTop = article.offsetTop;
@@ -405,7 +406,7 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
         )}
 
         {/* Content */}
-        <article className={`container mx-auto px-4 py-8 ${readingMode ? 'max-w-3xl reading-mode-content' : 'max-w-4xl'}`}>
+        <article id="article-content" className={`container mx-auto px-4 py-8 ${readingMode ? 'max-w-3xl reading-mode-content' : 'max-w-4xl'}`}>
           {/* Share buttons - floating (hidden in reading mode) */}
           <div className={`hidden lg:flex fixed left-8 top-1/2 -translate-y-1/2 flex-col gap-3 z-50 ${readingMode ? '!hidden' : ''}`}>
             <a
