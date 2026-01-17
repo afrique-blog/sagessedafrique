@@ -261,46 +261,46 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
       <main className="flex-grow">
         {/* Hero - Hidden in reading mode */}
         {!readingMode && (
-          <div className="relative h-[50vh] min-h-[400px]">
-            {article.heroImage ? (
-              <Image 
-                src={article.heroImage} 
-                alt={article.title}
-                fill
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full bg-slate-200 dark:bg-slate-800" />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-8">
-              <div className="container mx-auto max-w-4xl">
-                {article.category && (
-                  <Link 
-                    href={`/category/${article.category.slug}`}
-                    className="inline-block px-3 py-1 rounded-full bg-accent text-slate-900 text-xs font-bold uppercase tracking-wider mb-4"
-                  >
-                    {article.category.name}
-                  </Link>
-                )}
-                <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-                  {article.title}
-                </h1>
-                <div className="flex items-center gap-6 text-white/80 text-sm flex-wrap">
-                  <Link href={`/auteur/${article.author.id}`} className="hover:text-white transition-colors">
-                    {article.author.name}
-                  </Link>
-                  <span>•</span>
-                  <span>{article.publishedAt && formatDate(article.publishedAt)}</span>
-                  <span>•</span>
-                  <span>{article.readingMinutes} {t('readingTime', lang)}</span>
-                  <span>•</span>
-                  <span>{article.views} {t('views', lang)}</span>
-                </div>
+        <div className="relative h-[50vh] min-h-[400px]">
+          {article.heroImage ? (
+            <Image 
+              src={article.heroImage} 
+              alt={article.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="w-full h-full bg-slate-200 dark:bg-slate-800" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-8">
+            <div className="container mx-auto max-w-4xl">
+              {article.category && (
+                <Link 
+                  href={`/category/${article.category.slug}`}
+                  className="inline-block px-3 py-1 rounded-full bg-accent text-slate-900 text-xs font-bold uppercase tracking-wider mb-4"
+                >
+                  {article.category.name}
+                </Link>
+              )}
+              <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
+                {article.title}
+              </h1>
+              <div className="flex items-center gap-6 text-white/80 text-sm flex-wrap">
+                <Link href={`/auteur/${article.author.id}`} className="hover:text-white transition-colors">
+                  {article.author.name}
+                </Link>
+                <span>•</span>
+                <span>{article.publishedAt && formatDate(article.publishedAt)}</span>
+                <span>•</span>
+                <span>{article.readingMinutes} {t('readingTime', lang)}</span>
+                <span>•</span>
+                <span>{article.views} {t('views', lang)}</span>
               </div>
             </div>
           </div>
+        </div>
         )}
         
         {/* Reading Mode Title */}
@@ -321,33 +321,33 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
 
         {/* Breadcrumb - Hidden in reading mode */}
         {!readingMode && (
-          <nav className="container mx-auto max-w-4xl px-4 py-4">
+        <nav className="container mx-auto max-w-4xl px-4 py-4">
             <div className="flex items-center justify-between">
-              <ol className="flex items-center text-sm text-slate-500 dark:text-slate-400 flex-wrap gap-2">
-                <li>
-                  <Link href="/" className="hover:text-primary dark:hover:text-accent transition-colors">
-                    {lang === 'fr' ? 'Accueil' : 'Home'}
-                  </Link>
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                  {article.category && (
-                    <Link href={`/category/${article.category.slug}`} className="hover:text-primary dark:hover:text-accent transition-colors">
-                      {article.category.name}
-                    </Link>
-                  )}
-                </li>
-                <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                  <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[200px] md:max-w-none">
-                    {article.title}
-                  </span>
-                </li>
-              </ol>
+          <ol className="flex items-center text-sm text-slate-500 dark:text-slate-400 flex-wrap gap-2">
+            <li>
+              <Link href="/" className="hover:text-primary dark:hover:text-accent transition-colors">
+                {lang === 'fr' ? 'Accueil' : 'Home'}
+              </Link>
+            </li>
+            <li className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+              {article.category && (
+                <Link href={`/category/${article.category.slug}`} className="hover:text-primary dark:hover:text-accent transition-colors">
+                  {article.category.name}
+                </Link>
+              )}
+            </li>
+            <li className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+              <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[200px] md:max-w-none">
+                {article.title}
+              </span>
+            </li>
+          </ol>
               
               {/* Reading Mode Button */}
               <button
@@ -361,7 +361,7 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
                 {lang === 'fr' ? 'Mode lecture' : 'Reading mode'}
               </button>
             </div>
-          </nav>
+        </nav>
         )}
 
         {/* Content */}

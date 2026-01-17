@@ -39,6 +39,23 @@ const createArticleSchema = z.object({
 
 const updateArticleSchema = createArticleSchema.partial();
 
+// Calculate reading time based on content
+function calculateReadingMinutes(translations: { contentHtml?: string }[]): number {
+  const wordsPerMinute = 200; // Average reading speed
+  
+  // Get the French content (or first available)
+  const content = translations.find(t => (t as any).lang === 'fr')?.contentHtml 
+    || translations[0]?.contentHtml 
+    || '';
+  
+  // Strip HTML tags and count words
+  const text = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const wordCount = text ? text.split(' ').length : 0;
+  
+  // Calculate reading time (minimum 1 minute)
+  return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
+}
+
 export async function articleRoutes(fastify: FastifyInstance) {
   // GET /api/articles - List articles with pagination and filters
   fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
@@ -249,6 +266,11 @@ export async function articleRoutes(fastify: FastifyInstance) {
     const body = createArticleSchema.parse(request.body);
     const user = (request as any).user;
 
+    // Auto-calculate reading time if not provided or if content exists
+    const readingMinutes = body.translations?.length 
+      ? calculateReadingMinutes(body.translations)
+      : body.readingMinutes;
+
     const article = await prisma.article.create({
       data: {
         slug: body.slug,
@@ -256,7 +278,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
         authorId: user.id,
         heroImage: body.heroImage,
         featured: body.featured,
-        readingMinutes: body.readingMinutes,
+        readingMinutes,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : new Date(),
         translations: {
           create: body.translations,
@@ -316,6 +338,11 @@ export async function articleRoutes(fastify: FastifyInstance) {
       });
     }
 
+    // Auto-recalculate reading time if content was updated
+    const readingMinutes = body.translations?.length 
+      ? calculateReadingMinutes(body.translations)
+      : body.readingMinutes;
+
     const article = await prisma.article.update({
       where: { id },
       data: {
@@ -323,7 +350,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
         categoryId: body.categoryId,
         heroImage: body.heroImage,
         featured: body.featured,
-        readingMinutes: body.readingMinutes,
+        readingMinutes,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : undefined,
       },
       include: {
