@@ -1,10 +1,9 @@
-// Configuration PM2 pour le frontend Next.js
+// Configuration PM2 pour le frontend Next.js (mode standalone)
 module.exports = {
   apps: [
     {
       name: 'sagesse-frontend',
-      script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3000',
+      script: '.next/standalone/frontend/server.js',
       instances: 1,
       autorestart: true,
       watch: false,
@@ -12,6 +11,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
+        HOSTNAME: '0.0.0.0',
       },
     },
   ],
