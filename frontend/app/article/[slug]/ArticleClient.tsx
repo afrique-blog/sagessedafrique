@@ -91,8 +91,48 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
     const end = articleTop + articleHeight - windowHeight;
     const progress = Math.min(100, Math.max(0, ((scrollY - start) / (end - start)) * 100));
     
+    // #region agent log
+    // Log only significant changes to avoid console spam
+    if (Math.abs(progress - readingProgress) > 5) {
+      console.log('[DEBUG] Reading progress:', { scrollY, articleTop, progress: Math.round(progress) });
+    }
+    // #endregion
+    
     setReadingProgress(progress);
   }, []);
+
+  // #region agent log - Monitor automatic scroll
+  useEffect(() => {
+    // Override scrollTo to detect automatic scrolls
+    const originalScrollTo = window.scrollTo.bind(window);
+    window.scrollTo = function(...args: any[]) {
+      console.log('[DEBUG] scrollTo called:', args, '\nStack:', new Error().stack?.split('\n').slice(1,6).join('\n'));
+      return originalScrollTo(...args);
+    };
+    
+    // Check for hash in URL
+    if (window.location.hash) {
+      console.log('[DEBUG] URL has hash:', window.location.hash);
+    }
+    
+    // Log initial scroll position
+    console.log('[DEBUG] Component mounted, initial scrollY:', window.scrollY);
+    
+    // Monitor scroll position changes
+    let lastScrollY = window.scrollY;
+    const scrollMonitor = setInterval(() => {
+      if (Math.abs(window.scrollY - lastScrollY) > 50) {
+        console.log('[DEBUG] Scroll jump detected:', { from: lastScrollY, to: window.scrollY, diff: window.scrollY - lastScrollY });
+      }
+      lastScrollY = window.scrollY;
+    }, 100);
+    
+    return () => {
+      window.scrollTo = originalScrollTo;
+      clearInterval(scrollMonitor);
+    };
+  }, []);
+  // #endregion
 
   // Load reactions from localStorage
   useEffect(() => {
