@@ -40,7 +40,7 @@ function getWeekDates(year: number, weekNumber: number): { start: string; end: s
 export default function WeeklyEditionPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const { language } = useApp();
+  const { lang: language } = useApp();
   
   const [edition, setEdition] = useState<WeeklyEdition | null>(null);
   const [loading, setLoading] = useState(true);

@@ -37,7 +37,7 @@ function getWeekDates(year: number, weekNumber: number): { start: string; end: s
 }
 
 export default function SemaineEnAfriquePage() {
-  const { language } = useApp();
+  const { lang: language } = useApp();
   const [currentEdition, setCurrentEdition] = useState<WeeklyEdition | null>(null);
   const [editions, setEditions] = useState<any[]>([]);
   const [years, setYears] = useState<number[]>([]);

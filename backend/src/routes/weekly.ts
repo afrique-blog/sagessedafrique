@@ -1,6 +1,13 @@
-import { FastifyInstance } from 'fastify';
-import { prisma } from '../lib/prisma';
+import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { prisma } from '../lib/prisma.js';
 import { z } from 'zod';
+
+// Déclaration du type authenticate
+declare module 'fastify' {
+  interface FastifyInstance {
+    authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+  }
+}
 
 // Liste des pays africains avec codes ISO
 const AFRICAN_COUNTRIES = [
