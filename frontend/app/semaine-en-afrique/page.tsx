@@ -82,9 +82,10 @@ export default function SemaineEnAfriquePage() {
           {/* Édition courante */}
           {currentEdition && currentEdition.contentHtml ? (
             <section className="mb-12">
-              {/* Afficher le HTML généré par le GPT */}
+              {/* Afficher le HTML généré par le GPT - data-lang contrôle quelle version est visible */}
               <div 
                 className="weekly-content"
+                data-lang={lang}
                 dangerouslySetInnerHTML={{ __html: currentEdition.contentHtml }}
               />
             </section>
@@ -136,17 +137,6 @@ export default function SemaineEnAfriquePage() {
         </div>
       </main>
       <Footer />
-
-      {/* Styles pour le contenu GPT */}
-      <style jsx global>{`
-        .weekly-content .weekly-africa-fr,
-        .weekly-content .weekly-africa-en {
-          display: none;
-        }
-        .weekly-content .weekly-africa-${lang} {
-          display: block;
-        }
-      `}</style>
     </>
   );
 }

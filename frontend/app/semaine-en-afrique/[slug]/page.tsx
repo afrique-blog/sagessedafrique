@@ -110,6 +110,7 @@ export default function WeeklyEditionPage() {
           {edition.contentHtml ? (
             <div 
               className="weekly-content"
+              data-lang={lang}
               dangerouslySetInnerHTML={{ __html: edition.contentHtml }}
             />
           ) : (
@@ -133,17 +134,6 @@ export default function WeeklyEditionPage() {
         </div>
       </main>
       <Footer />
-
-      {/* Styles pour afficher selon la langue */}
-      <style jsx global>{`
-        .weekly-content .weekly-africa-fr,
-        .weekly-content .weekly-africa-en {
-          display: none;
-        }
-        .weekly-content .weekly-africa-${lang} {
-          display: block;
-        }
-      `}</style>
     </>
   );
 }
