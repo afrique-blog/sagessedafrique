@@ -7,11 +7,12 @@ import { useAuth } from '@/lib/auth';
 const navItems = [
   { href: '/admin', label: 'Tableau de bord', icon: '📊' },
   { href: '/admin/articles', label: 'Articles', icon: '📝' },
+  { href: '/admin/semaine-en-afrique', label: 'Semaine Afrique', icon: '🌍' },
   { href: '/admin/categories', label: 'Catégories', icon: '📁' },
   { href: '/admin/tags', label: 'Tags', icon: '🏷️' },
   { href: '/admin/dossiers', label: 'Dossiers', icon: '📚' },
   { href: '/admin/categories-personnalites', label: 'Cat. Personnalités', icon: '👥' },
-  { href: '/admin/personnalites', label: 'Personnalités', icon: '🌍' },
+  { href: '/admin/personnalites', label: 'Personnalités', icon: '👤' },
 ];
 
 export default function AdminNav() {

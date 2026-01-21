@@ -113,6 +113,15 @@ const Header: React.FC = () => {
             </div>
           )}
 
+          {/* Une semaine en Afrique */}
+          <Link 
+            href="/semaine-en-afrique"
+            className="text-sm font-medium hover:text-primary dark:hover:text-accent transition-colors flex items-center gap-1"
+          >
+            <span>🌍</span>
+            {lang === 'fr' ? 'Semaine en Afrique' : 'Week in Africa'}
+          </Link>
+
           {/* Ressources */}
           <Link 
             href="/ressources"
@@ -298,6 +307,14 @@ const Header: React.FC = () => {
                   </Link>
                 ))}
               </div>
+            </div>
+
+            {/* Une semaine en Afrique */}
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+              <Link href="/semaine-en-afrique" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium flex items-center gap-2">
+                <span>🌍</span>
+                {lang === 'fr' ? 'Semaine en Afrique' : 'Week in Africa'}
+              </Link>
             </div>
 
             {/* Ressources */}

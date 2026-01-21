@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '@/lib/context';
 import { t } from '@/lib/i18n';
-import { api, Article, Category, Dossier } from '@/lib/api';
+import { api, Article, Category, Dossier, WeeklyEdition } from '@/lib/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ArticleCard from '@/components/ArticleCard';
@@ -22,6 +22,7 @@ function HomeContent() {
   const [dossiers, setDossiers] = useState<Dossier[]>([]);
   const [dossierDuMoisData, setDossierDuMoisData] = useState<{ dossier: Dossier; article: Article } | null>(null);
   const [popularArticles, setPopularArticles] = useState<Article[]>([]);
+  const [weeklyEdition, setWeeklyEdition] = useState<WeeklyEdition | null>(null);
   const [loading, setLoading] = useState(true);
   
   // Newsletter state
@@ -56,14 +57,16 @@ function HomeContent() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [articlesRes, categoriesRes, dossiersRes] = await Promise.all([
+        const [articlesRes, categoriesRes, dossiersRes, weeklyRes] = await Promise.all([
           api.getArticles({ lang, limit: 20, search: searchQuery || undefined }),
           api.getCategories(lang),
           api.getDossiers(lang),
+          api.getCurrentWeeklyEdition(lang).catch(() => null),
         ]);
         setArticles(articlesRes.data);
         setCategories(categoriesRes);
         setDossiers(dossiersRes);
+        setWeeklyEdition(weeklyRes);
         
         // Get popular articles (sorted by views)
         const sortedByViews = [...articlesRes.data].sort((a, b) => b.views - a.views).slice(0, 5);
@@ -333,6 +336,65 @@ function HomeContent() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </Link>
                   </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Une semaine en Afrique Widget */}
+          {weeklyEdition && weeklyEdition.news.length > 0 && (
+            <section className="container mx-auto px-4">
+              <div className="bg-gradient-to-r from-green-900/10 via-amber-900/10 to-red-900/10 dark:from-green-900/30 dark:via-amber-900/30 dark:to-red-900/30 rounded-2xl p-6 md:p-8 border border-amber-200/50 dark:border-amber-800/50">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                  <div>
+                    <h2 className="text-2xl font-serif font-bold flex items-center gap-3">
+                      <span className="text-3xl">🌍</span>
+                      {lang === 'fr' ? 'Une semaine en Afrique' : 'A Week in Africa'}
+                    </h2>
+                    <p className="text-amber-700 dark:text-amber-400 text-sm mt-1">
+                      {weeklyEdition.title}
+                    </p>
+                  </div>
+                  <Link 
+                    href="/semaine-en-afrique"
+                    className="inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium transition-colors"
+                  >
+                    {lang === 'fr' ? 'Voir les 10 actualités' : 'See all 10 news'}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
+                
+                <div className="space-y-3">
+                  {weeklyEdition.news.slice(0, 3).map((news) => (
+                    <div 
+                      key={news.id}
+                      className="flex items-start gap-3 p-3 bg-white/70 dark:bg-slate-800/70 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors"
+                    >
+                      <span className="text-2xl flex-shrink-0">
+                        {String.fromCodePoint(...news.countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0)))}
+                      </span>
+                      <div className="min-w-0">
+                        <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide">
+                          {news.country}
+                        </span>
+                        <p className="font-medium text-sm line-clamp-2 text-slate-800 dark:text-slate-200">
+                          {news.title}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-6 text-center">
+                  <Link 
+                    href="/semaine-en-afrique"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors"
+                  >
+                    <span>📰</span>
+                    {lang === 'fr' ? 'Lire les 10 actualités' : 'Read all 10 news'}
+                  </Link>
                 </div>
               </div>
             </section>
