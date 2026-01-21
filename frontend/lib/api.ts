@@ -151,34 +151,16 @@ export interface PaginatedResponse<T> {
 }
 
 // =====================================================
-// UNE SEMAINE EN AFRIQUE
+// UNE SEMAINE EN AFRIQUE (Version simplifiée - HTML direct)
 // =====================================================
-export interface WeeklyNews {
-  id: number;
-  position: number;
-  country: string;
-  countryCode: string;
-  sourceUrl: string | null;
-  sourceName: string | null;
-  title: string;
-  excerpt: string;
-  edition?: {
-    id: number;
-    slug: string;
-    weekNumber: number;
-    year: number;
-  };
-}
-
 export interface WeeklyEdition {
   id: number;
   slug: string;
   weekNumber: number;
   year: number;
+  title: string | null;
+  contentHtml: string | null;
   publishedAt: string | null;
-  title: string;
-  summary: string | null;
-  news: WeeklyNews[];
 }
 
 export interface WeeklyEditionPreview {
@@ -186,15 +168,8 @@ export interface WeeklyEditionPreview {
   slug: string;
   weekNumber: number;
   year: number;
+  title: string | null;
   publishedAt: string | null;
-  title: string;
-  summary: string | null;
-  news: WeeklyNews[]; // Preview des 3 premières
-}
-
-export interface AfricanCountry {
-  code: string;
-  name: string;
 }
 
 class ApiClient {
@@ -589,22 +564,16 @@ class ApiClient {
   }
 
   // =====================================================
-  // UNE SEMAINE EN AFRIQUE
+  // UNE SEMAINE EN AFRIQUE (Version simplifiée)
   // =====================================================
-  
-  // Liste des pays africains
-  async getAfricanCountries(): Promise<AfricanCountry[]> {
-    return this.fetch('/weekly/countries');
-  }
 
   // Édition courante (dernière publiée)
-  async getCurrentWeeklyEdition(lang: string = 'fr'): Promise<WeeklyEdition | null> {
-    return this.fetch(`/weekly/current?lang=${lang}`);
+  async getCurrentWeeklyEdition(): Promise<WeeklyEdition | null> {
+    return this.fetch('/weekly/current');
   }
 
   // Liste des éditions publiées
   async getWeeklyEditions(params: {
-    lang?: string;
     year?: number;
     limit?: number;
     offset?: number;
@@ -617,8 +586,8 @@ class ApiClient {
   }
 
   // Détail d'une édition par slug
-  async getWeeklyEdition(slug: string, lang: string = 'fr'): Promise<WeeklyEdition> {
-    return this.fetch(`/weekly/editions/${slug}?lang=${lang}`);
+  async getWeeklyEdition(slug: string): Promise<WeeklyEdition> {
+    return this.fetch(`/weekly/editions/${slug}`);
   }
 
   // Années disponibles
@@ -626,28 +595,12 @@ class ApiClient {
     return this.fetch('/weekly/years');
   }
 
-  // Recherche dans les actualités
-  async searchWeeklyNews(params: {
-    lang?: string;
-    query?: string;
-    year?: number;
-    countryCode?: string;
-    limit?: number;
-    offset?: number;
-  } = {}): Promise<{ data: WeeklyNews[]; pagination: { total: number; limit: number; offset: number } }> {
-    const searchParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined) searchParams.set(key, String(value));
-    });
-    return this.fetch(`/weekly/search?${searchParams}`);
-  }
-
   // =====================================================
   // UNE SEMAINE EN AFRIQUE - ADMIN
   // =====================================================
 
   async getWeeklyEditionsAdmin(params: { limit?: number; offset?: number } = {}): Promise<{
-    data: any[];
+    data: WeeklyEditionPreview[];
     pagination: { total: number; limit: number; offset: number };
   }> {
     const searchParams = new URLSearchParams();
@@ -657,18 +610,30 @@ class ApiClient {
     return this.fetch(`/weekly/admin/editions?${searchParams}`);
   }
 
-  async getWeeklyEditionAdmin(id: number): Promise<any> {
+  async getWeeklyEditionAdmin(id: number): Promise<WeeklyEdition> {
     return this.fetch(`/weekly/admin/editions/${id}`);
   }
 
-  async createWeeklyEdition(data: any): Promise<any> {
+  async createWeeklyEdition(data: {
+    weekNumber: number;
+    year: number;
+    title?: string;
+    contentHtml?: string;
+    publishedAt?: string;
+  }): Promise<WeeklyEdition> {
     return this.fetch('/weekly/admin/editions', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updateWeeklyEdition(id: number, data: any): Promise<any> {
+  async updateWeeklyEdition(id: number, data: {
+    weekNumber?: number;
+    year?: number;
+    title?: string;
+    contentHtml?: string;
+    publishedAt?: string;
+  }): Promise<WeeklyEdition> {
     return this.fetch(`/weekly/admin/editions/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -679,7 +644,7 @@ class ApiClient {
     return this.fetch(`/weekly/admin/editions/${id}`, { method: 'DELETE' });
   }
 
-  async publishWeeklyEdition(id: number, publish: boolean): Promise<any> {
+  async publishWeeklyEdition(id: number, publish: boolean): Promise<WeeklyEdition> {
     return this.fetch(`/weekly/admin/editions/${id}/publish`, {
       method: 'POST',
       body: JSON.stringify({ publish }),

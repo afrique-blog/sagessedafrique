@@ -2,21 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { api } from '@/lib/api';
+import { api, WeeklyEditionPreview } from '@/lib/api';
 import AdminNav from '@/components/AdminNav';
 
-interface WeeklyEditionAdmin {
-  id: number;
-  slug: string;
-  weekNumber: number;
-  year: number;
-  publishedAt: string | null;
-  newsCount: number;
-  translations: { lang: string; title: string; summary: string | null }[];
-}
-
 export default function AdminWeeklyPage() {
-  const [editions, setEditions] = useState<WeeklyEditionAdmin[]>([]);
+  const [editions, setEditions] = useState<WeeklyEditionPreview[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,11 +43,6 @@ export default function AdminWeeklyPage() {
     }
   }
 
-  const getTitle = (ed: WeeklyEditionAdmin) => {
-    const trans = ed.translations.find(t => t.lang === 'fr') || ed.translations[0];
-    return trans?.title || `Semaine ${ed.weekNumber} - ${ed.year}`;
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminNav />
@@ -65,7 +50,7 @@ export default function AdminWeeklyPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">🌍 Une semaine en Afrique</h1>
-            <p className="text-gray-500 mt-1">Gérez les éditions hebdomadaires</p>
+            <p className="text-gray-500 mt-1">Gérez les éditions hebdomadaires (HTML GPT)</p>
           </div>
           <Link
             href="/admin/semaine-en-afrique/new"
@@ -97,10 +82,9 @@ export default function AdminWeeklyPage() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Édition</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Titre</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Année</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Semaine</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actualités</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Statut</th>
                   <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Actions</th>
                 </tr>
@@ -110,18 +94,13 @@ export default function AdminWeeklyPage() {
                   <tr key={ed.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <Link href={`/admin/semaine-en-afrique/${ed.id}`} className="font-medium text-gray-900 hover:text-amber-600">
-                        {getTitle(ed)}
+                        {ed.title || `Semaine ${ed.weekNumber} - ${ed.year}`}
                       </Link>
                     </td>
                     <td className="px-6 py-4 text-gray-600">{ed.year}</td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-sm font-medium">
                         S{String(ed.weekNumber).padStart(2, '0')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`font-medium ${ed.newsCount >= 10 ? 'text-green-600' : ed.newsCount > 0 ? 'text-amber-600' : 'text-gray-400'}`}>
-                        {ed.newsCount}/10
                       </span>
                     </td>
                     <td className="px-6 py-4">

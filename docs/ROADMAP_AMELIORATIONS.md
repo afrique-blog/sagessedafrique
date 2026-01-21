@@ -154,10 +154,9 @@
 
 | Date | Modification | Fichiers |
 |------|--------------|----------|
-| 21/01 | **"Une semaine en Afrique"** - Actualités hebdomadaires | `backend/src/routes/weekly.ts`, `frontend/app/semaine-en-afrique/` |
-| 21/01 | Widget semaine en Afrique page d'accueil | `frontend/app/page.tsx` |
-| 21/01 | Interface admin éditions hebdomadaires | `frontend/app/admin/semaine-en-afrique/` |
-| 21/01 | API CRUD éditions + recherche actualités | `backend/prisma/schema.prisma`, `frontend/lib/api.ts` |
+| 21/01 | **"Une semaine en Afrique"** - Workflow GPT → HTML direct | `backend/src/routes/weekly.ts`, `frontend/app/semaine-en-afrique/` |
+| 21/01 | Admin copier/coller HTML GPT (FR+EN) | `frontend/app/admin/semaine-en-afrique/` |
+| 21/01 | Sélection langue via CSS (.weekly-africa-fr/.en) | `frontend/app/semaine-en-afrique/page.tsx` |
 | 09/01 | Mode lecture zen pour articles | `frontend/app/article/[slug]/ArticleClient.tsx`, `frontend/app/globals.css` |
 | 09/01 | Recherche avancée (filtres, tri) | `frontend/app/recherche/page.tsx`, `backend/src/routes/articles.ts` |
 | 09/01 | Tags triés par date (plus récent) | `backend/src/routes/tags.ts` |

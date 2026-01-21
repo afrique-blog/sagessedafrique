@@ -376,61 +376,18 @@ model ReadingHistory {
 // UNE SEMAINE EN AFRIQUE - Actualités hebdomadaires
 // =====================================================
 
-// Édition hebdomadaire (une par semaine)
+// Édition hebdomadaire (une par semaine) - Stockage HTML direct
 model WeeklyEdition {
-  id           Int                        @id @default(autoincrement())
-  weekNumber   Int                        @map("week_number")
-  year         Int
-  slug         String                     @unique
-  publishedAt  DateTime?                  @map("published_at")
-  createdAt    DateTime                   @default(now()) @map("created_at")
-  updatedAt    DateTime                   @updatedAt @map("updated_at")
-  translations WeeklyEditionTranslation[]
-  news         WeeklyNews[]
+  id          Int       @id @default(autoincrement())
+  weekNumber  Int       @map("week_number")
+  year        Int
+  slug        String    @unique
+  title       String?   @db.VarChar(255)
+  contentHtml String?   @map("content_html") @db.LongText  // HTML généré par GPT (FR + EN)
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   @@unique([year, weekNumber])
   @@map("weekly_editions")
-}
-
-// Traductions des éditions
-model WeeklyEditionTranslation {
-  id        Int           @id @default(autoincrement())
-  editionId Int           @map("edition_id")
-  lang      String        @db.VarChar(2)
-  title     String
-  summary   String?       @db.Text
-  edition   WeeklyEdition @relation(fields: [editionId], references: [id], onDelete: Cascade)
-
-  @@unique([editionId, lang])
-  @@map("weekly_edition_translations")
-}
-
-// Actualités de la semaine (10 max par édition)
-model WeeklyNews {
-  id           Int                     @id @default(autoincrement())
-  editionId    Int                     @map("edition_id")
-  position     Int                     @default(1)
-  country      String                  @db.VarChar(100)
-  countryCode  String                  @map("country_code") @db.VarChar(2)
-  sourceUrl    String?                 @map("source_url") @db.VarChar(500)
-  sourceName   String?                 @map("source_name") @db.VarChar(100)
-  createdAt    DateTime                @default(now()) @map("created_at")
-  updatedAt    DateTime                @updatedAt @map("updated_at")
-  edition      WeeklyEdition           @relation(fields: [editionId], references: [id], onDelete: Cascade)
-  translations WeeklyNewsTranslation[]
-
-  @@map("weekly_news")
-}
-
-// Traductions des actualités
-model WeeklyNewsTranslation {
-  id      Int        @id @default(autoincrement())
-  newsId  Int        @map("news_id")
-  lang    String     @db.VarChar(2)
-  title   String     @db.VarChar(500)
-  excerpt String     @db.Text
-  news    WeeklyNews @relation(fields: [newsId], references: [id], onDelete: Cascade)
-
-  @@unique([newsId, lang])
-  @@map("weekly_news_translations")
 }

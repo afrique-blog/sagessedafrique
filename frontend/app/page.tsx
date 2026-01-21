@@ -61,7 +61,7 @@ function HomeContent() {
           api.getArticles({ lang, limit: 20, search: searchQuery || undefined }),
           api.getCategories(lang),
           api.getDossiers(lang),
-          api.getCurrentWeeklyEdition(lang).catch(() => null),
+          api.getCurrentWeeklyEdition().catch(() => null),
         ]);
         setArticles(articlesRes.data);
         setCategories(categoriesRes);
@@ -342,61 +342,37 @@ function HomeContent() {
           )}
 
           {/* Une semaine en Afrique Widget */}
-          {weeklyEdition && weeklyEdition.news.length > 0 && (
+          {weeklyEdition && (
             <section className="container mx-auto px-4">
-              <div className="bg-gradient-to-r from-green-900/10 via-amber-900/10 to-red-900/10 dark:from-green-900/30 dark:via-amber-900/30 dark:to-red-900/30 rounded-2xl p-6 md:p-8 border border-amber-200/50 dark:border-amber-800/50">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                  <div>
-                    <h2 className="text-2xl font-serif font-bold flex items-center gap-3">
-                      <span className="text-3xl">🌍</span>
-                      {lang === 'fr' ? 'Une semaine en Afrique' : 'A Week in Africa'}
-                    </h2>
-                    <p className="text-amber-700 dark:text-amber-400 text-sm mt-1">
-                      {weeklyEdition.title}
-                    </p>
+              <Link 
+                href="/semaine-en-afrique"
+                className="block bg-gradient-to-r from-green-900/10 via-amber-900/10 to-red-900/10 dark:from-green-900/30 dark:via-amber-900/30 dark:to-red-900/30 rounded-2xl p-6 md:p-8 border border-amber-200/50 dark:border-amber-800/50 hover:border-amber-400 transition-all group"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <span className="text-5xl">🌍</span>
+                    <div>
+                      <h2 className="text-2xl font-serif font-bold group-hover:text-amber-600 transition-colors">
+                        {lang === 'fr' ? 'Une semaine en Afrique' : 'A Week in Africa'}
+                      </h2>
+                      <p className="text-amber-700 dark:text-amber-400 text-sm mt-1">
+                        {weeklyEdition.title || `${lang === 'fr' ? 'Semaine' : 'Week'} ${weeklyEdition.weekNumber} — ${weeklyEdition.year}`}
+                      </p>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">
+                        {lang === 'fr' 
+                          ? 'Les 10 actualités majeures du continent africain cette semaine'
+                          : 'The 10 major news stories from Africa this week'}
+                      </p>
+                    </div>
                   </div>
-                  <Link 
-                    href="/semaine-en-afrique"
-                    className="inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium transition-colors"
-                  >
-                    {lang === 'fr' ? 'Voir les 10 actualités' : 'See all 10 news'}
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-medium">
+                    <span>{lang === 'fr' ? 'Lire' : 'Read'}</span>
+                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                     </svg>
-                  </Link>
+                  </div>
                 </div>
-                
-                <div className="space-y-3">
-                  {weeklyEdition.news.slice(0, 3).map((news) => (
-                    <div 
-                      key={news.id}
-                      className="flex items-start gap-3 p-3 bg-white/70 dark:bg-slate-800/70 rounded-lg hover:bg-white dark:hover:bg-slate-800 transition-colors"
-                    >
-                      <span className="text-2xl flex-shrink-0">
-                        {String.fromCodePoint(...news.countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0)))}
-                      </span>
-                      <div className="min-w-0">
-                        <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide">
-                          {news.country}
-                        </span>
-                        <p className="font-medium text-sm line-clamp-2 text-slate-800 dark:text-slate-200">
-                          {news.title}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-6 text-center">
-                  <Link 
-                    href="/semaine-en-afrique"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors"
-                  >
-                    <span>📰</span>
-                    {lang === 'fr' ? 'Lire les 10 actualités' : 'Read all 10 news'}
-                  </Link>
-                </div>
-              </div>
+              </Link>
             </section>
           )}
 
