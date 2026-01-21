@@ -7,6 +7,16 @@ import { useApp } from '@/lib/context';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+// Nettoyer le HTML du GPT (supprimer les artefacts OpenAI)
+function cleanGptHtml(html: string): string {
+  return html
+    // Supprimer les références contentReference
+    .replace(/::contentReference\[.*?\]\{.*?\}/g, '')
+    // Supprimer les lignes vides multiples
+    .replace(/\n\s*\n\s*\n/g, '\n\n')
+    .trim();
+}
+
 export default function SemaineEnAfriquePage() {
   const { lang } = useApp();
   const [currentEdition, setCurrentEdition] = useState<WeeklyEdition | null>(null);
@@ -86,7 +96,7 @@ export default function SemaineEnAfriquePage() {
               <div 
                 className="weekly-content"
                 data-lang={lang}
-                dangerouslySetInnerHTML={{ __html: currentEdition.contentHtml }}
+                dangerouslySetInnerHTML={{ __html: cleanGptHtml(currentEdition.contentHtml) }}
               />
             </section>
           ) : (

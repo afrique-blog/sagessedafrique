@@ -8,6 +8,16 @@ import { useApp } from '@/lib/context';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+// Nettoyer le HTML du GPT (supprimer les artefacts OpenAI)
+function cleanGptHtml(html: string): string {
+  return html
+    // Supprimer les références contentReference
+    .replace(/::contentReference\[.*?\]\{.*?\}/g, '')
+    // Supprimer les lignes vides multiples
+    .replace(/\n\s*\n\s*\n/g, '\n\n')
+    .trim();
+}
+
 export default function WeeklyEditionPage() {
   const params = useParams();
   const slug = params.slug as string;
@@ -111,7 +121,7 @@ export default function WeeklyEditionPage() {
             <div 
               className="weekly-content"
               data-lang={lang}
-              dangerouslySetInnerHTML={{ __html: edition.contentHtml }}
+              dangerouslySetInnerHTML={{ __html: cleanGptHtml(edition.contentHtml) }}
             />
           ) : (
             <div className="bg-white rounded-xl p-12 text-center">
