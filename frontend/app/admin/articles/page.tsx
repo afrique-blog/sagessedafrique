@@ -19,11 +19,16 @@ function getPublishStatus(publishedAt: string | null | undefined): { status: 'dr
   return { status: 'published', label: 'Publié', color: 'green', icon: '✅' };
 }
 
+type SortField = 'title' | 'category' | 'views' | 'status';
+type SortOrder = 'asc' | 'desc';
+
 function ArticlesList() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [sortField, setSortField] = useState<SortField>('status');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   useEffect(() => {
     fetchArticles();
@@ -41,6 +46,54 @@ function ArticlesList() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Fonction de tri
+  function handleSort(field: SortField) {
+    if (sortField === field) {
+      // Inverser l'ordre si on clique sur la même colonne
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Nouvelle colonne, tri ascendant par défaut
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  }
+
+  // Trier les articles
+  const sortedArticles = [...articles].sort((a, b) => {
+    let compareValue = 0;
+
+    switch (sortField) {
+      case 'title':
+        compareValue = a.title.localeCompare(b.title, 'fr');
+        break;
+      case 'category':
+        const catA = a.category?.name || '';
+        const catB = b.category?.name || '';
+        compareValue = catA.localeCompare(catB, 'fr');
+        break;
+      case 'views':
+        compareValue = a.views - b.views;
+        break;
+      case 'status':
+        const statusA = getPublishStatus(a.publishedAt);
+        const statusB = getPublishStatus(b.publishedAt);
+        // Ordre: draft < scheduled < published
+        const statusOrder = { draft: 0, scheduled: 1, published: 2 };
+        compareValue = statusOrder[statusA.status] - statusOrder[statusB.status];
+        break;
+    }
+
+    return sortOrder === 'asc' ? compareValue : -compareValue;
+  });
+
+  // Composant pour l'icône de tri
+  function SortIcon({ field }: { field: SortField }) {
+    if (sortField !== field) {
+      return <span className="text-slate-400">⇅</span>;
+    }
+    return <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>;
   }
 
   async function handleDelete(id: number) {
@@ -78,15 +131,47 @@ function ArticlesList() {
               <table className="w-full">
                 <thead className="bg-slate-50 dark:bg-slate-700">
                   <tr>
-                    <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider">Titre</th>
-                    <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider">Catégorie</th>
-                    <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider">Vues</th>
-                    <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider">Statut</th>
+                    <th 
+                      onClick={() => handleSort('title')}
+                      className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors select-none"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>Titre</span>
+                        <SortIcon field="title" />
+                      </div>
+                    </th>
+                    <th 
+                      onClick={() => handleSort('category')}
+                      className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors select-none"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>Catégorie</span>
+                        <SortIcon field="category" />
+                      </div>
+                    </th>
+                    <th 
+                      onClick={() => handleSort('views')}
+                      className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors select-none"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>Vues</span>
+                        <SortIcon field="views" />
+                      </div>
+                    </th>
+                    <th 
+                      onClick={() => handleSort('status')}
+                      className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors select-none"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>Statut</span>
+                        <SortIcon field="status" />
+                      </div>
+                    </th>
                     <th className="text-right px-6 py-4 text-xs font-medium uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                  {articles.map(article => {
+                  {sortedArticles.map(article => {
                     const pubStatus = getPublishStatus(article.publishedAt);
                     return (
                     <tr key={article.id} className={`hover:bg-slate-50 dark:hover:bg-slate-700/50 ${pubStatus.status === 'draft' ? 'bg-orange-50/50 dark:bg-orange-900/10' : ''}`}>

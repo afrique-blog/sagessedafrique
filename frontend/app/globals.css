@@ -110,3 +110,21 @@ article h2, .display-6 { letter-spacing: -0.02em; }
   color: #2d2d2d;
 }
 
+/* =====================================================
+   UNE SEMAINE EN AFRIQUE - Sélection de langue
+   ===================================================== */
+
+/* Par défaut, cacher les deux versions */
+.weekly-content .weekly-africa-fr,
+.weekly-content .weekly-africa-en {
+  display: none;
+}
+
+/* Afficher selon l'attribut data-lang du parent */
+.weekly-content[data-lang="fr"] .weekly-africa-fr {
+  display: block;
+}
+
+.weekly-content[data-lang="en"] .weekly-africa-en {
+  display: block;
+}
