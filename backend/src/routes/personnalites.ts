@@ -122,11 +122,21 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
   // GET /api/categories-personnalites - Liste toutes les categories de personnalites
   fastify.get('/categories-personnalites', async (request: FastifyRequest<{ Querystring: { lang?: string } }>, reply: FastifyReply) => {
     const lang = request.query.lang || 'fr';
+    const now = new Date();
     
     const categories = await prisma.categoriePersonnalite.findMany({
       include: {
         translations: { where: { lang } },
-        _count: { select: { personnalites: true } }, // via la table de jointure
+        personnalites: {
+          where: {
+            personnalite: {
+              publishedAt: {
+                not: null,
+                lte: now  // Seulement les personnalités publiées (pas brouillons ni programmées)
+              }
+            }
+          }
+        }
       },
       orderBy: { id: 'asc' },
     });
@@ -137,7 +147,7 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       nom: cat.translations[0]?.nom || '',
       description: cat.translations[0]?.description || '',
       image: cat.image,
-      personnalitesCount: cat._count.personnalites,
+      personnalitesCount: cat.personnalites.length, // Comptage manuel des personnalités publiées
     }));
   });
 
