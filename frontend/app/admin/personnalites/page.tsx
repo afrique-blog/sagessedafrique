@@ -19,9 +19,14 @@ function getPublishStatus(publishedAt: string | null | undefined): { status: 'dr
   return { status: 'published', label: 'Publié', color: 'green', icon: '✅' };
 }
 
+type SortField = 'id' | 'nom' | 'status' | 'categories';
+type SortOrder = 'asc' | 'desc';
+
 function PersonnalitesList() {
   const [personnalites, setPersonnalites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortField, setSortField] = useState<SortField>('id');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   useEffect(() => {
     // Utiliser l'API avec includeUnpublished pour voir tous les statuts
@@ -30,6 +35,54 @@ function PersonnalitesList() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  // Fonction de tri
+  function handleSort(field: SortField) {
+    if (sortField === field) {
+      // Inverser l'ordre si on clique sur la même colonne
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Nouvelle colonne, tri ascendant par défaut
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  }
+
+  // Trier les personnalités
+  const sortedPersonnalites = [...personnalites].sort((a, b) => {
+    let compareValue = 0;
+
+    switch (sortField) {
+      case 'id':
+        compareValue = a.id - b.id;
+        break;
+      case 'nom':
+        compareValue = a.nom.localeCompare(b.nom, 'fr');
+        break;
+      case 'status':
+        const statusA = getPublishStatus(a.publishedAt);
+        const statusB = getPublishStatus(b.publishedAt);
+        // Ordre: draft < scheduled < published
+        const statusOrder = { draft: 0, scheduled: 1, published: 2 };
+        compareValue = statusOrder[statusA.status] - statusOrder[statusB.status];
+        break;
+      case 'categories':
+        const catA = a.categories?.[0]?.nom || a.categories?.[0]?.translations?.[0]?.nom || '';
+        const catB = b.categories?.[0]?.nom || b.categories?.[0]?.translations?.[0]?.nom || '';
+        compareValue = catA.localeCompare(catB, 'fr');
+        break;
+    }
+
+    return sortOrder === 'asc' ? compareValue : -compareValue;
+  });
+
+  // Composant pour l'icône de tri
+  function SortIcon({ field }: { field: SortField }) {
+    if (sortField !== field) {
+      return <span className="text-slate-400">⇅</span>;
+    }
+    return <span>{sortOrder === 'asc' ? '↑' : '↓'}</span>;
+  }
 
   const handleDelete = async (id: number) => {
     if (!confirm('Supprimer cette personnalité ?')) return;
@@ -61,17 +114,49 @@ function PersonnalitesList() {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Nom</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Statut</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Catégories</th>
+                  <th 
+                    onClick={() => handleSort('id')}
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors select-none"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>ID</span>
+                      <SortIcon field="id" />
+                    </div>
+                  </th>
+                  <th 
+                    onClick={() => handleSort('nom')}
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors select-none"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>Nom</span>
+                      <SortIcon field="nom" />
+                    </div>
+                  </th>
+                  <th 
+                    onClick={() => handleSort('status')}
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors select-none"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>Statut</span>
+                      <SortIcon field="status" />
+                    </div>
+                  </th>
+                  <th 
+                    onClick={() => handleSort('categories')}
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors select-none"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>Catégories</span>
+                      <SortIcon field="categories" />
+                    </div>
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Article</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">YouTube</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {personnalites.map(p => {
+                {sortedPersonnalites.map(p => {
                   const pubStatus = getPublishStatus(p.publishedAt);
                   return (
                   <tr key={p.id} className={pubStatus.status === 'draft' ? 'bg-orange-50/50 dark:bg-orange-900/10' : ''}>
@@ -92,7 +177,7 @@ function PersonnalitesList() {
                         {p.categories && p.categories.length > 0 ? (
                           p.categories.map((cat: any) => (
                             <span key={cat.id} className="inline-block px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
-                              {cat.nom}
+                              {cat.nom || cat.translations?.[0]?.nom || 'Sans nom'}
                             </span>
                           ))
                         ) : (

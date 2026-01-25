@@ -62,13 +62,15 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
   // GET /api/personnalites/admin/all - Liste admin avec toutes infos
   fastify.get('/personnalites/admin/all', {
     preHandler: [(fastify as any).authenticate],
-  }, async (request: FastifyRequest, reply: FastifyReply) => {
+  }, async (request: FastifyRequest<{ Querystring: { lang?: string } }>, reply: FastifyReply) => {
+    const lang = request.query.lang || 'fr';
+    
     const personnalites = await prisma.personnalite.findMany({
       include: {
         categories: {
           include: {
             categorie: {
-              include: { translations: true },
+              include: { translations: { where: { lang } } },
             },
           },
         },
@@ -83,7 +85,12 @@ export async function personnalitesRoutes(fastify: FastifyInstance) {
       ...p,
       // Compatibilité: ajouter categorieId et categorie pour l'admin
       categorieIds: p.categories.map((pc: any) => pc.categorieId),
-      categories: p.categories.map((pc: any) => pc.categorie),
+      categories: p.categories.map((pc: any) => ({
+        id: pc.categorie.id,
+        slug: pc.categorie.slug,
+        nom: pc.categorie.translations[0]?.nom || '',
+        translations: pc.categorie.translations,
+      })),
     }));
   });
 

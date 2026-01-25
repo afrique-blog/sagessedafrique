@@ -111,9 +111,21 @@ export interface PersonnaliteAdmin {
   slug: string;
   nom: string;
   categorieIds: number[];
+  categories?: {
+    id: number;
+    slug: string;
+    translations?: { id: number; lang: string; nom: string; description: string }[];
+    nom?: string;
+  }[];
   image: string | null;
   youtubeUrl: string | null;
   articleId: number | null;
+  article?: {
+    id: number;
+    slug: string;
+    title?: string;
+    translations?: any[];
+  } | null;
   publishedAt: string | null;
 }
 
