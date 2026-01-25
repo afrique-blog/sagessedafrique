@@ -16,7 +16,7 @@ function NewTagForm() {
     nameEn: '',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, saveAndNew: boolean = false) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -27,7 +27,18 @@ function NewTagForm() {
           { lang: 'en', name: form.nameEn },
         ],
       });
-      router.push('/admin/tags');
+      
+      if (saveAndNew) {
+        // Réinitialiser le formulaire pour créer un nouveau tag
+        setForm({
+          slug: '',
+          nameFr: '',
+          nameEn: '',
+        });
+      } else {
+        // Rediriger vers la liste des tags
+        router.push('/admin/tags');
+      }
     } catch (error) {
       alert('Erreur lors de la création');
     } finally {
@@ -44,7 +55,7 @@ function NewTagForm() {
           <h1 className="text-3xl font-serif font-bold mt-2">Nouveau tag</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 max-w-2xl">
+        <form onSubmit={(e) => handleSubmit(e, false)} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 max-w-2xl">
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">Slug *</label>
             <input
@@ -94,6 +105,14 @@ function NewTagForm() {
               className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50"
             >
               {loading ? 'Création...' : 'Créer'}
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleSubmit(e as any, true)}
+              disabled={loading}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
+            >
+              {loading ? 'Création...' : 'Enregistrer et nouveau'}
             </button>
             <Link href="/admin/tags" className="px-6 py-2 border border-slate-300 dark:border-slate-600 rounded-lg">
               Annuler
