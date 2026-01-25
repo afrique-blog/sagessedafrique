@@ -19,7 +19,7 @@ function getPublishStatus(publishedAt: string | null | undefined): { status: 'dr
   return { status: 'published', label: 'Publié', color: 'green', icon: '✅' };
 }
 
-type SortField = 'id' | 'nom' | 'status' | 'categories';
+type SortField = 'id' | 'nom' | 'status' | 'categories' | 'article' | 'youtube';
 type SortOrder = 'asc' | 'desc';
 
 function PersonnalitesList() {
@@ -70,6 +70,14 @@ function PersonnalitesList() {
         const catA = a.categories?.[0]?.nom || a.categories?.[0]?.translations?.[0]?.nom || '';
         const catB = b.categories?.[0]?.nom || b.categories?.[0]?.translations?.[0]?.nom || '';
         compareValue = catA.localeCompare(catB, 'fr');
+        break;
+      case 'article':
+        // Tri par présence d'article (avec article = 1, sans = 0)
+        compareValue = (a.article ? 1 : 0) - (b.article ? 1 : 0);
+        break;
+      case 'youtube':
+        // Tri par présence de lien YouTube (avec lien = 1, sans = 0)
+        compareValue = (a.youtubeUrl ? 1 : 0) - (b.youtubeUrl ? 1 : 0);
         break;
     }
 
@@ -150,8 +158,24 @@ function PersonnalitesList() {
                       <SortIcon field="categories" />
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Article</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">YouTube</th>
+                  <th 
+                    onClick={() => handleSort('article')}
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors select-none"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>Article</span>
+                      <SortIcon field="article" />
+                    </div>
+                  </th>
+                  <th 
+                    onClick={() => handleSort('youtube')}
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors select-none"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>YouTube</span>
+                      <SortIcon field="youtube" />
+                    </div>
+                  </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Actions</th>
                 </tr>
               </thead>
