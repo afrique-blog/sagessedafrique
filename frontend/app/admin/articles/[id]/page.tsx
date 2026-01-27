@@ -33,6 +33,7 @@ function EditArticleForm() {
     heroImage: '',
     featured: false,
     readingMinutes: 5,
+    youtubeUrl: '',
     titleFr: '',
     titleEn: '',
     excerptFr: '',
@@ -73,6 +74,7 @@ function EditArticleForm() {
           heroImage: fullArticleFr.heroImage || '',
           featured: fullArticleFr.featured,
           readingMinutes: fullArticleFr.readingMinutes,
+          youtubeUrl: fullArticleFr.youtubeUrl || '',
           titleFr: fullArticleFr.title,
           titleEn: fullArticleEn.title,
           excerptFr: fullArticleFr.excerpt,
@@ -109,6 +111,7 @@ function EditArticleForm() {
         heroImage: formData.heroImage || undefined,
         featured: formData.featured,
         readingMinutes: formData.readingMinutes,
+        youtubeUrl: formData.youtubeUrl || undefined,
         translations: [
           {
             lang: 'fr',
@@ -262,6 +265,18 @@ function EditArticleForm() {
                   className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Lien YouTube (optionnel)</label>
+              <input
+                type="url"
+                value={formData.youtubeUrl}
+                onChange={e => setFormData({ ...formData, youtubeUrl: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+              <p className="text-xs text-slate-500 mt-1">Ajoutez un lien vers une vidéo YouTube associée à cet article</p>
             </div>
 
             <div className="flex items-center gap-2">
