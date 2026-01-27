@@ -112,6 +112,7 @@ model Article {
   dossiers       ArticleDossier[]
   personnalites  Personnalite[]
   comments       Comment[]
+  reactions      ArticleReaction[]
 
   @@map("articles")
 }
@@ -129,6 +130,19 @@ model ArticleTranslation {
 
   @@unique([articleId, lang])
   @@map("article_translations")
+}
+
+model ArticleReaction {
+  id           Int      @id @default(autoincrement())
+  articleId    Int      @map("article_id")
+  reactionType String   @map("reaction_type") @db.VarChar(10) // 'like', 'love', 'fire'
+  userIp       String?  @map("user_ip") @db.VarChar(45)
+  createdAt    DateTime @default(now()) @map("created_at")
+  article      Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, userIp, reactionType])
+  @@index([articleId])
+  @@map("article_reactions")
 }
 
 model ArticleTag {

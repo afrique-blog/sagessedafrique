@@ -383,6 +383,95 @@ export async function articleRoutes(fastify: FastifyInstance) {
 
     return { success: true };
   });
+
+  // GET /api/articles/:id/reactions - Get reaction counts
+  fastify.get('/:id/reactions', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const articleId = parseInt(request.params.id);
+
+    // Get counts for each reaction type
+    const reactions = await prisma.articleReaction.groupBy({
+      by: ['reactionType'],
+      where: { articleId },
+      _count: { id: true },
+    });
+
+    // Format as { like: 10, love: 5, fire: 3 }
+    const counts = {
+      like: 0,
+      love: 0,
+      fire: 0,
+    };
+
+    reactions.forEach((r: any) => {
+      counts[r.reactionType as keyof typeof counts] = r._count.id;
+    });
+
+    // If no reactions exist yet, initialize with random values between 5 and 20
+    if (reactions.length === 0) {
+      counts.like = Math.floor(Math.random() * 16) + 5; // 5-20
+      counts.love = Math.floor(Math.random() * 16) + 5; // 5-20
+      counts.fire = Math.floor(Math.random() * 16) + 5; // 5-20
+    }
+
+    // Check if user has reacted (based on IP)
+    const userIp = request.ip;
+    const userReactions = await prisma.articleReaction.findMany({
+      where: { articleId, userIp },
+      select: { reactionType: true },
+    });
+
+    return {
+      counts,
+      userReaction: userReactions[0]?.reactionType || null,
+    };
+  });
+
+  // POST /api/articles/:id/reactions - Add reaction
+  fastify.post('/:id/reactions', async (request: FastifyRequest<{ Params: { id: string }; Body: { reactionType: string } }>, reply: FastifyReply) => {
+    const articleId = parseInt(request.params.id);
+    const { reactionType } = request.body;
+    const userIp = request.ip;
+
+    // Validate reaction type
+    if (!['like', 'love', 'fire'].includes(reactionType)) {
+      return reply.status(400).send({ error: 'Invalid reaction type' });
+    }
+
+    // Check if article exists
+    const article = await prisma.article.findUnique({ where: { id: articleId } });
+    if (!article) {
+      return reply.status(404).send({ error: 'Article not found' });
+    }
+
+    // Remove any existing reaction from this user
+    await prisma.articleReaction.deleteMany({
+      where: { articleId, userIp },
+    });
+
+    // Add new reaction
+    await prisma.articleReaction.create({
+      data: {
+        articleId,
+        reactionType,
+        userIp,
+      },
+    });
+
+    return { success: true };
+  });
+
+  // DELETE /api/articles/:id/reactions/:type - Remove reaction
+  fastify.delete('/:id/reactions/:type', async (request: FastifyRequest<{ Params: { id: string; type: string } }>, reply: FastifyReply) => {
+    const articleId = parseInt(request.params.id);
+    const { type } = request.params;
+    const userIp = request.ip;
+
+    await prisma.articleReaction.deleteMany({
+      where: { articleId, reactionType: type, userIp },
+    });
+
+    return { success: true };
+  });
 }
 
 function formatArticle(article: any) {

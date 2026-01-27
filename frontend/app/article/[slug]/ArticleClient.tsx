@@ -135,30 +135,25 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
   }, []);
   // #endregion
 
-  // Load reactions from localStorage
+  // Load reactions from API
   useEffect(() => {
-    const storageKey = `reactions_${slug}`;
-    const userReactionKey = `user_reaction_${slug}`;
-    
-    // Load saved reactions
-    const savedReactions = localStorage.getItem(storageKey);
-    if (savedReactions) {
-      setReactions(JSON.parse(savedReactions));
-    } else {
-      // Initialize with random counts for demo
-      setReactions({
-        like: Math.floor(Math.random() * 50) + 10,
-        love: Math.floor(Math.random() * 30) + 5,
-        fire: Math.floor(Math.random() * 20) + 3,
-      });
+    async function loadReactions() {
+      try {
+        const response = await api.getArticleReactions(article.id);
+        setReactions(response.counts);
+        setUserReaction(response.userReaction);
+      } catch (error) {
+        console.error('Failed to load reactions:', error);
+        // Fallback to random values
+        setReactions({
+          like: Math.floor(Math.random() * 16) + 5,
+          love: Math.floor(Math.random() * 16) + 5,
+          fire: Math.floor(Math.random() * 16) + 5,
+        });
+      }
     }
-    
-    // Load user's reaction
-    const savedUserReaction = localStorage.getItem(userReactionKey);
-    if (savedUserReaction) {
-      setUserReaction(savedUserReaction as ReactionType);
-    }
-  }, [slug]);
+    loadReactions();
+  }, [article.id]);
 
   // Scroll listener for reading progress
   useEffect(() => {
@@ -168,32 +163,35 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
   }, [handleScroll]);
 
   // Handle reaction click
-  const handleReaction = (type: ReactionType) => {
-    const storageKey = `reactions_${slug}`;
-    const userReactionKey = `user_reaction_${slug}`;
-    
-    setReactions(prev => {
-      const newReactions = { ...prev };
-      
+  const handleReaction = async (type: ReactionType) => {
+    try {
       // If user already reacted with this type, remove it
       if (userReaction === type) {
-        newReactions[type] = Math.max(0, prev[type] - 1);
+        await api.deleteArticleReaction(article.id, type);
+        setReactions(prev => ({
+          ...prev,
+          [type]: Math.max(0, prev[type] - 1),
+        }));
         setUserReaction(null);
-        localStorage.removeItem(userReactionKey);
       } else {
-        // If user had a different reaction, remove it first
-        if (userReaction) {
-          newReactions[userReaction] = Math.max(0, prev[userReaction] - 1);
-        }
-        // Add new reaction
-        newReactions[type] = prev[type] + 1;
+        // Add new reaction (API will handle removing old one)
+        await api.addArticleReaction(article.id, type);
+        
+        setReactions(prev => {
+          const newReactions = { ...prev };
+          // If user had a different reaction, decrease its count
+          if (userReaction) {
+            newReactions[userReaction] = Math.max(0, prev[userReaction] - 1);
+          }
+          // Increase new reaction count
+          newReactions[type] = prev[type] + 1;
+          return newReactions;
+        });
         setUserReaction(type);
-        localStorage.setItem(userReactionKey, type);
       }
-      
-      localStorage.setItem(storageKey, JSON.stringify(newReactions));
-      return newReactions;
-    });
+    } catch (error) {
+      console.error('Failed to update reaction:', error);
+    }
   };
 
   // Extract TOC from content

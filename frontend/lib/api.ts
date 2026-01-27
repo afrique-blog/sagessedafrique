@@ -502,6 +502,26 @@ class ApiClient {
     });
   }
 
+  // =====================================================
+  // REACTIONS
+  // =====================================================
+  async getArticleReactions(articleId: number): Promise<{ counts: { like: number; love: number; fire: number }; userReaction: string | null }> {
+    return this.fetch(`/articles/${articleId}/reactions`);
+  }
+
+  async addArticleReaction(articleId: number, reactionType: string): Promise<{ success: boolean }> {
+    return this.fetch(`/articles/${articleId}/reactions`, {
+      method: 'POST',
+      body: JSON.stringify({ reactionType }),
+    });
+  }
+
+  async deleteArticleReaction(articleId: number, reactionType: string): Promise<{ success: boolean }> {
+    return this.fetch(`/articles/${articleId}/reactions/${reactionType}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Admin
   async getCommentsAdmin(params: { status?: string; page?: number; limit?: number } = {}): Promise<PaginatedResponse<CommentAdmin>> {
     const searchParams = new URLSearchParams();
