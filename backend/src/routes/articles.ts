@@ -24,6 +24,7 @@ const createArticleSchema = z.object({
   heroImage: z.string().optional(),
   featured: z.boolean().default(false),
   readingMinutes: z.number().default(5),
+  youtubeUrl: z.string().optional(),
   publishedAt: z.string().datetime().optional(),
   translations: z.array(z.object({
     lang: z.enum(['fr', 'en']),
@@ -279,6 +280,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
         heroImage: body.heroImage,
         featured: body.featured,
         readingMinutes,
+        youtubeUrl: body.youtubeUrl,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : new Date(),
         translations: {
           create: body.translations,
@@ -351,6 +353,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
         heroImage: body.heroImage,
         featured: body.featured,
         readingMinutes,
+        youtubeUrl: body.youtubeUrl,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : undefined,
       },
       include: {
@@ -395,6 +398,7 @@ function formatArticle(article: any) {
     takeaway: translation?.takeaway || '',
     sources: translation?.sources || '',
     heroImage: article.heroImage,
+    youtubeUrl: article.youtubeUrl,
     featured: article.featured,
     views: article.views,
     readingMinutes: article.readingMinutes,
