@@ -141,7 +141,7 @@ export default function ArticleClient({ initialArticle, slug }: ArticleClientPro
       try {
         const response = await api.getArticleReactions(article.id);
         setReactions(response.counts);
-        setUserReaction(response.userReaction);
+        setUserReaction(response.userReaction as ReactionType | null);
       } catch (error) {
         console.error('Failed to load reactions:', error);
         // Fallback to random values
