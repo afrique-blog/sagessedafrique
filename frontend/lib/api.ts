@@ -191,6 +191,73 @@ export interface WeeklyEditionPreview {
   publishedAt: string | null;
 }
 
+// =====================================================
+// DOSSIERS PAYS
+// =====================================================
+export interface PaysDossier {
+  id: number;
+  slug: string;
+  countryCode: string;
+  heroImage: string | null;
+  featured: boolean;
+  publishedAt: string | null;
+  title: string;
+  subtitle: string;
+  chapitresCount: number;
+  totalReadingMinutes: number;
+}
+
+export interface PaysChapitreSommaire {
+  id: number;
+  slug: string;
+  ordre: number;
+  title: string;
+  readingMinutes: number;
+}
+
+export interface PaysDossierDetail {
+  id: number;
+  slug: string;
+  countryCode: string;
+  heroImage: string | null;
+  featured: boolean;
+  publishedAt: string | null;
+  title: string;
+  subtitle: string;
+  metaTitle: string;
+  metaDescription: string;
+  totalReadingMinutes: number;
+  chapitres: PaysChapitreSommaire[];
+}
+
+export interface PaysChapitreDetail {
+  dossier: {
+    id: number;
+    slug: string;
+    title: string;
+    countryCode: string;
+  };
+  chapitre: {
+    id: number;
+    slug: string;
+    ordre: number;
+    heroImage: string | null;
+    readingMinutes: number;
+    title: string;
+    contentHtml: string;
+  };
+  navigation: {
+    prev: { slug: string; title: string } | null;
+    next: { slug: string; title: string } | null;
+  };
+  sommaire: Array<{
+    slug: string;
+    ordre: number;
+    title: string;
+    current: boolean;
+  }>;
+}
+
 class ApiClient {
   private token: string | null = null;
 
@@ -702,6 +769,35 @@ class ApiClient {
 
   async generateTTS(text: string, voiceName: string = 'Charon'): Promise<{ audio: string; mimeType: string }> {
     return this.fetch('/ai/tts', {
+      method: 'POST',
+      body: JSON.stringify({ text, voiceName }),
+    });
+  }
+
+  // =====================================================
+  // DOSSIERS PAYS
+  // =====================================================
+  async getPaysList(lang: string = 'fr'): Promise<PaysDossier[]> {
+    return this.fetch(`/pays?lang=${lang}`);
+  }
+
+  async getPaysDossier(slug: string, lang: string = 'fr'): Promise<PaysDossierDetail> {
+    return this.fetch(`/pays/${slug}?lang=${lang}`);
+  }
+
+  async getPaysChapitre(paysSlug: string, chapitreSlug: string, lang: string = 'fr'): Promise<PaysChapitreDetail> {
+    return this.fetch(`/pays/${paysSlug}/${chapitreSlug}?lang=${lang}`);
+  }
+
+  async sendPaysAIMessage(message: string, paysSlug: string, history?: any[]): Promise<{ reply: string; history: any[] }> {
+    return this.fetch('/pays/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message, paysSlug, history }),
+    });
+  }
+
+  async generatePaysTTS(text: string, voiceName: string = 'Charon'): Promise<{ audio: string; mimeType: string }> {
+    return this.fetch('/pays/ai/tts', {
       method: 'POST',
       body: JSON.stringify({ text, voiceName }),
     });
