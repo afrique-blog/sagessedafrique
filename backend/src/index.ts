@@ -14,6 +14,7 @@ import { contactRoutes } from './routes/contacts.js';
 import { uploadRoutes } from './routes/uploads.js';
 import { memberRoutes } from './routes/members.js';
 import { weeklyRoutes } from './routes/weekly.js';
+import { aiRoutes } from './routes/ai.js';
 import { verifyEmailConnection } from './services/email.js';
 
 const fastify = Fastify({
@@ -53,6 +54,7 @@ await fastify.register(contactRoutes, { prefix: '/api/contacts' });
 await fastify.register(uploadRoutes, { prefix: '/api/uploads' });
 await fastify.register(memberRoutes, { prefix: '/api/members' });
 await fastify.register(weeklyRoutes, { prefix: '/api/weekly' });
+await fastify.register(aiRoutes, { prefix: '/api/ai' });
 
 // Health check
 fastify.get('/api/health', async () => {

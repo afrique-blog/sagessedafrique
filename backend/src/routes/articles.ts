@@ -26,6 +26,11 @@ const createArticleSchema = z.object({
   readingMinutes: z.number().default(5),
   youtubeUrl: z.string().optional(),
   publishedAt: z.string().datetime().optional(),
+  type: z.enum(['standard', 'dossier-pays', 'dossier-thematique']).default('standard'),
+  countryCode: z.string().length(2).optional(),
+  requireAuth: z.boolean().default(false),
+  freePreview: z.number().default(0),
+  metadata: z.any().optional(),
   translations: z.array(z.object({
     lang: z.enum(['fr', 'en']),
     title: z.string().min(1),
@@ -257,7 +262,20 @@ export async function articleRoutes(fastify: FastifyInstance) {
       data: { views: { increment: 1 } },
     });
 
-    return formatArticle(article);
+    // Check if content should be restricted
+    const user = (request as any).user; // Will be undefined if not authenticated
+    const shouldRestrict = article.requireAuth && !user;
+
+    const formattedArticle = formatArticle(article);
+
+    // Truncate content if restricted
+    if (shouldRestrict && article.freePreview > 0) {
+      const fullContent = formattedArticle.contentHtml;
+      formattedArticle.contentHtml = fullContent.substring(0, article.freePreview);
+      formattedArticle.restricted = true;
+    }
+
+    return formattedArticle;
   });
 
   // POST /api/articles - Create article (protected)
@@ -282,6 +300,11 @@ export async function articleRoutes(fastify: FastifyInstance) {
         readingMinutes,
         youtubeUrl: body.youtubeUrl,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : new Date(),
+        type: body.type,
+        countryCode: body.countryCode,
+        requireAuth: body.requireAuth,
+        freePreview: body.freePreview,
+        metadata: body.metadata,
         translations: {
           create: body.translations,
         },
@@ -355,6 +378,11 @@ export async function articleRoutes(fastify: FastifyInstance) {
         readingMinutes,
         youtubeUrl: body.youtubeUrl,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : undefined,
+        type: body.type,
+        countryCode: body.countryCode,
+        requireAuth: body.requireAuth,
+        freePreview: body.freePreview,
+        metadata: body.metadata,
       },
       include: {
         translations: true,
@@ -492,6 +520,11 @@ function formatArticle(article: any) {
     views: article.views,
     readingMinutes: article.readingMinutes,
     publishedAt: article.publishedAt,
+    type: article.type || 'standard',
+    countryCode: article.countryCode,
+    requireAuth: article.requireAuth || false,
+    freePreview: article.freePreview || 0,
+    metadata: article.metadata,
     author: article.author,
     category: categoryTranslation ? {
       slug: article.category.slug,

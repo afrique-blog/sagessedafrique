@@ -105,6 +105,11 @@ model Article {
   createdAt      DateTime             @default(now()) @map("created_at")
   updatedAt      DateTime             @updatedAt @map("updated_at")
   youtubeUrl     String?              @map("youtube_url")
+  type           String               @default("standard") // 'standard' | 'dossier-pays' | 'dossier-thematique'
+  countryCode    String?              @map("country_code") @db.VarChar(2) // ISO Alpha-2: "ET", "SN", etc.
+  requireAuth    Boolean              @default(false) @map("require_auth") // Nécessite inscription
+  freePreview    Int                  @default(0) @map("free_preview") // Nombre de caractères gratuits (0 = tout gratuit)
+  metadata       Json?                // Données structurées (sections, practicalInfo, etc.)
   category       Category             @relation(fields: [categoryId], references: [id])
   author         User                 @relation(fields: [authorId], references: [id])
   translations   ArticleTranslation[]
