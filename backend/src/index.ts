@@ -15,6 +15,7 @@ import { uploadRoutes } from './routes/uploads.js';
 import { memberRoutes } from './routes/members.js';
 import { weeklyRoutes } from './routes/weekly.js';
 import { aiRoutes } from './routes/ai.js';
+import { paysRoutes } from './routes/pays.js';
 import { verifyEmailConnection } from './services/email.js';
 
 const fastify = Fastify({
@@ -55,6 +56,7 @@ await fastify.register(uploadRoutes, { prefix: '/api/uploads' });
 await fastify.register(memberRoutes, { prefix: '/api/members' });
 await fastify.register(weeklyRoutes, { prefix: '/api/weekly' });
 await fastify.register(aiRoutes, { prefix: '/api/ai' });
+await fastify.register(paysRoutes, { prefix: '/api/pays' });
 
 // Health check
 fastify.get('/api/health', async () => {
