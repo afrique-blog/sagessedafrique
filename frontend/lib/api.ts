@@ -258,6 +258,33 @@ export interface PaysChapitreDetail {
   }>;
 }
 
+export interface PaysDossierAdmin {
+  id: number;
+  slug: string;
+  countryCode: string;
+  heroImage: string | null;
+  featured: boolean;
+  publishedAt: string | null;
+  title: string;
+  subtitle: string;
+  chapitresCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaysChapitreAdmin {
+  id: number;
+  slug: string;
+  ordre: number;
+  title: string;
+  readingMinutes: number;
+  contentHtml?: string;
+}
+
+export interface PaysDossierAdminDetail extends PaysDossierDetail {
+  chapitres: PaysChapitreAdmin[];
+}
+
 class ApiClient {
   private token: string | null = null;
 
@@ -801,6 +828,110 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ text, voiceName }),
     });
+  }
+
+  // =====================================================
+  // DOSSIERS PAYS - ADMIN
+  // =====================================================
+  async getPaysListAdmin(lang: string = 'fr'): Promise<PaysDossierAdmin[]> {
+    return this.fetch(`/pays/admin/all?lang=${lang}`);
+  }
+
+  async getPaysDossierAdmin(id: number, lang: string = 'fr'): Promise<PaysDossierAdminDetail> {
+    const dossier = await this.fetch<any>(`/pays/${(await this.fetch<any>(`/pays/admin/all?lang=${lang}`)).find((d: any) => d.id === id)?.slug}?lang=${lang}`);
+    // Get full chapitres with content
+    const chapitresWithContent = await Promise.all(
+      dossier.chapitres.map(async (c: any) => {
+        const full = await this.fetch<any>(`/pays/${dossier.slug}/${c.slug}?lang=${lang}`);
+        return {
+          ...c,
+          contentHtml: full.chapitre.contentHtml
+        };
+      })
+    );
+    return { ...dossier, chapitres: chapitresWithContent };
+  }
+
+  async createPaysDossier(data: {
+    slug: string;
+    countryCode: string;
+    heroImage?: string;
+    featured?: boolean;
+    publishedAt?: string;
+    titleFr: string;
+    subtitleFr?: string;
+    metaTitleFr?: string;
+    metaDescriptionFr?: string;
+    titleEn?: string;
+    subtitleEn?: string;
+    metaTitleEn?: string;
+    metaDescriptionEn?: string;
+  }): Promise<any> {
+    return this.fetch('/pays/admin', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updatePaysDossier(id: number, data: {
+    slug?: string;
+    countryCode?: string;
+    heroImage?: string;
+    featured?: boolean;
+    publishedAt?: string | null;
+    titleFr?: string;
+    subtitleFr?: string;
+    metaTitleFr?: string;
+    metaDescriptionFr?: string;
+    titleEn?: string;
+    subtitleEn?: string;
+    metaTitleEn?: string;
+    metaDescriptionEn?: string;
+  }): Promise<any> {
+    return this.fetch(`/pays/admin/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deletePaysDossier(id: number): Promise<void> {
+    return this.fetch(`/pays/admin/${id}`, { method: 'DELETE' });
+  }
+
+  async createPaysChapitre(dossierId: number, data: {
+    slug: string;
+    ordre: number;
+    heroImage?: string;
+    readingMinutes?: number;
+    titleFr: string;
+    contentHtmlFr: string;
+    titleEn?: string;
+    contentHtmlEn?: string;
+  }): Promise<any> {
+    return this.fetch(`/pays/admin/${dossierId}/chapitres`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updatePaysChapitre(id: number, data: {
+    slug?: string;
+    ordre?: number;
+    heroImage?: string;
+    readingMinutes?: number;
+    titleFr?: string;
+    contentHtmlFr?: string;
+    titleEn?: string;
+    contentHtmlEn?: string;
+  }): Promise<any> {
+    return this.fetch(`/pays/admin/chapitres/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deletePaysChapitre(id: number): Promise<void> {
+    return this.fetch(`/pays/admin/chapitres/${id}`, { method: 'DELETE' });
   }
 }
 
