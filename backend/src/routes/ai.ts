@@ -96,7 +96,7 @@ export async function aiRoutes(fastify: FastifyInstance) {
       : 'ce pays africain';
 
     // Practical info from metadata
-    const practicalInfo = article.metadata?.practicalInfo || {};
+    const practicalInfo = (article.metadata as any)?.practicalInfo || {};
 
     // Build system prompt
     const systemPrompt = `Tu es un guide expert de voyage pour ${countryName}.
@@ -158,7 +158,7 @@ Si on te pose une question hors sujet (non liée à l'Afrique ou au voyage), red
         });
       }
 
-      const data = await response.json();
+      const data = await response.json() as any;
       
       if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
         return reply.status(500).send({ 
@@ -240,7 +240,7 @@ Si on te pose une question hors sujet (non liée à l'Afrique ou au voyage), red
         });
       }
 
-      const data = await response.json();
+      const data = await response.json() as any;
       
       if (!data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data) {
         return reply.status(500).send({ 

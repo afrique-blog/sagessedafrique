@@ -266,7 +266,7 @@ export async function articleRoutes(fastify: FastifyInstance) {
     const user = (request as any).user; // Will be undefined if not authenticated
     const shouldRestrict = article.requireAuth && !user;
 
-    const formattedArticle = formatArticle(article);
+    const formattedArticle = formatArticle(article) as any;
 
     // Truncate content if restricted
     if (shouldRestrict && article.freePreview > 0) {

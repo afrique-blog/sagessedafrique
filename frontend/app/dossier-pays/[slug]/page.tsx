@@ -15,7 +15,7 @@ import AIChatWidget from '@/components/AIChatWidget';
 
 export default function DossierPaysPage() {
   const { slug } = useParams();
-  const { lang, user } = useApp();
+  const { lang } = useApp();
   const [article, setArticle] = useState<Article | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,10 +78,8 @@ export default function DossierPaysPage() {
   }
 
   const sections = extractSections(article.contentHtml);
-  const canReadFull = !article.requireAuth || !!user;
-  const contentToShow = canReadFull || !article.restricted
-    ? article.contentHtml
-    : article.contentHtml;
+  const canReadFull = !article.restricted; // Backend handles restriction
+  const contentToShow = article.contentHtml; // Backend already truncates if needed
 
   const countryName = getCountryName(article.countryCode, lang);
 
