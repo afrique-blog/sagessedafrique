@@ -14,6 +14,12 @@ export interface Article {
   readingMinutes: number;
   publishedAt: string;
   youtubeUrl: string | null;
+  type: string; // 'standard' | 'dossier-pays' | 'dossier-thematique'
+  countryCode: string | null; // ISO Alpha-2: "ET", "SN", etc.
+  requireAuth: boolean; // Nécessite inscription pour lire
+  freePreview: number; // Nombre de caractères gratuits
+  metadata: any | null; // Données JSON structurées
+  restricted?: boolean; // Flag backend: contenu tronqué car non-authentifié
   author: { id: number; name: string; avatar?: string; bio?: string };
   category: { slug: string; name: string } | null;
   tags: { slug: string; name: string }[];
@@ -681,6 +687,23 @@ class ApiClient {
     return this.fetch(`/weekly/admin/editions/${id}/publish`, {
       method: 'POST',
       body: JSON.stringify({ publish }),
+    });
+  }
+
+  // =====================================================
+  // AI FEATURES
+  // =====================================================
+  async sendAIMessage(articleId: number, message: string, conversationHistory?: any[]): Promise<{ reply: string; conversationHistory: any[] }> {
+    return this.fetch('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({ articleId, message, conversationHistory }),
+    });
+  }
+
+  async generateTTS(text: string, voiceName: string = 'Charon'): Promise<{ audio: string; mimeType: string }> {
+    return this.fetch('/ai/tts', {
+      method: 'POST',
+      body: JSON.stringify({ text, voiceName }),
     });
   }
 }
