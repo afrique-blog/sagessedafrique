@@ -307,7 +307,8 @@ export default function DossiersPaysChapitre() {
                        prose-blockquote:border-l-4 prose-blockquote:border-amber-600 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-slate-700 dark:prose-blockquote:text-slate-300
                        prose-ul:list-disc prose-ul:pl-6
                        prose-ol:list-decimal prose-ol:pl-6
-                       [&_.drop-cap]:first-letter:text-5xl [&_.drop-cap]:first-letter:font-bold [&_.drop-cap]:first-letter:float-left [&_.drop-cap]:first-letter:mr-3 [&_.drop-cap]:first-letter:mt-1 [&_.drop-cap]:first-letter:text-amber-700"
+                       [&_.drop-cap]:first-letter:text-5xl [&_.drop-cap]:first-letter:font-bold [&_.drop-cap]:first-letter:float-left [&_.drop-cap]:first-letter:mr-3 [&_.drop-cap]:first-letter:mt-1 [&_.drop-cap]:first-letter:text-amber-700
+                       [&_.flex.justify-between]:hidden"
             dangerouslySetInnerHTML={{ __html: data.chapitre.contentHtml }}
           />
 
@@ -352,11 +353,11 @@ export default function DossiersPaysChapitre() {
         </main>
       </div>
 
-      {/* AI Chat Widget */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-4">
+      {/* AI Chat Widget - Hidden on mobile, visible on desktop */}
+      <div className="hidden md:flex fixed bottom-6 right-6 z-40 flex-col items-end gap-4">
         {/* Chat Window */}
         {chatOpen && (
-          <div className="w-96 h-[500px] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden mb-2">
+          <div className="w-80 lg:w-96 h-[450px] lg:h-[500px] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden mb-2">
             {/* Header */}
             <div className="bg-slate-900 text-white p-4 flex justify-between items-center">
               <div className="flex items-center gap-2">
@@ -365,7 +366,7 @@ export default function DossiersPaysChapitre() {
                   Guide IA {getCountryEmoji(data.dossier.countryCode)}
                 </h3>
               </div>
-              <button onClick={() => setChatOpen(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setChatOpen(false)} className="text-slate-400 hover:text-white p-1">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -450,17 +451,21 @@ export default function DossiersPaysChapitre() {
           </div>
         )}
 
-        {/* Toggle Button */}
+        {/* Toggle Button - No constant animation */}
         <button
           onClick={() => setChatOpen(!chatOpen)}
-          className="bg-slate-900 text-white p-4 rounded-full shadow-lg hover:scale-105 transition-transform flex items-center gap-2 font-medium group animate-pulse hover:animate-none"
+          className={`bg-amber-600 hover:bg-amber-700 text-white p-4 rounded-full shadow-lg hover:scale-105 transition-all flex items-center gap-2 font-medium ${chatOpen ? 'rotate-0' : ''}`}
+          title={lang === 'fr' ? 'Poser une question au Guide IA' : 'Ask the AI Guide'}
         >
-          <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap pl-0 group-hover:pl-2">
-            {lang === 'fr' ? 'Guide IA' : 'AI Guide'}
-          </span>
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
+          {chatOpen ? (
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          )}
         </button>
       </div>
 
