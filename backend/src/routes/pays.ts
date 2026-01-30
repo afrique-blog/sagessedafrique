@@ -213,30 +213,51 @@ Sois factuel et nuancé.`;
     try {
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
+        console.error('GEMINI_API_KEY not configured');
         return reply.status(500).send({ error: 'API Key non configurée' });
       }
+
+      console.log('Calling Gemini API with model gemini-1.5-flash...');
+      
+      const requestBody = {
+        contents: [
+          ...history.map(h => ({
+            role: h.role === 'user' ? 'user' : 'model',
+            parts: [{ text: h.content }]
+          })),
+          { role: 'user', parts: [{ text: message }] }
+        ],
+        systemInstruction: { parts: [{ text: systemPrompt }] }
+      };
 
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              ...history.map(h => ({
-                role: h.role === 'user' ? 'user' : 'model',
-                parts: [{ text: h.content }]
-              })),
-              { role: 'user', parts: [{ text: message }] }
-            ],
-            systemInstruction: { parts: [{ text: systemPrompt }] }
-          })
+          body: JSON.stringify(requestBody)
         }
       );
 
       const data = await response.json() as any;
-      const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || 
-        "Désolé, je n'ai pas pu générer une réponse.";
+      
+      // Log the full response for debugging
+      if (!response.ok || data.error) {
+        console.error('Gemini API error:', JSON.stringify(data, null, 2));
+        return reply.status(500).send({ 
+          error: data.error?.message || 'Erreur Gemini API',
+          details: data.error 
+        });
+      }
+      
+      console.log('Gemini response status:', response.status);
+      
+      const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (!replyText) {
+        console.error('No text in Gemini response:', JSON.stringify(data, null, 2));
+        return reply.status(500).send({ error: 'Réponse vide de Gemini' });
+      }
 
       return {
         reply: replyText,
