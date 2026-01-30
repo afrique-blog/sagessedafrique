@@ -11,6 +11,22 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.sagessedafrique.blog',
       },
+      {
+        protocol: 'https',
+        hostname: 'sagessedafrique.blog',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.unsplash.com',
+      },
     ],
     unoptimized: process.env.NODE_ENV === 'production',
   },
