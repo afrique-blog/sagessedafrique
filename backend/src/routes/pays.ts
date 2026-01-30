@@ -217,7 +217,7 @@ Sois factuel et nuancé.`;
       }
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -252,54 +252,12 @@ Sois factuel et nuancé.`;
     }
   });
 
-  // POST /api/pays/ai/tts
+  // POST /api/pays/ai/tts - Désactivé temporairement (modèle non disponible)
   fastify.post('/ai/tts', async (request, reply) => {
-    const { text, voiceName = 'Charon' } = request.body as { 
-      text: string; 
-      voiceName?: string 
-    };
-
-    if (!text) {
-      return reply.status(400).send({ error: 'Texte requis' });
-    }
-
-    const truncatedText = text.substring(0, 1000);
-
-    try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        return reply.status(500).send({ error: 'API Key non configurée' });
-      }
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: truncatedText }] }],
-            generationConfig: {
-              responseModalities: ['AUDIO'],
-              speechConfig: {
-                voiceConfig: { prebuiltVoiceConfig: { voiceName } }
-              }
-            }
-          })
-        }
-      );
-
-      const data = await response.json() as any;
-      const audioData = data?.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-
-      if (!audioData) {
-        return reply.status(500).send({ error: 'TTS generation failed' });
-      }
-
-      return { audio: audioData, mimeType: 'audio/wav' };
-    } catch (error) {
-      console.error('TTS Error:', error);
-      return reply.status(500).send({ error: 'Erreur lors de la génération audio' });
-    }
+    return reply.status(503).send({ 
+      error: 'Service TTS temporairement indisponible',
+      message: 'La fonctionnalité de lecture audio sera disponible prochainement.'
+    });
   });
 
   // ══════════════════════════════════════════════════════════════════════════
