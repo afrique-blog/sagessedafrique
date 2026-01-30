@@ -47,6 +47,7 @@ export default function DossiersPaysChapitre() {
   const [chatMessages, setChatMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
 
   // TTS state
   const [ttsLoading, setTtsLoading] = useState(false);
@@ -91,21 +92,49 @@ export default function DossiersPaysChapitre() {
 
   // Send chat message
   const sendChatMessage = async () => {
-    if (!chatInput.trim() || chatLoading || !data) return;
+    console.log('sendChatMessage called', { input: chatInput, loading: chatLoading, hasData: !!data });
+    
+    if (!chatInput.trim()) {
+      setChatError('Veuillez entrer un message');
+      return;
+    }
+    if (chatLoading) {
+      setChatError('Veuillez patienter...');
+      return;
+    }
+    if (!data) {
+      setChatError('Données non chargées');
+      return;
+    }
 
+    setChatError(null);
     const userMessage = chatInput.trim();
+    const currentHistory = [...chatMessages];
+    
     setChatInput('');
     setChatMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setChatLoading(true);
 
     try {
-      const response = await api.sendPaysAIMessage(userMessage, data.dossier.slug, chatMessages);
-      setChatMessages(response.history);
-    } catch (error) {
+      console.log('Calling API:', { userMessage, paysSlug: data.dossier.slug, historyLength: currentHistory.length });
+      const response = await api.sendPaysAIMessage(userMessage, data.dossier.slug, currentHistory);
+      console.log('API response:', response);
+      
+      if (response && response.history) {
+        setChatMessages(response.history);
+      } else if (response && response.reply) {
+        setChatMessages([...currentHistory, { role: 'user', content: userMessage }, { role: 'assistant', content: response.reply }]);
+      } else {
+        console.error('Invalid response:', response);
+        throw new Error('Format de réponse invalide');
+      }
+    } catch (error: any) {
       console.error('Chat error:', error);
+      const errorMsg = error?.message || 'Erreur inconnue';
+      setChatError(`Erreur: ${errorMsg}`);
       setChatMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: lang === 'fr' ? 'Désolé, une erreur est survenue.' : 'Sorry, an error occurred.' },
+        { role: 'assistant', content: `Désolé, une erreur est survenue: ${errorMsg}` },
       ]);
     } finally {
       setChatLoading(false);
@@ -425,23 +454,47 @@ export default function DossiersPaysChapitre() {
 
             {/* Input */}
             <div className="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
+              {chatError && (
+                <div className="mb-2 p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-lg">
+                  {chatError}
+                </div>
+              )}
               <div className="relative">
                 <input
                   type="text"
                   value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
+                  onChange={(e) => {
+                    setChatInput(e.target.value);
+                    if (chatError) setChatError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendChatMessage();
+                    }
+                  }}
                   placeholder={lang === 'fr' ? 'Posez votre question...' : 'Ask a question...'}
                   className="w-full pl-4 pr-12 py-3 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500"
                 />
                 <button
-                  onClick={sendChatMessage}
-                  disabled={chatLoading || !chatInput.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-slate-900 text-white rounded-full hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                  type="button"
+                  onClick={() => {
+                    console.log('Send button clicked');
+                    sendChatMessage();
+                  }}
+                  disabled={chatLoading}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-amber-600 text-white rounded-full hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
+                  {chatLoading ? (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                  )}
                 </button>
               </div>
               <p className="text-[10px] text-slate-400 text-center mt-2">
