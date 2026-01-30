@@ -217,7 +217,12 @@ Sois factuel et nuancé.`;
         return reply.status(500).send({ error: 'API Key non configurée' });
       }
 
-      console.log('Calling Gemini API with model gemini-1.5-flash...');
+      console.log('Calling Gemini API with model gemini-pro...');
+      
+      // Combine system prompt with the first user message for compatibility
+      const fullMessage = history.length === 0 
+        ? `${systemPrompt}\n\nQuestion de l'utilisateur: ${message}`
+        : message;
       
       const requestBody = {
         contents: [
@@ -225,13 +230,12 @@ Sois factuel et nuancé.`;
             role: h.role === 'user' ? 'user' : 'model',
             parts: [{ text: h.content }]
           })),
-          { role: 'user', parts: [{ text: message }] }
-        ],
-        systemInstruction: { parts: [{ text: systemPrompt }] }
+          { role: 'user', parts: [{ text: fullMessage }] }
+        ]
       };
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
