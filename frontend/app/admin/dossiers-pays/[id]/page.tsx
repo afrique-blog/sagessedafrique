@@ -18,9 +18,11 @@ interface Chapitre {
   id?: number;
   slug: string;
   ordre: number;
-  title: string;
+  titleFr: string;
+  titleEn: string;
   readingMinutes: number;
-  contentHtml: string;
+  contentHtmlFr: string;
+  contentHtmlEn: string;
   isNew?: boolean;
   isEditing?: boolean;
 }
@@ -54,11 +56,17 @@ function EditDossierPaysForm() {
     subtitleFr: '',
     metaTitleFr: '',
     metaDescriptionFr: '',
+    titleEn: '',
+    subtitleEn: '',
+    metaTitleEn: '',
+    metaDescriptionEn: '',
   });
+  const [contentLang, setContentLang] = useState<'fr' | 'en'>('fr');
 
   // Chapitres
   const [chapitres, setChapitres] = useState<Chapitre[]>([]);
   const [editingChapitre, setEditingChapitre] = useState<Chapitre | null>(null);
+  const [chapitreLang, setChapitreLang] = useState<'fr' | 'en'>('fr');
 
   useEffect(() => {
     fetchDossier();
@@ -76,8 +84,11 @@ function EditDossierPaysForm() {
       }
       setDossier(found);
 
-      // Fetch full dossier details
-      const detail = await api.getPaysDossier(found.slug, 'fr');
+      // Fetch full dossier details in both languages
+      const [detailFr, detailEn] = await Promise.all([
+        api.getPaysDossier(found.slug, 'fr'),
+        api.getPaysDossier(found.slug, 'en').catch(() => null),
+      ]);
 
       setFormData({
         slug: found.slug,
@@ -85,23 +96,32 @@ function EditDossierPaysForm() {
         heroImage: found.heroImage || '',
         featured: found.featured,
         publishedAt: found.publishedAt ? new Date(found.publishedAt).toISOString().slice(0, 16) : '',
-        titleFr: detail.title,
-        subtitleFr: detail.subtitle,
-        metaTitleFr: detail.metaTitle,
-        metaDescriptionFr: detail.metaDescription,
+        titleFr: detailFr.title || '',
+        subtitleFr: detailFr.subtitle || '',
+        metaTitleFr: detailFr.metaTitle || '',
+        metaDescriptionFr: detailFr.metaDescription || '',
+        titleEn: detailEn?.title || '',
+        subtitleEn: detailEn?.subtitle || '',
+        metaTitleEn: detailEn?.metaTitle || '',
+        metaDescriptionEn: detailEn?.metaDescription || '',
       });
 
-      // Fetch chapitres with content
+      // Fetch chapitres with content in both languages
       const chapitresWithContent = await Promise.all(
-        detail.chapitres.map(async (c) => {
-          const chapDetail = await api.getPaysChapitre(found.slug, c.slug, 'fr');
+        detailFr.chapitres.map(async (c) => {
+          const [chapDetailFr, chapDetailEn] = await Promise.all([
+            api.getPaysChapitre(found.slug, c.slug, 'fr'),
+            api.getPaysChapitre(found.slug, c.slug, 'en').catch(() => null),
+          ]);
           return {
             id: c.id,
             slug: c.slug,
             ordre: c.ordre,
-            title: c.title,
+            titleFr: chapDetailFr.chapitre.title || '',
+            titleEn: chapDetailEn?.chapitre?.title || '',
             readingMinutes: c.readingMinutes,
-            contentHtml: chapDetail.chapitre.contentHtml,
+            contentHtmlFr: chapDetailFr.chapitre.contentHtml || '',
+            contentHtmlEn: chapDetailEn?.chapitre?.contentHtml || '',
           };
         })
       );
@@ -132,6 +152,10 @@ function EditDossierPaysForm() {
         subtitleFr: formData.subtitleFr,
         metaTitleFr: formData.metaTitleFr,
         metaDescriptionFr: formData.metaDescriptionFr,
+        titleEn: formData.titleEn || undefined,
+        subtitleEn: formData.subtitleEn || undefined,
+        metaTitleEn: formData.metaTitleEn || undefined,
+        metaDescriptionEn: formData.metaDescriptionEn || undefined,
       });
 
       setSuccess('Dossier sauvegardé !');
@@ -180,9 +204,11 @@ function EditDossierPaysForm() {
     setEditingChapitre({
       slug: '',
       ordre: newOrdre,
-      title: '',
+      titleFr: '',
+      titleEn: '',
       readingMinutes: 5,
-      contentHtml: '',
+      contentHtmlFr: '',
+      contentHtmlEn: '',
       isNew: true,
     });
   }
@@ -199,16 +225,20 @@ function EditDossierPaysForm() {
           slug: editingChapitre.slug,
           ordre: editingChapitre.ordre,
           readingMinutes: editingChapitre.readingMinutes,
-          titleFr: editingChapitre.title,
-          contentHtmlFr: editingChapitre.contentHtml,
+          titleFr: editingChapitre.titleFr,
+          contentHtmlFr: editingChapitre.contentHtmlFr,
+          titleEn: editingChapitre.titleEn || undefined,
+          contentHtmlEn: editingChapitre.contentHtmlEn || undefined,
         });
       } else if (editingChapitre.id) {
         await api.updatePaysChapitre(editingChapitre.id, {
           slug: editingChapitre.slug,
           ordre: editingChapitre.ordre,
           readingMinutes: editingChapitre.readingMinutes,
-          titleFr: editingChapitre.title,
-          contentHtmlFr: editingChapitre.contentHtml,
+          titleFr: editingChapitre.titleFr,
+          contentHtmlFr: editingChapitre.contentHtmlFr,
+          titleEn: editingChapitre.titleEn || undefined,
+          contentHtmlEn: editingChapitre.contentHtmlEn || undefined,
         });
       }
 
@@ -405,45 +435,119 @@ function EditDossierPaysForm() {
             </div>
 
             <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow space-y-4">
-              <h3 className="font-semibold mb-4">Contenu</h3>
-              <div>
-                <label className="block text-sm font-medium mb-2">Titre</label>
-                <input
-                  type="text"
-                  value={formData.titleFr}
-                  onChange={(e) => setFormData({ ...formData, titleFr: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Sous-titre</label>
-                <textarea
-                  value={formData.subtitleFr}
-                  onChange={(e) => setFormData({ ...formData, subtitleFr: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg"
-                  rows={2}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Meta Title</label>
-                  <input
-                    type="text"
-                    value={formData.metaTitleFr}
-                    onChange={(e) => setFormData({ ...formData, metaTitleFr: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Meta Description</label>
-                  <input
-                    type="text"
-                    value={formData.metaDescriptionFr}
-                    onChange={(e) => setFormData({ ...formData, metaDescriptionFr: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-sm"
-                  />
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">Contenu</h3>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setContentLang('fr')}
+                    className={`px-3 py-1 text-sm rounded-lg font-medium transition-colors ${
+                      contentLang === 'fr'
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    🇫🇷 Français
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setContentLang('en')}
+                    className={`px-3 py-1 text-sm rounded-lg font-medium transition-colors ${
+                      contentLang === 'en'
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    🇬🇧 English
+                  </button>
                 </div>
               </div>
+
+              {contentLang === 'fr' ? (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Titre (FR)</label>
+                    <input
+                      type="text"
+                      value={formData.titleFr}
+                      onChange={(e) => setFormData({ ...formData, titleFr: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg"
+                      placeholder="Éthiopie : Le Berceau des Origines"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Sous-titre (FR)</label>
+                    <textarea
+                      value={formData.subtitleFr}
+                      onChange={(e) => setFormData({ ...formData, subtitleFr: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Meta Title (FR)</label>
+                      <input
+                        type="text"
+                        value={formData.metaTitleFr}
+                        onChange={(e) => setFormData({ ...formData, metaTitleFr: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Meta Description (FR)</label>
+                      <input
+                        type="text"
+                        value={formData.metaDescriptionFr}
+                        onChange={(e) => setFormData({ ...formData, metaDescriptionFr: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg text-sm"
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Title (EN)</label>
+                    <input
+                      type="text"
+                      value={formData.titleEn}
+                      onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg"
+                      placeholder="Ethiopia: The Cradle of Origins"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Subtitle (EN)</label>
+                    <textarea
+                      value={formData.subtitleEn}
+                      onChange={(e) => setFormData({ ...formData, subtitleEn: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Meta Title (EN)</label>
+                      <input
+                        type="text"
+                        value={formData.metaTitleEn}
+                        onChange={(e) => setFormData({ ...formData, metaTitleEn: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Meta Description (EN)</label>
+                      <input
+                        type="text"
+                        value={formData.metaDescriptionEn}
+                        onChange={(e) => setFormData({ ...formData, metaDescriptionEn: e.target.value })}
+                        className="w-full px-3 py-2 border rounded-lg text-sm"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="flex justify-end">
@@ -469,7 +573,7 @@ function EditDossierPaysForm() {
                     <h3 className="text-lg font-bold">
                       {editingChapitre.isNew ? 'Nouveau Chapitre' : 'Modifier le Chapitre'}
                     </h3>
-                    <button onClick={() => setEditingChapitre(null)} className="text-slate-400 hover:text-slate-600">
+                    <button onClick={() => { setEditingChapitre(null); setChapitreLang('fr'); }} className="text-slate-400 hover:text-slate-600">
                       ✕
                     </button>
                   </div>
@@ -512,29 +616,78 @@ function EditDossierPaysForm() {
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Titre</label>
-                      <input
-                        type="text"
-                        value={editingChapitre.title}
-                        onChange={(e) => setEditingChapitre({ ...editingChapitre, title: e.target.value })}
-                        className="w-full px-3 py-2 border rounded-lg"
-                        placeholder="I. Géographie : Le Toit de l'Afrique"
-                      />
+                    {/* Language Toggle for Chapter */}
+                    <div className="flex gap-2 pt-2 border-t">
+                      <button
+                        type="button"
+                        onClick={() => setChapitreLang('fr')}
+                        className={`px-3 py-1 text-sm rounded-lg font-medium transition-colors ${
+                          chapitreLang === 'fr'
+                            ? 'bg-amber-600 text-white'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        🇫🇷 Français
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setChapitreLang('en')}
+                        className={`px-3 py-1 text-sm rounded-lg font-medium transition-colors ${
+                          chapitreLang === 'en'
+                            ? 'bg-amber-600 text-white'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        🇬🇧 English
+                      </button>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Contenu HTML</label>
-                      <RichTextEditor
-                        value={editingChapitre.contentHtml}
-                        onChange={(value) => setEditingChapitre({ ...editingChapitre, contentHtml: value })}
-                      />
-                    </div>
+                    {chapitreLang === 'fr' ? (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Titre (FR)</label>
+                          <input
+                            type="text"
+                            value={editingChapitre.titleFr}
+                            onChange={(e) => setEditingChapitre({ ...editingChapitre, titleFr: e.target.value })}
+                            className="w-full px-3 py-2 border rounded-lg"
+                            placeholder="I. Géographie : Le Toit de l'Afrique"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Contenu HTML (FR)</label>
+                          <RichTextEditor
+                            value={editingChapitre.contentHtmlFr}
+                            onChange={(value) => setEditingChapitre({ ...editingChapitre, contentHtmlFr: value })}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Title (EN)</label>
+                          <input
+                            type="text"
+                            value={editingChapitre.titleEn}
+                            onChange={(e) => setEditingChapitre({ ...editingChapitre, titleEn: e.target.value })}
+                            className="w-full px-3 py-2 border rounded-lg"
+                            placeholder="I. Geography: The Roof of Africa"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">HTML Content (EN)</label>
+                          <RichTextEditor
+                            value={editingChapitre.contentHtmlEn}
+                            onChange={(value) => setEditingChapitre({ ...editingChapitre, contentHtmlEn: value })}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <div className="sticky bottom-0 bg-slate-50 dark:bg-slate-700 border-t p-4 flex justify-end gap-3">
                     <button
-                      onClick={() => setEditingChapitre(null)}
+                      onClick={() => { setEditingChapitre(null); setChapitreLang('fr'); }}
                       className="px-4 py-2 border rounded-lg"
                     >
                       Annuler
@@ -580,16 +733,17 @@ function EditDossierPaysForm() {
                         </div>
                         <div>
                           <h4 className="font-semibold text-slate-900 dark:text-white">
-                            {chapitre.title || '(Sans titre)'}
+                            {chapitre.titleFr || '(Sans titre)'}
                           </h4>
                           <p className="text-xs text-slate-500">
                             /{formData.slug}/{chapitre.slug} • {chapitre.readingMinutes} min
+                            {chapitre.titleEn && <span className="ml-2 text-green-600">🇬🇧</span>}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => setEditingChapitre({ ...chapitre, isNew: false })}
+                          onClick={() => { setEditingChapitre({ ...chapitre, isNew: false }); setChapitreLang('fr'); }}
                           className="p-2 text-slate-400 hover:text-amber-600"
                           title="Modifier"
                         >
