@@ -18,6 +18,7 @@ interface Chapitre {
   id?: number;
   slug: string;
   ordre: number;
+  heroImage: string;
   titleFr: string;
   titleEn: string;
   readingMinutes: number;
@@ -117,6 +118,7 @@ function EditDossierPaysForm() {
             id: c.id,
             slug: c.slug,
             ordre: c.ordre,
+            heroImage: chapDetailFr.chapitre.heroImage || '',
             titleFr: chapDetailFr.chapitre.title || '',
             titleEn: chapDetailEn?.chapitre?.title || '',
             readingMinutes: c.readingMinutes,
@@ -204,6 +206,7 @@ function EditDossierPaysForm() {
     setEditingChapitre({
       slug: '',
       ordre: newOrdre,
+      heroImage: '',
       titleFr: '',
       titleEn: '',
       readingMinutes: 5,
@@ -224,6 +227,7 @@ function EditDossierPaysForm() {
         await api.createPaysChapitre(parseInt(id as string), {
           slug: editingChapitre.slug,
           ordre: editingChapitre.ordre,
+          heroImage: editingChapitre.heroImage || undefined,
           readingMinutes: editingChapitre.readingMinutes,
           titleFr: editingChapitre.titleFr,
           contentHtmlFr: editingChapitre.contentHtmlFr,
@@ -234,6 +238,7 @@ function EditDossierPaysForm() {
         await api.updatePaysChapitre(editingChapitre.id, {
           slug: editingChapitre.slug,
           ordre: editingChapitre.ordre,
+          heroImage: editingChapitre.heroImage || undefined,
           readingMinutes: editingChapitre.readingMinutes,
           titleFr: editingChapitre.titleFr,
           contentHtmlFr: editingChapitre.contentHtmlFr,
@@ -614,6 +619,19 @@ function EditDossierPaysForm() {
                           min={1}
                         />
                       </div>
+                    </div>
+
+                    {/* Hero Image for Chapter */}
+                    <div className="pt-2 border-t">
+                      <label className="block text-sm font-medium mb-2">Image Hero du chapitre</label>
+                      <ImageUpload
+                        value={editingChapitre.heroImage}
+                        onChange={(url) => setEditingChapitre({ ...editingChapitre, heroImage: url })}
+                        folder="pays"
+                      />
+                      <p className="text-xs text-slate-500 mt-1">
+                        Optionnel : image affichée en haut du chapitre
+                      </p>
                     </div>
 
                     {/* Language Toggle for Chapter */}

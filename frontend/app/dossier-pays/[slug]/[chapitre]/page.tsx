@@ -240,10 +240,17 @@ export default function DossiersPaysChapitre() {
       <Header />
 
       {/* Hero Section */}
-      <header className="bg-gradient-to-br from-slate-900 via-slate-800 to-amber-900 text-white py-16">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <header 
+        className="relative text-white py-16 bg-gradient-to-br from-slate-900 via-slate-800 to-amber-900"
+        style={data.chapitre.heroImage ? {
+          backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.9)), url(${data.chapitre.heroImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        } : undefined}
+      >
+        <div className="container mx-auto px-4 max-w-4xl relative z-10">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-slate-400 mb-6 flex-wrap">
+          <div className="flex items-center gap-2 text-sm text-slate-300 mb-6 flex-wrap">
             <Link href="/dossiers-pays" className="hover:text-amber-400 transition-colors">
               {lang === 'fr' ? 'Dossiers Pays' : 'Country Reports'}
             </Link>
@@ -257,12 +264,12 @@ export default function DossiersPaysChapitre() {
           </div>
 
           {/* Chapter Title */}
-          <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4 leading-tight">
+          <h1 className="text-3xl md:text-5xl font-serif font-bold mb-4 leading-tight drop-shadow-lg">
             {data.chapitre.title}
           </h1>
 
           {/* Meta */}
-          <div className="flex items-center gap-6 text-slate-300 text-sm">
+          <div className="flex items-center gap-6 text-slate-200 text-sm">
             <span className="flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
