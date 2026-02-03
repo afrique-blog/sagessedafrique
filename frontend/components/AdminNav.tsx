@@ -11,6 +11,7 @@ const navItems = [
   { href: '/admin/categories', label: 'Catégories', icon: '📁' },
   { href: '/admin/tags', label: 'Tags', icon: '🏷️' },
   { href: '/admin/dossiers', label: 'Dossiers', icon: '📚' },
+  { href: '/admin/dossiers-pays', label: 'Dossiers Pays', icon: '🗺️' },
   { href: '/admin/categories-personnalites', label: 'Cat. Personnalités', icon: '👥' },
   { href: '/admin/personnalites', label: 'Personnalités', icon: '👤' },
 ];
